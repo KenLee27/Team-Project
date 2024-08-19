@@ -25,8 +25,6 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRigidbody;
     public Animator animator;
 
-    //GitHub 동작 테스트
-
     void Start()
     {
         cameraTransform = Camera.main.transform;
