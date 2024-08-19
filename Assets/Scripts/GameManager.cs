@@ -5,19 +5,20 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
+    // ì£¼ì„
+    
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);  // °ÔÀÓ ¿ÀºêÁ§Æ®°¡ ¾À ·Îµå ½Ã ÆÄ±«µÇÁö ¾Êµµ·Ï ¼³Á¤
+            DontDestroyOnLoad(gameObject);  // ê²Œì„ ì˜¤ë¸Œì íŠ¸ê°€ ì”¬ ë¡œë“œ ì‹œ íŒŒê´´ë˜ì§€ ì•Šë„ë¡ ì„¤ì •
         }
         else
         {
-            Destroy(gameObject);  // ÀÌ¹Ì ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏ¸é »õ·Î »ı¼ºµÈ °´Ã¼¸¦ ÆÄ±«
+            Destroy(gameObject);  // ì´ë¯¸ ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ë©´ ìƒˆë¡œ ìƒì„±ëœ ê°ì²´ë¥¼ íŒŒê´´
         }
     }
 
-    // ¿©±â¿¡ °ÔÀÓ °ü¸® ·ÎÁ÷À» Ãß°¡ÇÏ¼¼¿ä.
+    // ì—¬ê¸°ì— ê²Œì„ ê´€ë¦¬ ë¡œì§ì„ ì¶”ê°€í•˜ì„¸ìš”.
 }
