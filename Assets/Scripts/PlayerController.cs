@@ -5,16 +5,16 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private float smoothRotationTime = 0.3f;    //ÇÃ·¹ÀÌ¾î È¸Àü¼Óµµ ÃÖÀûÈ­ °è¼ö
-    private float smoothMoveTime = 0.15f;       //ÇÃ·¹ÀÌ¾î ÀÌµ¿¼Óµµ ÃÖÀûÈ­ °è¼ö
-    private float moveSpeed = 5;                //ÇÃ·¹ÀÌ¾î ÀÌµ¿¼Óµµ
+    private float smoothRotationTime = 0.3f;    //í”Œë ˆì´ì–´ íšŒì „ì†ë„ ìµœì í™” ê³„ìˆ˜
+    private float smoothMoveTime = 0.15f;       //í”Œë ˆì´ì–´ ì´ë™ì†ë„ ìµœì í™” ê³„ìˆ˜
+    private float moveSpeed = 5;                //í”Œë ˆì´ì–´ ì´ë™ì†ë„
 
-    private float rotationVelocity;     //ÇÃ·¹ÀÌ¾î È¸Àü¼Óµµ
-    private float speedVelocity;        //ÇÃ·¹ÀÌ¾î ÀÌµ¿¼Óµµ
-    private float currentSpeed;         //ÇÃ·¹ÀÌ¾î ÇöÀç¼Óµµ
-    private float targetSpeed;          //ÇÃ·¹ÀÌ¾î ¸ñÇ¥¼Óµµ
+    private float rotationVelocity;     //í”Œë ˆì´ì–´ íšŒì „ì†ë„
+    private float speedVelocity;        //í”Œë ˆì´ì–´ ì´ë™ì†ë„
+    private float currentSpeed;         //í”Œë ˆì´ì–´ í˜„ì¬ì†ë„
+    private float targetSpeed;          //í”Œë ˆì´ì–´ ëª©í‘œì†ë„
 
-    private float jumpForce = 5.0f;     //ÇÃ·¹ÀÌ¾î Á¡ÇÁ·Â
+    private float jumpForce = 5.0f;     //í”Œë ˆì´ì–´ ì í”„ë ¥
     private bool isGround = true;
 
     public bool isDead = false;
@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour
     private Transform cameraTransform;
     private Rigidbody playerRigidbody;
     public Animator animator;
+
+    //GitHub ë™ì‘ í…ŒìŠ¤íŠ¸
 
     void Start()
     {
@@ -47,7 +49,7 @@ public class PlayerController : MonoBehaviour
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector2 inputDir = input.normalized;
 
-        if (inputDir != Vector2.zero)      //ÇÃ·¹ÀÌ¾î È¸Àü ÈÄ ¹æÇâ°íÁ¤
+        if (inputDir != Vector2.zero)      //í”Œë ˆì´ì–´ íšŒì „ í›„ ë°©í–¥ê³ ì •
         {
             isMoving = true;
 
