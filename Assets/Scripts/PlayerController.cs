@@ -30,8 +30,6 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         playerRigidbody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-
-        animator.SetBool("isDead", isDead);
     }
     void Update()
     {
@@ -90,6 +88,8 @@ public class PlayerController : MonoBehaviour
         else if (collision.gameObject.CompareTag("DeathZone"))
         {
             isDead = true;
+            isJumping = false;
+            animator.SetBool("isDead", isDead);
         }
     }
 }
