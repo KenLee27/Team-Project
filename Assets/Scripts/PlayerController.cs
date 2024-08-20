@@ -42,6 +42,11 @@ public class PlayerController : MonoBehaviour
         Jump();
     }
 
+    private void Slash_Attack()
+    {
+
+    }
+
     private void Move()
     {
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
