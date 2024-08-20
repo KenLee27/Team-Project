@@ -44,7 +44,10 @@ public class PlayerController : MonoBehaviour
 
     private void Slash_Attack()
     {
-
+        if (Input.GetMouseButtonDown(0))
+        {
+            //공격
+        }
     }
 
     private void Move()
