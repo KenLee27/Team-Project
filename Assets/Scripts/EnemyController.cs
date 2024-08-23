@@ -11,9 +11,8 @@ public class EnemyController : MonoBehaviour
     public Animator anim; //애니메이터
 
     public Transform player;
-    public LayerMask playerLayer; //하이
+    public LayerMask playerLayer;
 
-    private bool firstlooking = false; //캐릭터 최초 목격
 
     private float detectingRange = 20f;         //적 탐지 거리
     private float sensingRange = 13.5f;         //적 인지 거리
@@ -93,7 +92,6 @@ public class EnemyController : MonoBehaviour
 
     void ChasePlayer(Vector3 direction)     //추격 기능
     {
-
         anim.SetTrigger("run"); //애니메이션 트리커 달리기
         Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
         if (flatDirection != Vector3.zero)
