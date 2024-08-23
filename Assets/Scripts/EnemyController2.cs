@@ -39,7 +39,8 @@ public class EnemyController2 : MonoBehaviour
         CHASE,
         ATTACK,
         BACK,
-        LOOK
+        LOOK,
+        ROAR
     }
 
     State state;
@@ -88,14 +89,22 @@ public class EnemyController2 : MonoBehaviour
     {
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
+        //애니매이션 전환 대기
         if (curAnimStateInfo.IsName("Creep|Crouch_Action") == false)
         {
-            anim.Play("Creep|Crouch_Action", 0, 0);
+            anim.CrossFade("Creep|Crouch_Action",0.1f);
             // SetDestination 을 위해 한 frame을 넘기기위한 코드
-            yield return null;
+            yield return new WaitForSeconds(0.1f);
         }
 
-        ChasePlayer(directionToPlayer);
+        //애니매이션 전환 체크
+        curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        while (!curAnimStateInfo.IsName("Creep|Crouch_Action"))
+        {
+            yield return null;
+            curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        }
+
 
         // 플레이어와의 남은 거리가 공격 지점보다 작거나 같으면
         if (distanceToPlayer <= attackRange)
@@ -122,7 +131,7 @@ public class EnemyController2 : MonoBehaviour
     {
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
-        anim.Play("Creep|Punch_Idle", 0, 0);
+        anim.CrossFade("Creep|Punch_Idle", 0.1f, 0, 0);
 
         // 공격 가능 범위보다 플레이어와의 거리가 멀어지면
         if (distanceToPlayer > attackRange)
@@ -142,13 +151,20 @@ public class EnemyController2 : MonoBehaviour
 
         if (curAnimStateInfo.IsName("Creep|Walk1_Action") == false)
         {
-            anim.Play("Creep|Walk1_Action", 0, 0);
+            anim.CrossFade("Creep|Walk1_Action", 0.1f);
             // SetDestination 을 위해 한 frame을 넘기기위한 코드
-            yield return null;
+            yield return new WaitForSeconds(0.1f);
         }
+        //애니매이션 전환 대기
 
+        curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        while (!curAnimStateInfo.IsName("Creep|Walk1_Action"))
+        {
+            yield return null;
+            curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        }
+        //애니매이션 전환 체크
 
-        ReturnToBase(initialPoint);
 
         yield return null;
     }
@@ -156,15 +172,29 @@ public class EnemyController2 : MonoBehaviour
     IEnumerator LOOK()
     {
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        //최초 목격이 활성화 되어 있으면
+        //최초 목격이 활성화 되어 있으면 포효
+
         if (firstlooking)
         {
-            anim.Play("Creep|Roar_Action", 0, 0);//포효 동작을 실행한다.
-            firstlooking = false;
+            ChangeState(State.ROAR);
         }
 
-        //경계중 플레이어 응시
-        LookPlayer(directionToPlayer);
+
+        if (curAnimStateInfo.IsName("Creep|Idle1_Action") == false)
+        {
+            anim.CrossFade("Creep|Idle1_Action", 0.1f);
+            // SetDestination 을 위해 한 frame을 넘기기위한 코드
+            yield return new WaitForSeconds(0.1f);
+        }
+        //애니매이션 전환 대기
+
+        curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        while (!curAnimStateInfo.IsName("Creep|Idle1_Action"))
+        {
+            yield return null;
+            curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        }
+
 
         // 거리가 가까워지면
         if (sensingRange > distanceToPlayer)
@@ -176,11 +206,53 @@ public class EnemyController2 : MonoBehaviour
         // 거리가 멀어지면
         if (detectingRange < distanceToPlayer)
         {
-            // StateMachine을 idle으로 변경
-            ChangeState(State.IDLE);
+            // StateMachine을 BACK으로 변경
+            ChangeState(State.BACK);
         }
         yield return null;
     }
+
+    IEnumerator ROAR()
+    {
+
+        var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+
+        if (!curAnimStateInfo.IsName("Creep|Roar_Action"))
+        {
+            anim.Play("Creep|Roar_Action", 0, 0);
+            firstlooking = false;
+            Debug.Log("어흥");
+
+            // 애니메이션 상태가 변경될 때까지 기다리기
+            yield return null;
+
+            // 상태를 다시 가져옴
+            curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            while (!curAnimStateInfo.IsName("Creep|Roar_Action"))
+            {
+                yield return null;
+                curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            }
+        }
+
+        // 애니메이션이 Roar에서 Idle로 변경될 때까지 대기
+        while (curAnimStateInfo.IsName("Creep|Roar_Action"))
+        {
+            yield return null;
+            curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        }
+
+        if (curAnimStateInfo.IsName("Creep|Idle1_Action"))
+        {
+            ChangeState(State.LOOK);
+            Debug.Log("포효끝");
+        }
+
+        yield return null;
+    }
+
+
+
 
 
 
@@ -193,31 +265,46 @@ public class EnemyController2 : MonoBehaviour
         directionToBase = new Vector3(initialPoint.x - transform.position.x,
             0f, initialPoint.z - transform.position.z);
         distanceToBase = directionToBase.magnitude;
-/*
-        if (distanceToPlayer <= attackRange)        //적 공격 사거리 내에 들어오면 공격             
+
+        if(state == State.ROAR|| state == State.LOOK|| state == State.ATTACK)
         {
-            AttackPlayer(directionToPlayer);
+            LookPlayer(directionToPlayer);
         }
-        else if (Physics.Raycast(transform.position, directionToPlayer.normalized, out hit, sensingRange, playerLayer) &&
-            distanceToPlayer > attackRange && distanceToPlayer < detectingRange && distanceToPlayer > attackRange)  //적 인지거리 내에 들어오면 추격                                    
+
+        else if (state == State.CHASE)
         {
-            if (hit.collider.CompareTag("Player"))
-            {
-                ChasePlayer(directionToPlayer);
-            }
+            ChasePlayer(directionToPlayer);
         }
-        else if (Physics.Raycast(transform.position, directionToPlayer.normalized, out hit, detectingRange, playerLayer))        //적 탐지거리 내에 들어오면 경계
-        {
-            if (hit.collider.CompareTag("Player"))
-            {
-                LookPlayer(directionToPlayer);
-            }
-        }
-        else
+
+        else if(state == State.BACK)
         {
             ReturnToBase(initialPoint);
         }
-*/
+        /*
+                if (distanceToPlayer <= attackRange)        //적 공격 사거리 내에 들어오면 공격             
+                {
+                    AttackPlayer(directionToPlayer);
+                }
+                else if (Physics.Raycast(transform.position, directionToPlayer.normalized, out hit, sensingRange, playerLayer) &&
+                    distanceToPlayer > attackRange && distanceToPlayer < detectingRange && distanceToPlayer > attackRange)  //적 인지거리 내에 들어오면 추격                                    
+                {
+                    if (hit.collider.CompareTag("Player"))
+                    {
+                        ChasePlayer(directionToPlayer);
+                    }
+                }
+                else if (Physics.Raycast(transform.position, directionToPlayer.normalized, out hit, detectingRange, playerLayer))        //적 탐지거리 내에 들어오면 경계
+                {
+                    if (hit.collider.CompareTag("Player"))
+                    {
+                        LookPlayer(directionToPlayer);
+                    }
+                }
+                else
+                {
+                    ReturnToBase(initialPoint);
+                }
+        */
     }
 
 
