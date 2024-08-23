@@ -258,7 +258,7 @@ public class EnemyController2 : MonoBehaviour
         }
     }
 
-    void ReturnToBase(Vector3 basePosition)
+    void ReturnToBase(Vector3 basePosition)  //±Õ»Ø ±‚¥…
     {
 
         Vector3 directionToBase = basePosition - transform.position;
