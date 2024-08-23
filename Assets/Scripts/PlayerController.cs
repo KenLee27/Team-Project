@@ -24,10 +24,13 @@ public class PlayerController : MonoBehaviour
     private Transform cameraTransform;
     private Rigidbody playerRigidbody;
     public Animator animator;
-    public BetterCameraController cameraController;
+    public SuperCameraController cameraController;
 
     void Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked; // 플레이 모드에서 커서를 중앙에 고정
+
         cameraTransform = Camera.main.transform;
         playerRigidbody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
