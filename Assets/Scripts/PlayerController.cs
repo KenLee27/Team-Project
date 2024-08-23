@@ -56,6 +56,59 @@ public class PlayerController : MonoBehaviour
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector2 inputDir = input.normalized;
 
+        if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
+        {
+            // Lock On 상태일 때, 플레이어가 적을 향하도록 방향 설정
+            Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
+
+            float targetRotation = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
+            float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
+            transform.eulerAngles = Vector3.up * newRotation;
+
+            // 플레이어가 양옆, 앞뒤로도 움직일 수 있도록 함
+            Vector3 moveDir = transform.forward * inputDir.y + transform.right * inputDir.x;
+            targetSpeed = moveSpeed * moveDir.magnitude;
+
+            if (inputDir != Vector2.zero)
+            {
+                isMoving = true;
+            }
+            else
+            {
+                isMoving = false;
+            }
+
+            currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
+            transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
+        }
+        else
+        {
+            // 기본적인 자유 이동
+            if (inputDir != Vector2.zero)
+            {
+                isMoving = true;
+                float rotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
+                transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, rotation, ref rotationVelocity, smoothRotationTime);
+            }
+            else
+            {
+                isMoving = false;
+            }
+
+            targetSpeed = moveSpeed * inputDir.magnitude;
+            currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
+            transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
+        }
+
+        animator.SetBool("isMoving", isMoving);
+    }
+
+    /*
+    private void Move()
+    {
+        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        Vector2 inputDir = input.normalized;
+
         if (inputDir != Vector2.zero)      //플레이어 회전 후 방향고정
         {
             isMoving = true;
@@ -74,6 +127,7 @@ public class PlayerController : MonoBehaviour
         currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
         transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
     }
+    */
 
     private void Jump()
     {
