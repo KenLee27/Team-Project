@@ -11,7 +11,7 @@ public class EnemyController : MonoBehaviour
     public Animator anim; //애니메이터
 
     public Transform player;
-    public LayerMask playerLayer;
+    public LayerMask playerLayer; //하이
 
     private bool firstlooking = false; //캐릭터 최초 목격
 
