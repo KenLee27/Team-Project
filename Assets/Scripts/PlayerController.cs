@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     private Transform cameraTransform;
     private Rigidbody playerRigidbody;
     public Animator animator;
+    public BetterCameraController cameraController;
 
     void Start()
     {
