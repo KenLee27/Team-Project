@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-public class BetterCameraController : MonoBehaviour
+public class SuperCameraController : MonoBehaviour
 {
     public Transform player;
     private float rotationSensitive = 3f;
@@ -15,7 +17,7 @@ public class BetterCameraController : MonoBehaviour
     private float Yaxis = 0f;
 
     private Transform lockedTarget;
-
+    private List<Transform> enemies = new List<Transform>(); // 적들을 담을 리스트
     private bool isLockedOn = false;
 
     public bool IsLockedOn => isLockedOn;
@@ -28,24 +30,20 @@ public class BetterCameraController : MonoBehaviour
             isLockedOn = !isLockedOn; // Lock On 상태 토글
             if (isLockedOn)
             {
-                float closestDistance = Mathf.Infinity;
-                Collider[] hitColliders = Physics.OverlapSphere(player.position, 30f);
-                foreach (var hitCollider in hitColliders)
-                {
-                    if (hitCollider.CompareTag("Enemy"))
-                    {
-                        float currentDistance = (player.position - hitCollider.transform.position).sqrMagnitude;
-                        if (currentDistance < closestDistance)
-                        {
-                            closestDistance = currentDistance;
-                            lockedTarget = hitCollider.transform;
-                        }
-                    }
-                }
+                FindClosestEnemy(); // 가장 가까운 적 찾기
             }
             else
             {
                 lockedTarget = null; // Lock On 해제
+            }
+        }
+
+        if (isLockedOn && lockedTarget != null)
+        {
+            float mouseMovement = Input.GetAxis("Mouse X") * 0.5f; // 마우스 X 이동 감도 조절
+            if (Mathf.Abs(mouseMovement) > 0.01f) // 마우스가 일정 이상 움직일 경우
+            {
+                ChangeLockedTarget(mouseMovement);
             }
         }
 
@@ -65,7 +63,7 @@ public class BetterCameraController : MonoBehaviour
     {
         if (lockedTarget != null && isLockedOn)
         {
-            // Lock On 상태에서 카메라 각도 조정
+            // Lock On 상태에서의 카메라 각도 조정
             Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive;
             Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);
 
@@ -86,6 +84,52 @@ public class BetterCameraController : MonoBehaviour
             Quaternion targetRotation = Quaternion.Euler(new Vector3(Xaxis, Yaxis));
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime);
             transform.position = player.position - transform.forward * distance;
+        }
+    }
+
+    private void FindClosestEnemy()
+    {
+        float closestDistance = Mathf.Infinity;
+        Collider[] hitColliders = Physics.OverlapSphere(player.position, 30f);
+
+        enemies.Clear(); // 리스트 초기화
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.CompareTag("Enemy"))
+            {
+                enemies.Add(hitCollider.transform); // 적 추가
+                float currentDistance = (player.position - hitCollider.transform.position).sqrMagnitude;
+                if (currentDistance < closestDistance)
+                {
+                    closestDistance = currentDistance;
+                    lockedTarget = hitCollider.transform; // 가장 가까운 적을 Lock On
+                }
+            }
+        }
+    }
+
+    private void ChangeLockedTarget(float mouseMovement)
+    {
+        int currentIndex = enemies.IndexOf(lockedTarget); // 현재 Lock On 타겟 인덱스
+        if (currentIndex < 0) return; // 현재 Lock On 타겟이 리스트에 없으면 반환
+
+        // 오른쪽 이동
+        if (mouseMovement > 0)
+        {
+            currentIndex = (currentIndex + 1) % enemies.Count; // 오른쪽 적으로 변경
+        }
+        // 왼쪽 이동
+        else if (mouseMovement < 0)
+        {
+            currentIndex = (currentIndex - 1 + enemies.Count) % enemies.Count; // 왼쪽 적으로 변경
+        }
+
+        // 새로운 Lock On 타겟 설정
+        if (lockedTarget != enemies[currentIndex])
+        {
+            lockedTarget = enemies[currentIndex]; // 새로운 Lock On 타겟으로 변경
+                                                  // 이곳에서 추가적인 부드러움을 위해 보정이 가능합니다:
+                                                  // 예: Camera Rotation Transition
         }
     }
 }
