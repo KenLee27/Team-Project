@@ -13,7 +13,7 @@ public class EnemyController2 : MonoBehaviour
     public LayerMask playerLayer;
 
     private bool firstlooking = true; //캐릭터 최초 목격
-    
+
     private float HP = 0; //적 체력 선언 및 초기화
     private float detectingRange = 20f;         //적 탐지 거리
     private float sensingRange = 13.5f;         //적 인지 거리
@@ -92,7 +92,7 @@ public class EnemyController2 : MonoBehaviour
         //애니매이션 전환 대기
         if (curAnimStateInfo.IsName("Creep|Crouch_Action") == false)
         {
-            anim.CrossFade("Creep|Crouch_Action",0.1f);
+            anim.CrossFade("Creep|Crouch_Action", 0.1f);
             // SetDestination 을 위해 한 frame을 넘기기위한 코드
             yield return new WaitForSeconds(0.1f);
         }
@@ -118,12 +118,12 @@ public class EnemyController2 : MonoBehaviour
             // StateMachine 을 경계로 변경
             ChangeState(State.LOOK);
         }
-        
+
         if (distanceToBase >= 30.0f)
         {
             ChangeState(State.BACK);
         }
-        
+
         yield return null;
     }
 
@@ -266,7 +266,7 @@ public class EnemyController2 : MonoBehaviour
             0f, initialPoint.z - transform.position.z);
         distanceToBase = directionToBase.magnitude;
 
-        if(state == State.ROAR|| state == State.LOOK|| state == State.ATTACK)
+        if (state == State.ROAR || state == State.LOOK || state == State.ATTACK)
         {
             LookPlayer(directionToPlayer);
         }
@@ -276,7 +276,7 @@ public class EnemyController2 : MonoBehaviour
             ChasePlayer(directionToPlayer);
         }
 
-        else if(state == State.BACK)
+        else if (state == State.BACK)
         {
             ReturnToBase(initialPoint);
         }
@@ -308,7 +308,7 @@ public class EnemyController2 : MonoBehaviour
     }
 
 
-    
+
 
     void ChangeState(State newState)
     {
