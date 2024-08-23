@@ -13,6 +13,8 @@ public class EnemyController : MonoBehaviour
     public Transform player;
     public LayerMask playerLayer;
 
+    private bool firstlooking = false; //캐릭터 최초 목격
+
     private float detectingRange = 20f;         //적 탐지 거리
     private float sensingRange = 13.5f;         //적 인지 거리
     public float attackRange = 2.5f;           //적 공격 사거리
