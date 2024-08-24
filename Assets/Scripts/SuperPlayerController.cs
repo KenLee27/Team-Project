@@ -13,6 +13,7 @@ public class SuperPlayerController : MonoBehaviour
     public float moveSpeed = 5f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
+    public float DiveDelay = 2.0f;
 
     public SuperCameraController cameraController; // SuperCameraController 참조
     public Animator animator;                      // 애니메이터 참조
@@ -21,6 +22,7 @@ public class SuperPlayerController : MonoBehaviour
     public bool isGround = true;
     public bool isMoving = false;
     public bool isAttacking = false;
+    public bool isDive = false;
 
     private Coroutine resetPhaseCoroutine;
 
@@ -30,7 +32,8 @@ public class SuperPlayerController : MonoBehaviour
         IDLE,
         MOVE,
         JUMP,
-        ATTACK
+        ATTACK,
+        DIVE
     }
 
     private State currentState = State.IDLE;
@@ -38,6 +41,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private int attackPhase = 0;
     public bool canAttack = true; // 공격 가능 여부
+    public bool canDive = true;
     private float attackDelay = 1f; // 각 공격 사이의 딜레이
 
     void Start()
@@ -59,16 +63,151 @@ public class SuperPlayerController : MonoBehaviour
 
         HandleState();
 
-        if (Input.GetButtonDown("Jump") && isGround)
+        if (Input.GetButtonDown("Jump") && isGround &&!isAttacking&&!isDive)
         {
             currentState = State.JUMP;
         }
 
         // Mouse Button Click Handling
-        if (Input.GetMouseButtonDown(0) && canAttack && (currentState == State.IDLE || currentState == State.MOVE))
+        if (Input.GetMouseButtonDown(0) && canAttack && (currentState == State.IDLE || currentState == State.MOVE)&&isGround&&!isDive)
         {
             HandleAttack();
         }
+        if(canDive)
+        {
+            //카메라가 락온일때와 아닐때의 구르기 차이
+            if (cameraController.IsLockedOn)
+            {
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") < 0 && !isAttacking && isGround)
+                {
+                    HandleDive_left();
+                    Debug.Log("좌로 구른다!");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") > 0 && !isAttacking && isGround)
+                {
+                    HandleDive_Right();
+                    Debug.Log("우로 구른다!");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") > 0 && !isAttacking && isGround)
+                {
+                    HandleDive_Forward();
+                    Debug.Log("앞로 구른다!");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") < 0 && !isAttacking && isGround)
+                {
+                    HandleDive_Back();
+                    Debug.Log("뒤로 구른다!");
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") < 0 && !isAttacking && isGround)
+                {
+                    HandleDive_Forward();
+                    Debug.Log("구른다!");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") > 0 && !isAttacking && isGround)
+                {
+                    HandleDive_Forward();
+                    Debug.Log("구른다!");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") > 0 && !isAttacking && isGround)
+                {
+                    HandleDive_Forward();
+                    Debug.Log("구른다!");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") < 0 && !isAttacking && isGround)
+                {
+                    HandleDive_Forward();
+                    Debug.Log("구른다!");
+                }
+            }
+        }
+        
+        
+
+    }
+
+    private void HandleDive_left()
+    {
+        currentState= State.DIVE;
+        isDive = true;
+        animator.CrossFade("LeftDive",0.1f);
+        StartCoroutine(DiveDirection());
+        StartCoroutine(EnableNextDiveAfterDelay());
+    }
+
+    private void HandleDive_Right()
+    {
+        currentState = State.DIVE;
+        isDive = true;
+        animator.CrossFade("RightDive",0.1f);
+        StartCoroutine(DiveDirection());
+        StartCoroutine(EnableNextDiveAfterDelay());
+    }
+
+    private void HandleDive_Forward()
+    {
+        currentState = State.DIVE;
+        isDive = true;
+        animator.CrossFade("ForwardDive", 0.1f);
+        StartCoroutine(DiveDirection());
+        StartCoroutine(EnableNextDiveAfterDelay());
+    }
+
+    private void HandleDive_Back()
+    {
+        currentState = State.DIVE;
+        isDive = true;
+        animator.CrossFade("BackDive", 0.1f);
+        StartCoroutine(DiveDirection());
+        StartCoroutine(EnableNextDiveAfterDelay());
+    }
+
+    private IEnumerator EnableNextDiveAfterDelay()
+    {
+        Debug.Log("다이브 쿨타임");
+        canDive = false;
+        yield return new WaitForSeconds(DiveDelay);
+        canDive = true; //공격중이 아님.
+        Debug.Log("다이브 쿨타임 끝!");
+        currentState = State.IDLE;
+    }
+
+    private IEnumerator DiveDirection()
+    {
+        float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
+        float startTime = Time.time;
+        while (Time.time < startTime + attackAnimationDuration)
+        {
+            // 공격 애니메이션이 실행 중일 때 이동
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
+            {
+                transform.Translate(Vector3.left * 5f * Time.deltaTime);
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightDive"))
+            {
+                transform.Translate(Vector3.right * 5f * Time.deltaTime);
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ForwardDive"))
+            {
+                transform.Translate(Vector3.forward * 5f * Time.deltaTime);
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("BackDive"))
+            {
+                transform.Translate(Vector3.back * 5f * Time.deltaTime);
+            }
+            yield return null;
+        }
+        isDive = false;
+
+        currentState = State.IDLE;
     }
 
     private void HandleState()
@@ -87,11 +226,20 @@ public class SuperPlayerController : MonoBehaviour
             case State.ATTACK:
                 // 공격 중일 때는 추가 로직 필요 없음
                 break;
+            case State.DIVE:
+                break;
         }
     }
 
     private void HandleMove()
     {
+
+        if (currentState == State.JUMP || currentState == State.DIVE || currentState ==State.ATTACK)
+        {
+            return;
+        }
+
+
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector2 inputDir = input.normalized;
         isMoving = inputDir != Vector2.zero;
@@ -147,6 +295,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
+        currentState = State.ATTACK;
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
         attackPhase++; // 공격 단계 증가
@@ -158,6 +307,7 @@ public class SuperPlayerController : MonoBehaviour
                 break;
             case 2:
                 animator.CrossFade("SwordAttack_2",0.1f);
+                StartCoroutine(PerformAttackMovement());
                 break;
             case 3:
                 animator.CrossFade("SwordAttack_3",0.1f);
@@ -185,9 +335,14 @@ public class SuperPlayerController : MonoBehaviour
         while (Time.time < startTime + attackAnimationDuration)
         {
             // 공격 애니메이션이 실행 중일 때 이동
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_2"))
             {
-                transform.Translate(Vector3.forward * 0f * Time.deltaTime);
+                transform.Translate(Vector3.forward * 0.5f * Time.deltaTime);
+            }
+
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
+            {
+                transform.Translate(Vector3.forward * 1.2f * Time.deltaTime);
             }
             yield return null;
         }
@@ -202,13 +357,13 @@ public class SuperPlayerController : MonoBehaviour
         }
         else
         {
-            attackDelay = 1f;
+            attackDelay = 1.5f;
         }
 
         moveSpeed = 0; //공격중 속도 제어
         yield return new WaitForSeconds(attackDelay);
         canAttack = true; // 다시 공격 가능해짐
-        isAttacking = false;
+        isAttacking = false; //공격중이 아님.
         moveSpeed = 5;
 
         if (attackPhase >= 3) // 공격이 완료된 경우
@@ -216,16 +371,16 @@ public class SuperPlayerController : MonoBehaviour
             attackPhase = 0; // 공격 단계 초기화
             currentState = State.IDLE; // IDLE로 돌아감
         }
+        currentState = State.IDLE;
     }
 
     private IEnumerator ResetAttackPhaseAfterDelay()
     {
-        yield return new WaitForSeconds(1.5f); // 공격하지 않은 동안 대기
+        yield return new WaitForSeconds(1.7f); // 공격하지 않은 동안 대기
         if (attackPhase > 0) // 공격 단계가 0이 아니면
         {
             attackPhase = 0; // 공격 단계 초기화
             Debug.Log("공격초기화!");
-            currentState = State.IDLE; // IDLE 상태로 변경
         }
     }
 
