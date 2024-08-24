@@ -8,6 +8,7 @@ using static UnityEngine.GraphicsBuffer;
 public class EnemyController2 : MonoBehaviour
 {
     public Animator anim; //애니메이터
+    NavMeshAgent nmAgent; //navmeshagent 추가
 
     public Transform player; //플레이어 타겟
     public LayerMask playerLayer;
@@ -19,8 +20,8 @@ public class EnemyController2 : MonoBehaviour
     private float sensingRange = 13.5f;         //적 인지 거리
     public float attackRange = 2.5f;           //적 공격 사거리
     private float smoothRotationSpeed = 15f;     //적 최적화 회전 속도
-    public float moveSpeed = 4.0f;             //적 이동속도
-    private float returnSpeed = 2f;           //적 복귀속도
+    //public float moveSpeed = 4.0f;             //적 이동속도
+    //private float returnSpeed = 2f;           //적 복귀속도
 
     Vector3 directionToPlayer;
     Vector3 directionToBase;
@@ -56,6 +57,7 @@ public class EnemyController2 : MonoBehaviour
         initialPoint = new Vector3(transform.position.x, transform.position.y, transform.position.z);   //적 배치 위치 초기화
         HP = 10; //체력 초기화
         anim = GetComponent<Animator>();
+        nmAgent = GetComponent<NavMeshAgent>();
         state = State.IDLE;
         StartCoroutine(StateMachine());
     }
@@ -273,12 +275,12 @@ public class EnemyController2 : MonoBehaviour
 
         else if (state == State.CHASE)
         {
-            ChasePlayer(directionToPlayer);
+            nmAgent.SetDestination(player.position);
         }
 
         else if (state == State.BACK)
         {
-            ReturnToBase(initialPoint);
+            ReturnToBase();
         }
         /*
                 if (distanceToPlayer <= attackRange)        //적 공격 사거리 내에 들어오면 공격             
@@ -317,21 +319,7 @@ public class EnemyController2 : MonoBehaviour
 
     void ChasePlayer(Vector3 direction)     //추격 기능
     {
-        Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
-        if (flatDirection != Vector3.zero)
-        {
-            float distanceToPlayer = flatDirection.magnitude;
-            if (distanceToPlayer > 2)
-            {
-                targetRotation = Quaternion.LookRotation(flatDirection);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothRotationSpeed * Time.deltaTime);
-            }
-        }
-
-        // 이동
-        currentSpeed = Mathf.Lerp(currentSpeed, moveSpeed, Time.deltaTime);
-        transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
-
+        
     }
 
     void LookPlayer(Vector3 direction)      //경계 기능
@@ -345,30 +333,16 @@ public class EnemyController2 : MonoBehaviour
         }
     }
 
-    void ReturnToBase(Vector3 basePosition)  //귀환 기능
+    void ReturnToBase()  //귀환 기능
     {
 
-        Vector3 directionToBase = basePosition - transform.position;
-        directionToBase.y = 0;  // y축을 고려하지 않도록 설정
-
-        float distanceToBase = directionToBase.magnitude;
-
-        if (distanceToBase > 1.5)  // 거리가 0.1 이상일 경우에만 이동
+        if (distanceToBase > 3)  // 거리가 0.1 이상일 경우에만 이동
         {
-            if (distanceToBase > 2)
-            {
-                // 방향을 목표로 회전
-                targetRotation = Quaternion.LookRotation(directionToBase);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, (smoothRotationSpeed - 5.0f) * Time.deltaTime);
-            }
-
-            // 이동
-            currentSpeed = Mathf.Lerp(currentSpeed, returnSpeed, Time.deltaTime);
-            transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
+            nmAgent.SetDestination(initialPoint);
         }
         else
         {
-            currentSpeed = 0;  // 집에 도달하면 멈추고
+            Debug.Log("집도착");
             firstlooking = true; //최초 목격 활성화하고
             ChangeState(State.IDLE); //idle 상태로 변경
         }
