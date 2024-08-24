@@ -121,25 +121,22 @@ public class SuperCameraController : MonoBehaviour
 
     private void ChangeLockedTarget(float mouseMovement)
     {
-        int currentIndex = enemies.IndexOf(lockedTarget); // 현재 Lock On 타겟 인덱스
-        if (currentIndex < 0) return; // 현재 Lock On 타겟이 리스트에 없으면 반환
+        int currentIndex = enemies.IndexOf(lockedTarget);   //현재 Lock On 타겟 인덱스
+        if (currentIndex < 0) return;                       //현재 Lock On 타겟이 리스트에 없으면 반환
 
-        // 오른쪽 이동
         if (mouseMovement > 0)
         {
-            currentIndex = (currentIndex + 1) % enemies.Count; // 오른쪽 적으로 변경
+            currentIndex = (currentIndex + 1) % enemies.Count;                  // 마우스 오른쪽으로 이동 시 오른쪽 적으로 변경
         }
-        // 왼쪽 이동
         else if (mouseMovement < 0)
         {
-            currentIndex = (currentIndex - 1 + enemies.Count) % enemies.Count; // 왼쪽 적으로 변경
+            currentIndex = (currentIndex - 1 + enemies.Count) % enemies.Count; // 마우스 왼쪽으로 이동 시 왼쪽 적으로 변경
         }
 
-        // 새로운 Lock On 타겟 설정
         if (lockedTarget != enemies[currentIndex])
         {
-            lockedTarget = enemies[currentIndex]; // 새로운 Lock On 타겟으로 변경
-            UpdateMarkerPosition(); // 새로운 타겟으로 마커 위치 업데이트
+            lockedTarget = enemies[currentIndex];   //새로운 Lock On 타겟으로 변경
+            UpdateMarkerPosition();                 //새로운 타겟으로 마커 위치 업데이트
         }
     }
 
@@ -147,13 +144,11 @@ public class SuperCameraController : MonoBehaviour
     {
         if (currentMarker == null)
         {
-            // 마커가 없으면 생성
-            currentMarker = Instantiate(lockOnMarker, lockedTarget.position + Vector3.up * 1f, Quaternion.identity); // Y축으로 1 단위 위에 위치
+            currentMarker = Instantiate(lockOnMarker, lockedTarget.position + Vector3.up * 1f, Quaternion.identity);
         }
         else
         {
-            // 마커의 위치 업데이트
-            currentMarker.transform.position = lockedTarget.position + Vector3.up * 1f; // Y축으로 1 단위 위에 위치
+            currentMarker.transform.position = lockedTarget.position + Vector3.up * 1f;
         }
     }
 
@@ -162,7 +157,7 @@ public class SuperCameraController : MonoBehaviour
         if (currentMarker != null)
         {
             Destroy(currentMarker);
-            currentMarker = null; // 마커 null로 초기화
+            currentMarker = null;
         }
     }
 }
