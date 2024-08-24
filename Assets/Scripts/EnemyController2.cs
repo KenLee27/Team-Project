@@ -144,7 +144,7 @@ public class EnemyController2 : MonoBehaviour
         else
             // 공격 animation만큼 대기
             // 이 대기 시간을 이용해 공격 간격을 조절할 수 있음.
-            yield return new WaitForSeconds(curAnimStateInfo.length);
+            yield return new WaitForSeconds(2.0f);
     }
 
     IEnumerator BACK()
