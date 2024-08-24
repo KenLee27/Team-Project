@@ -19,6 +19,7 @@ public class SuperPlayerController : MonoBehaviour
 
     public bool isGround = true;
     public bool isMoving = false;
+    public bool isAttacking = false;
 
     private enum State
     {
@@ -142,21 +143,23 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
+        isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
         attackPhase++; // 공격 단계 증가
 
         switch (attackPhase)
         {
             case 1:
-                animator.SetTrigger("SwordAttack1");
+                animator.CrossFade("SwordAttack_1", 0.1f);
                 break;
             case 2:
-                animator.SetTrigger("SwordAttack2");
+                animator.CrossFade("SwordAttack_2",0.1f);
                 break;
             case 3:
-                animator.SetTrigger("SwordAttack3");
+                animator.CrossFade("SwordAttack_3",0.1f);
                 break;
             default:
+                isAttacking = false;
                 attackPhase = 0; // 공격 단계 리셋
                 currentState = State.IDLE; // IDLE 상태로 돌아감
                 StartCoroutine(ResetAttackPhaseAfterDelay());

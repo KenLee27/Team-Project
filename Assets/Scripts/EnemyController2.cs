@@ -461,7 +461,7 @@ public class EnemyController2 : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Weapon") && player_1.GetComponent<PlayerController>().isAttacking)
+        if (other.CompareTag("Weapon") && player_1.GetComponent<SuperPlayerController>().isAttacking)
         {
             Debug.Log("¾ÆÇÁ´Ù!");
             isHit = true;
