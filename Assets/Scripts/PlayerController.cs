@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour
     public bool isDead = false;
     public bool isMoving = false;
     public bool isJumping = false;
+    public bool isAttacking = false;
+    public bool isComboAttacking = false;
 
     private Transform cameraTransform;
     private Rigidbody playerRigidbody;
@@ -34,6 +36,8 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         playerRigidbody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+
+        
     }
     void Update()
     {
@@ -42,16 +46,32 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Move();
-        Jump();
+        
+        Slash_Attack();
+        if (!isAttacking) 
+        {
+            Move();
+            Jump();
+        }
     }
 
     private void Slash_Attack()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            //구현중
+            StartCoroutine(ComboAction());
         }
+
+        animator.SetBool("isAttacking", isAttacking);
+        animator.SetBool("isComboAttacking", isComboAttacking);
+    }
+    private IEnumerator ComboAction()
+    {
+        isAttacking = true;
+        animator.SetTrigger("SwordAttack1");
+        yield return new WaitForSeconds(1.2f);
+        
+        isAttacking = false;
     }
 
     private void Move()
@@ -73,6 +93,7 @@ public class PlayerController : MonoBehaviour
             if (inputDir != Vector2.zero)
             {
                 isMoving = true;
+                
             }
             else
             {
