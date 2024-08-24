@@ -15,8 +15,8 @@ public class PlayerController : MonoBehaviour
     private float targetSpeed;          //플레이어 목표속도
 
     private float jumpForce = 5.0f;     //플레이어 점프력
-    private bool isGround = true;
-
+    
+    public bool isGround = true;
     public bool isDead = false;
     public bool isMoving = false;
     public bool isJumping = false;
@@ -28,8 +28,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked; // 플레이 모드에서 커서를 중앙에 고정
+        Cursor.visible = false;                     //커서 비활성화
+        Cursor.lockState = CursorLockMode.Locked;   //플레이 모드에서 커서를 중앙에 고정
 
         cameraTransform = Camera.main.transform;
         playerRigidbody = GetComponent<Rigidbody>();
@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            
+            //구현중
         }
     }
 
@@ -61,14 +61,12 @@ public class PlayerController : MonoBehaviour
 
         if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
         {
-            // Lock On 상태일 때, 플레이어가 적을 향하도록 방향 설정
             Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
 
             float targetRotation = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
             float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
             transform.eulerAngles = Vector3.up * newRotation;
 
-            // 플레이어가 양옆, 앞뒤로도 움직일 수 있도록 함
             Vector3 moveDir = transform.forward * inputDir.y + transform.right * inputDir.x;
             targetSpeed = moveSpeed * moveDir.magnitude;
 
@@ -86,7 +84,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // 기본적인 자유 이동
             if (inputDir != Vector2.zero)
             {
                 isMoving = true;
@@ -105,32 +102,6 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("isMoving", isMoving);
     }
-
-    /*
-    private void Move()
-    {
-        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        Vector2 inputDir = input.normalized;
-
-        if (inputDir != Vector2.zero)      //플레이어 회전 후 방향고정
-        {
-            isMoving = true;
-
-            float rotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
-            transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, rotation, ref rotationVelocity, smoothRotationTime);
-        }
-        else
-        {
-            isMoving = false;
-        }
-
-        animator.SetBool("isMoving", isMoving);
-        
-        targetSpeed = moveSpeed * inputDir.magnitude;
-        currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
-        transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
-    }
-    */
 
     private void Jump()
     {
