@@ -12,6 +12,7 @@ public class SuperPlayerController : MonoBehaviour
 
     public float moveSpeed = 5f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
+    public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
 
     public SuperCameraController cameraController; // SuperCameraController 참조
     public Animator animator;                      // 애니메이터 참조
@@ -20,6 +21,9 @@ public class SuperPlayerController : MonoBehaviour
     public bool isGround = true;
     public bool isMoving = false;
     public bool isAttacking = false;
+
+    private Coroutine resetPhaseCoroutine;
+
 
     private enum State
     {
@@ -157,22 +161,55 @@ public class SuperPlayerController : MonoBehaviour
                 break;
             case 3:
                 animator.CrossFade("SwordAttack_3",0.1f);
+                StartCoroutine(PerformAttackMovement());
                 break;
             default:
-                isAttacking = false;
-                attackPhase = 0; // 공격 단계 리셋
-                currentState = State.IDLE; // IDLE 상태로 돌아감
-                StartCoroutine(ResetAttackPhaseAfterDelay());
                 return;
         }
-
         StartCoroutine(EnableNextAttackAfterDelay()); // 공격 가능 대기
+
+        if (resetPhaseCoroutine != null)
+        {
+            StopCoroutine(resetPhaseCoroutine);
+        }
+
+        resetPhaseCoroutine = StartCoroutine(ResetAttackPhaseAfterDelay());
+    }
+
+    private IEnumerator PerformAttackMovement()
+    {
+        // 애니메이션의 특정 시간 동안 이동
+        float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
+        float startTime = Time.time;
+
+        while (Time.time < startTime + attackAnimationDuration)
+        {
+            // 공격 애니메이션이 실행 중일 때 이동
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
+            {
+                transform.Translate(Vector3.forward * 0f * Time.deltaTime);
+            }
+            yield return null;
+        }
     }
 
     private IEnumerator EnableNextAttackAfterDelay()
     {
+        //공격 단수 별 딜레이 조정
+        if (attackPhase == 3)
+        {
+            attackDelay = 2f;
+        }
+        else
+        {
+            attackDelay = 1f;
+        }
+
+        moveSpeed = 0; //공격중 속도 제어
         yield return new WaitForSeconds(attackDelay);
         canAttack = true; // 다시 공격 가능해짐
+        isAttacking = false;
+        moveSpeed = 5;
 
         if (attackPhase >= 3) // 공격이 완료된 경우
         {
@@ -183,9 +220,13 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator ResetAttackPhaseAfterDelay()
     {
-        yield return new WaitForSeconds(attackDelay);
-        attackPhase = 0; // 공격 단계를 리셋
-        currentState = State.IDLE; // IDLE 상태로 돌아감
+        yield return new WaitForSeconds(1.5f); // 공격하지 않은 동안 대기
+        if (attackPhase > 0) // 공격 단계가 0이 아니면
+        {
+            attackPhase = 0; // 공격 단계 초기화
+            Debug.Log("공격초기화!");
+            currentState = State.IDLE; // IDLE 상태로 변경
+        }
     }
 
     private void RotateTowardsEnemy()
