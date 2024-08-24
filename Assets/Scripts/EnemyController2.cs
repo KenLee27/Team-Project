@@ -10,6 +10,8 @@ public class EnemyController2 : MonoBehaviour
     public Animator anim; //애니메이터
     NavMeshAgent nmAgent; //navmeshagent 추가
 
+    public GameObject player_1;
+
     public Transform player; //플레이어 타겟
     public LayerMask playerLayer;
 
@@ -22,6 +24,8 @@ public class EnemyController2 : MonoBehaviour
     private float smoothRotationSpeed = 15f;     //적 최적화 회전 속도
     //public float moveSpeed = 4.0f;             //적 이동속도
     //private float returnSpeed = 2f;           //적 복귀속도
+
+    public bool isHit = false;
 
     Vector3 directionToPlayer;
     Vector3 directionToBase;
@@ -41,7 +45,9 @@ public class EnemyController2 : MonoBehaviour
         ATTACK,
         BACK,
         LOOK,
-        ROAR
+        ROAR,
+        HIT,
+        DIE
     }
 
     State state;
@@ -64,10 +70,11 @@ public class EnemyController2 : MonoBehaviour
 
     IEnumerator StateMachine()
     {
-        while (HP > 0)
+        while (true)
         {
             yield return StartCoroutine(state.ToString());
         }
+        
     }
 
     IEnumerator IDLE()
@@ -107,6 +114,10 @@ public class EnemyController2 : MonoBehaviour
             curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         }
 
+        if (isHit)
+        {
+            ChangeState(State.HIT);
+        }
 
         // 플레이어와의 남은 거리가 공격 지점보다 작거나 같으면
         if (distanceToPlayer <= attackRange)
@@ -135,16 +146,26 @@ public class EnemyController2 : MonoBehaviour
 
         anim.CrossFade("Creep|Punch_Idle", 0.1f, 0, 0);
 
-        // 공격 가능 범위보다 플레이어와의 거리가 멀어지면
-        if (distanceToPlayer > attackRange)
+        float attackDuration = 2.0f;  // 공격 애니메이션의 지속 시간
+        float elapsedTime = 0f;
+        while (elapsedTime < attackDuration)
         {
-            // StateMachine을 추적으로 변경
-            ChangeState(State.CHASE);
+            // 공격 가능 범위보다 플레이어와의 거리가 멀어지면
+            if (distanceToPlayer > attackRange)
+            {
+                // StateMachine을 추적으로 변경
+                ChangeState(State.CHASE);
+                yield break;  // 코루틴 종료
+            }
+
+            if (isHit)
+            {
+                ChangeState(State.HIT);
+                yield break;  // 코루틴 종료
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
-        else
-            // 공격 animation만큼 대기
-            // 이 대기 시간을 이용해 공격 간격을 조절할 수 있음.
-            yield return new WaitForSeconds(2.0f);
     }
 
     IEnumerator BACK()
@@ -167,6 +188,10 @@ public class EnemyController2 : MonoBehaviour
         }
         //애니매이션 전환 체크
 
+        if(isHit)
+        {
+            ChangeState(State.HIT);
+        }
 
         yield return null;
     }
@@ -244,6 +269,12 @@ public class EnemyController2 : MonoBehaviour
             curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         }
 
+        if (isHit)
+        {
+            ChangeState(State.HIT);
+            yield break;  // 코루틴 종료
+        }
+
         if (curAnimStateInfo.IsName("Creep|Idle1_Action"))
         {
             ChangeState(State.LOOK);
@@ -251,6 +282,86 @@ public class EnemyController2 : MonoBehaviour
         }
 
         yield return null;
+    }
+
+    IEnumerator HIT()
+    {
+        HP = HP - 3; //캐릭터 데미지 나중에 가져오기
+        var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        if (HP > 0)
+        {
+
+            if (!curAnimStateInfo.IsName("Creep|Hit_Action"))
+            {
+                anim.Play("Creep|Hit_Action", 0, 0);
+                isHit = false;
+                
+
+                // 애니메이션 상태가 변경될 때까지 기다리기
+                yield return null;
+
+                // 상태를 다시 가져옴
+                curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+                while (!curAnimStateInfo.IsName("Creep|Hit_Action"))
+                {
+                    yield return null;
+                    curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+                }
+            }
+
+            // 애니메이션이 Walk1_Action 변경될 때까지 대기
+            while (curAnimStateInfo.IsName("Creep|Hit_Action"))
+            {
+                yield return null;
+                curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            }
+
+            if (curAnimStateInfo.IsName("Creep|Walk1_Action"))
+            {
+                ChangeState(State.ATTACK);
+            }
+
+            yield return null;
+        }
+        else
+        {
+            ChangeState(State.DIE);
+            Debug.Log("죽었다....");
+        }
+        
+    }
+
+    IEnumerator DIE()
+    {
+        // 애니메이터의 현재 애니메이션 상태 정보 가져오기
+        var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+
+        // 충돌 판정 제거 (Collider 비활성화)
+        Collider collider = GetComponent<Collider>();
+        if (collider != null)
+        {
+            collider.enabled = false;
+        }
+
+        // 사망 애니메이션 재생
+        anim.Play("Creep|Death_Action");
+
+        // 애니메이션의 normalizedTime이 1.0에 가까워질 때까지 대기
+        while (true)
+        {
+            curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+
+            // 애니메이션의 normalizedTime이 1.0 이상일 때 애니메이션이 완료된 것으로 간주
+            if (curAnimStateInfo.IsName("Creep|Death_Action") && curAnimStateInfo.normalizedTime >= 1.0f)
+            {
+                break;
+            }
+
+            yield return null; // 한 프레임 대기
+        }
+
+        // 애니메이션이 끝난 후 오브젝트를 제거
+        Destroy(gameObject);
     }
 
 
@@ -347,4 +458,15 @@ public class EnemyController2 : MonoBehaviour
             ChangeState(State.IDLE); //idle 상태로 변경
         }
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Weapon") && player_1.GetComponent<PlayerController>().isAttacking)
+        {
+            Debug.Log("아프다!");
+            isHit = true;
+
+        }
+    }
+
 }
