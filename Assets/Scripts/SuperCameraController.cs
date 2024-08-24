@@ -4,12 +4,12 @@ using UnityEngine;
 public class SuperCameraController : MonoBehaviour
 {
     public Transform player;                       // 플레이어의 Transform
-    public GameObject lockOnMarker;                // Lock On 마커 프리팹
+    public GameObject lockOnMarker;                // Lock On 마커 프리팹w
 
     private float rotationSensitive = 3f;          // 카메라 회전 감도
-    private float distance = 8f;                   // 카메라-플레이어 거리
-    private float minDistance = 2f;                // 최소 거리
-    private float rotationMin = 5f;                // 카메라 X축 회전 하한
+    private float distance = 7f;                   // 카메라-플레이어 거리
+    private float minDistance = 1f;                // 최소 거리
+    private float rotationMin = -20f;                // 카메라 X축 회전 하한
     private float rotationMax = 80f;               // 카메라 X축 회전 상한
     private float smoothTime = 0.12f;              // 카메라 회전 지연 계수
 
@@ -81,14 +81,12 @@ public class SuperCameraController : MonoBehaviour
     {
         if (lockedTarget != null && isLockedOn)     // Lock On 상태에서 카메라 조정
         {
-            Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive; // 마우스 Y로 X축 회전 감지
-            Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);   // X축 회전 각도 제한
-
             Vector3 direction = lockedTarget.position - player.position; // Lock On 타겟과의 방향벡터
             Quaternion rotationToFaceEnemy = Quaternion.LookRotation(direction); // Lock On 타겟으로 회전 계수 생성
             Quaternion targetRotation = Quaternion.Euler(Xaxis, rotationToFaceEnemy.eulerAngles.y, 0); // Lock On 타겟으로 위치 계수 생성
 
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // Lock On 타겟으로 부드럽게 회전
+            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f;
         }
         else // Lock On 미실시 상태에서 카메라 조정
         {
@@ -98,7 +96,7 @@ public class SuperCameraController : MonoBehaviour
 
             Quaternion targetRotation = Quaternion.Euler(new Vector3(Xaxis, Yaxis)); // 회전 계수 생성
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // 부드러운 회전
-            transform.position = player.position - transform.forward * distance; // 기본 카메라 위치 설정
+            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f; // 기본 카메라 위치 설정
         }
     }
 
@@ -118,11 +116,11 @@ public class SuperCameraController : MonoBehaviour
         }
         else
         {
-            distance = Mathf.Lerp(distance, 8f, Time.deltaTime * 5f); // 거리 복원
+            distance = Mathf.Lerp(distance, 7f, Time.deltaTime * 5f); // 거리 복원
         }
 
         // 최종 카메라 위치 설정
-        transform.position = player.position - transform.forward * distance + Vector3.up * 2f; // 플레이어 기준으로 카메라 위치 설정
+        transform.position = player.position - transform.forward * distance; // 플레이어 기준으로 카메라 위치 설정
     }
 
     private void RotatePlayerTowardsLockedTarget()
