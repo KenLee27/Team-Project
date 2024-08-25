@@ -13,7 +13,7 @@ public class SuperPlayerController : MonoBehaviour
     public float moveSpeed = 5f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
-    public float DiveDelay = 2.0f;
+    public float DiveDelay = 1.2f;                 // 다이브 쿨타임
 
     public SuperCameraController cameraController; // SuperCameraController 참조
     public Animator animator;                      // 애니메이터 참조
@@ -75,6 +75,7 @@ public class SuperPlayerController : MonoBehaviour
         }
         if(canDive)
         {
+            isMoving = false;
             //카메라가 락온일때와 아닐때의 구르기 차이
             if (cameraController.IsLockedOn)
             {
@@ -136,47 +137,51 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleDive_left()
     {
-        currentState= State.DIVE;
+        canDive = false;
+        currentState = State.DIVE;
         isDive = true;
-        animator.CrossFade("LeftDive",0.1f);
+        animator.CrossFade("LeftDive",0.1f,0,0);
         StartCoroutine(DiveDirection());
         StartCoroutine(EnableNextDiveAfterDelay());
     }
 
     private void HandleDive_Right()
     {
+        canDive = false;
         currentState = State.DIVE;
         isDive = true;
-        animator.CrossFade("RightDive",0.1f);
+        animator.CrossFade("RightDive",0.1f,0,0);
         StartCoroutine(DiveDirection());
         StartCoroutine(EnableNextDiveAfterDelay());
     }
 
     private void HandleDive_Forward()
     {
+        canDive = false;
         currentState = State.DIVE;
         isDive = true;
-        animator.CrossFade("ForwardDive", 0.1f);
+        animator.CrossFade("ForwardDive", 0.1f,0,0);
         StartCoroutine(DiveDirection());
         StartCoroutine(EnableNextDiveAfterDelay());
     }
 
     private void HandleDive_Back()
     {
+        canDive = false;
         currentState = State.DIVE;
         isDive = true;
-        animator.CrossFade("BackDive", 0.1f);
+        animator.CrossFade("BackDive", 0.1f,0,0);
         StartCoroutine(DiveDirection());
         StartCoroutine(EnableNextDiveAfterDelay());
     }
 
     private IEnumerator EnableNextDiveAfterDelay()
     {
+
         Debug.Log("다이브 쿨타임");
-        canDive = false;
-        yield return new WaitForSeconds(DiveDelay);
-        canDive = true; //공격중이 아님.
+        yield return new WaitForSeconds(1.3f);
         Debug.Log("다이브 쿨타임 끝!");
+        canDive = true;
         currentState = State.IDLE;
     }
 
@@ -184,7 +189,7 @@ public class SuperPlayerController : MonoBehaviour
     {
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
-        while (Time.time < startTime + attackAnimationDuration)
+        while (Time.time < startTime + 1.3f)
         {
             // 공격 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
@@ -205,8 +210,9 @@ public class SuperPlayerController : MonoBehaviour
             }
             yield return null;
         }
+        Debug.Log("애니메이션 끝!");
         isDive = false;
-
+        isMoving = true;
         currentState = State.IDLE;
     }
 
