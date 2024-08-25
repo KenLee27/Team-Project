@@ -9394,6 +9394,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -55.88134
       objectReference: {fileID: 0}
+    - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
+        type: 3}
+      propertyPath: cameraController
+      value: 
+      objectReference: {fileID: 1583386699}
     - target: {fileID: 7666958325025633544, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -14632,6 +14637,7 @@ MonoBehaviour:
   isAttacked: 0
   isinvincibility: 0
   isDie: 0
+  isAttackHit: 0
   canAttack: 1
   canDive: 1
   canCrouched: 1
