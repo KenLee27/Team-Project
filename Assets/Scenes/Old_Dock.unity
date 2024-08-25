@@ -9676,11 +9676,7 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 674148590}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4798376655655639335, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 887095168}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74cba210f6b556b4ab4f3b4d458e8a57, type: 3}
 --- !u!4 &543557089 stripped
 Transform:
@@ -14603,44 +14599,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 543557088}
   m_PrefabAsset: {fileID: 0}
---- !u!95 &887095167 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 6573751121874269489, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-    type: 3}
-  m_PrefabInstance: {fileID: 543557088}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &887095168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 887095163}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  jumpForce: 3
-  resetPhaseDelay: 3
-  DiveDelay: 1.2
-  PlayerHP: 100
-  GetDamage: 10
-  cameraController: {fileID: 1583386699}
-  animator: {fileID: 887095167}
-  isGround: 1
-  isMoving: 0
-  isAttacking: 0
-  isDive: 0
-  isStand: 1
-  isAttacked: 0
-  isinvincibility: 0
-  isDie: 0
-  isAttackHit: 0
-  canAttack: 1
-  canDive: 1
-  canCrouched: 1
 --- !u!4 &887445999 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 55fecf1063fe8474493f4866aaadffbf,
