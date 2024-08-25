@@ -8,7 +8,7 @@ public class SuperPlayerController : MonoBehaviour
     private float currentSpeed;
     private float targetSpeed;
     private float rotationVelocity;
-    private float smoothRotationTime = 0.3f;
+    private float smoothRotationTime = 0.15f;
     private Vector3 lastMovement;                  //최근 이동 방향
 
 
@@ -337,7 +337,7 @@ public class SuperPlayerController : MonoBehaviour
             }
 
 
-            // 공격 애니메이션이 실행 중일 때 이동
+            // 다이브 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
             {
                 transform.Translate(lastMovement * 5f * Time.deltaTime);
@@ -565,13 +565,11 @@ public class SuperPlayerController : MonoBehaviour
             attackDelay = 1.5f;
         }
 
-        moveSpeed = 0; //공격중 속도 제어
         yield return new WaitForSeconds(attackDelay);
         isStand = true;
         animator.SetBool("isCrouching", !isStand);
         isAttacking = false;
         canAttack = true; // 다시 공격 가능해짐
-        moveSpeed = 5;
 
         if (attackPhase >= 3) // 공격이 완료된 경우
         {

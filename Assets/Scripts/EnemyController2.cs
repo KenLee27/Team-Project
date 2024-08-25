@@ -149,7 +149,7 @@ public class EnemyController2 : MonoBehaviour
         if (distanceToPlayer <= checkRange)
         {
             float randomValue = UnityEngine.Random.Range(0f, 100f); // 0에서 100 사이의 무작위 값
-            if (randomValue <= 1f)
+            if (randomValue <= 0.1f)
             {
                 ChangeState(State.CHECK); // check 상태로 전환
                 yield break;
@@ -354,6 +354,7 @@ public class EnemyController2 : MonoBehaviour
 
     IEnumerator HIT()
     {
+        nmAgent.speed = 0f;
         HP = HP - 3;
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         if (HP > 0)
@@ -494,7 +495,7 @@ public class EnemyController2 : MonoBehaviour
             0f, initialPoint.z - transform.position.z);
         distanceToBase = directionToBase.magnitude;
 
-        if (state == State.ROAR || state == State.LOOK || state == State.ATTACK || state == State.CHECK)
+        if (state == State.ROAR || state == State.LOOK || state == State.ATTACK || state == State.CHECK || state == State.HIT)
         {
             LookPlayer(directionToPlayer);
         }
