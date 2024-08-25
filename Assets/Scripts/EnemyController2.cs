@@ -86,10 +86,15 @@ public class EnemyController2 : MonoBehaviour
         if (curAnimStateInfo.IsName("Creep|Idle1_Action") == false)
             anim.Play("Creep|Idle1_Action", 0, 0);
 
-        if (distanceToPlayer <= detectingRange) //탐지 범위 안에 플레이어가 들어오면
+        if (distanceToPlayer <= detectingRange && player_1.GetComponent<SuperPlayerController>().isStand) //탐지 범위 안에 플레이어가 들어오면
         {
             // StateMachine 을 경계로 변경
             ChangeState(State.LOOK);
+        }
+
+        if (isHit)
+        {
+            ChangeState(State.DIE);
         }
         yield return null;
     }

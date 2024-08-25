@@ -412,7 +412,6 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
-        isStand = true;
         currentState = State.ATTACK;
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
@@ -480,6 +479,7 @@ public class SuperPlayerController : MonoBehaviour
 
         moveSpeed = 0; //공격중 속도 제어
         yield return new WaitForSeconds(attackDelay);
+        isStand = true;
         animator.SetBool("isCrouching", !isStand);
         canAttack = true; // 다시 공격 가능해짐
         isAttacking = false; //공격중이 아님.
