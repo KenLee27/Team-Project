@@ -22,7 +22,8 @@ public class EnemyController2 : MonoBehaviour
     private float HP = 0; //적 체력 선언 및 초기화
     private float detectingRange = 20f;         //적 탐지 거리
     private float sensingRange = 13.5f;         //적 인지 거리
-    public float attackRange = 2f;           //적 공격 사거리
+    private float checkRange = 7f;
+    private float attackRange = 2f;           //적 공격 사거리
     private float smoothRotationSpeed = 15f;     //적 최적화 회전 속도
     //public float moveSpeed = 4.0f;             //적 이동속도
     //private float returnSpeed = 2f;           //적 복귀속도
@@ -40,6 +41,14 @@ public class EnemyController2 : MonoBehaviour
     private Quaternion targetRotation;
     private float currentSpeed;
 
+
+    private bool moveRight;  // 좌우 이동 방향 제어를 위한 변수
+    private bool directionInitialized = false;  // 방향이 초기화되었는지 여부를 확인하는 변수
+    private float timeSinceLastCheck = 0f;
+    private float checkInterval = 2f; // 2초마다 체크
+
+
+
     Vector3 initialPoint; //적 배치 위치 변수 선언
 
     enum State
@@ -50,6 +59,7 @@ public class EnemyController2 : MonoBehaviour
         BACK,
         LOOK,
         ROAR,
+        CHECK,
         HIT,
         DIE
     }
@@ -130,10 +140,20 @@ public class EnemyController2 : MonoBehaviour
         }
 
         // 플레이어와의 남은 거리가 공격 지점보다 작거나 같으면
-        if (distanceToPlayer <= 2f)
+        if (distanceToPlayer <= attackRange)
         {
             // StateMachine 을 공격으로 변경
             ChangeState(State.ATTACK);
+        }
+
+        if (distanceToPlayer <= checkRange)
+        {
+            float randomValue = UnityEngine.Random.Range(0f, 100f); // 0에서 100 사이의 무작위 값
+            if (randomValue <= 1f)
+            {
+                ChangeState(State.CHECK); // check 상태로 전환
+                yield break;
+            }
         }
         // 목표와의 거리가 인지거리 보다 멀어진 경우
         if (sensingRange < distanceToPlayer)
@@ -196,6 +216,14 @@ public class EnemyController2 : MonoBehaviour
         // 공격 가능 범위보다 플레이어와의 거리가 멀어지면
         if (distanceToPlayer > attackRange)
         {
+            float randomValue = UnityEngine.Random.Range(0f, 1f); // 0에서 1 사이의 무작위 값  
+            if (randomValue <= 0.4f)
+            {
+                ChangeState(State.CHECK); // 40% 확률로 check 상태로 전환
+                yield break;
+            }
+
+
             // StateMachine을 추적으로 변경
             ChangeState(State.CHASE);
             yield break;
@@ -355,10 +383,10 @@ public class EnemyController2 : MonoBehaviour
                 yield return null;
                 curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
             }
+            isinvincibility = false;
 
             if (curAnimStateInfo.IsName("Creep|Walk1_Action"))
             {
-                isinvincibility = false;
                 ChangeState(State.ATTACK);
             }
 
@@ -370,6 +398,52 @@ public class EnemyController2 : MonoBehaviour
             Debug.Log("죽었다....");
         }
         
+    }
+
+    IEnumerator CHECK()
+    {
+        Debug.Log("주시중...");
+        var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+
+        anim.CrossFade("Creep|Walk1_Action", 0.1f, 0, 0);
+
+        float checkTime = UnityEngine.Random.Range(2f, 6f);
+        float elapsedTime = 0f;
+        while (elapsedTime < checkTime)
+        {
+            
+            // 플레이어와의 남은 거리가 공격 지점보다 작거나 같으면
+            if (distanceToPlayer <= attackRange)
+            {
+                // StateMachine 을 공격으로 변경
+                ChangeState(State.ATTACK);
+                yield break;            // 코루틴 종료
+            }
+
+
+            //거리가 벌어지면
+            if (detectingRange < distanceToPlayer)
+            {
+                // StateMachine을 BACK으로 변경
+                ChangeState(State.BACK);
+                yield break;            // 코루틴 종료
+            }
+
+            //맞으면
+            if (isHit)
+            {
+                // StateMachine을 HIT으로 변경
+                ChangeState(State.HIT);
+                yield break;            // 코루틴 종료
+            }
+
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        ChangeState(State.CHASE);
+
     }
 
     IEnumerator DIE()
@@ -420,19 +494,24 @@ public class EnemyController2 : MonoBehaviour
             0f, initialPoint.z - transform.position.z);
         distanceToBase = directionToBase.magnitude;
 
-        if (state == State.ROAR || state == State.LOOK || state == State.ATTACK)
+        if (state == State.ROAR || state == State.LOOK || state == State.ATTACK || state == State.CHECK)
         {
             LookPlayer(directionToPlayer);
         }
 
         else if (state == State.CHASE)
         {
-            nmAgent.SetDestination(player.position);
+            ChasePlayer();
         }
 
         else if (state == State.BACK)
         {
             ReturnToBase();
+        }
+
+        if(state == State.CHECK)
+        {
+            CheckPlayer();
         }
 
         if (isAttack)
@@ -472,19 +551,19 @@ public class EnemyController2 : MonoBehaviour
                 }
         */
     }
-
-
-
+    
 
     void ChangeState(State newState)
     {
         state = newState;
     }
 
-    void ChasePlayer(Vector3 direction)     //추격 기능
+    void ChasePlayer()                      //추격 기능
     {
-        
+        nmAgent.speed = 4;
+        nmAgent.SetDestination(player.position);
     }
+
 
     void LookPlayer(Vector3 direction)      //경계 기능
     {
@@ -499,7 +578,7 @@ public class EnemyController2 : MonoBehaviour
 
     void ReturnToBase()  //귀환 기능
     {
-
+        nmAgent.speed = 2f;
         if (distanceToBase > 3)  // 거리가 0.1 이상일 경우에만 이동
         {
             nmAgent.SetDestination(initialPoint);
@@ -511,6 +590,55 @@ public class EnemyController2 : MonoBehaviour
             ChangeState(State.IDLE); //idle 상태로 변경
         }
     }
+
+    void CheckPlayer()
+    {
+        nmAgent.speed = 1.1f;
+        // 방향이 초기화되지 않았으면 50% 확률로 좌우 이동 방향을 설정
+        if (!directionInitialized)
+        {
+            moveRight = UnityEngine.Random.Range(0f, 1f) >= 0.5f;
+            directionInitialized = true;  // 방향이 초기화되었음을 표시
+        }
+
+        timeSinceLastCheck += Time.deltaTime;
+
+        if (timeSinceLastCheck >= checkInterval)
+        {
+            timeSinceLastCheck = 0f;
+
+            // 50% 확률로 좌우 이동 방향 변경
+            if (UnityEngine.Random.Range(0f, 1f) < 0.5f)
+            {
+                moveRight = !moveRight;
+            }
+        }
+
+        // 플레이어와의 방향 벡터 계산
+        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+
+        // 플레이어와의 현재 거리
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        // 좌우로 이동할 방향을 계산 (좌측 혹은 우측으로 90도 회전)
+        Vector3 moveDirection;
+        if (moveRight)
+        {
+            moveDirection = Quaternion.Euler(0, 90, 0) * directionToPlayer;  // 우측으로 회전
+        }
+        else
+        {
+            moveDirection = Quaternion.Euler(0, -90, 0) * directionToPlayer; // 좌측으로 회전
+        }
+
+        // 목표 위치 계산
+        Vector3 targetPosition = player.position - directionToPlayer * 7f + moveDirection * 2f;
+
+        // NavMeshAgent의 목적지를 갱신
+        nmAgent.SetDestination(targetPosition);
+    }
+
+
     //공격 비활성화 or 활성화 기능
     void EnableAttackColliders(bool enable)
     {
