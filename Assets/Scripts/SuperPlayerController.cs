@@ -12,7 +12,7 @@ public class SuperPlayerController : MonoBehaviour
     private Vector3 lastMovement;                  //최근 이동 방향
 
 
-    public float moveSpeed = 5f;                   // 이동 속도
+    public float moveSpeed = 4f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
     public float DiveDelay = 1.2f;                 // 다이브 쿨타임
@@ -80,7 +80,7 @@ public class SuperPlayerController : MonoBehaviour
 
         if(isStand)
         {
-            moveSpeed = 5f;
+            moveSpeed = 4f;
         }
         else if(!isStand)
         {
@@ -340,11 +340,11 @@ public class SuperPlayerController : MonoBehaviour
             // 다이브 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
             {
-                transform.Translate(lastMovement * 5f * Time.deltaTime);
+                transform.Translate(lastMovement.normalized * 5f * Time.deltaTime);
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightDive"))
             {
-                transform.Translate(lastMovement * 5f * Time.deltaTime);
+                transform.Translate(lastMovement.normalized * 5f * Time.deltaTime);
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ForwardDive"))
             {
@@ -629,6 +629,7 @@ public class SuperPlayerController : MonoBehaviour
     {
         Debug.Log("10데미지!");
         PlayerHP = PlayerHP - GetDamage;
+        isAttackHit = false;
         animator.CrossFade("Hit", 0.1f,0,0);
         attackPhase = 0;
 

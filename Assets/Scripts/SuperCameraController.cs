@@ -12,6 +12,7 @@ public class SuperCameraController : MonoBehaviour
     private float rotationMin = -20f;                // 카메라 X축 회전 하한
     private float rotationMax = 80f;               // 카메라 X축 회전 상한
     private float smoothTime = 0.12f;              // 카메라 회전 지연 계수
+    private float smoothMove = 0.2f;
 
     private float Xaxis = 0f;                      // 카메라 X축 회전 각도
     private float Yaxis = 0f;                      // 카메라 Y축 회전 각도
@@ -28,6 +29,15 @@ public class SuperCameraController : MonoBehaviour
 
     public bool IsLockedOn => isLockedOn;
     public Transform LockedTarget => lockedTarget;
+    private Vector3 velocity = Vector3.zero;
+
+
+    public float minSmoothMove = 0f; // 최소 smoothMove 값
+    public float maxSmoothMove = 0.2f; // 최대 smoothMove 값
+    public float smoothChangeTime = 0.1f; // smoothMove 값의 변화에 소요되는 시간
+    private float currentSmoothMove; // 현재 smoothMove 값
+
+
 
     void Update()
     {
@@ -74,29 +84,65 @@ public class SuperCameraController : MonoBehaviour
         }
 
         // 충돌 검사 및 카메라 위치 조정
-        HandleCameraCollision(); // 장애물 감지 및 거리 조정
+        //HandleCameraCollision(); // 장애물 감지 및 거리 조정
     }
 
     void LateUpdate()
     {
-        if (lockedTarget != null && isLockedOn)     // Lock On 상태에서 카메라 조정
+        Vector3 desiredPosition = player.position - transform.forward * distance; // 기본 카메라 위치 설정
+        RaycastHit hit;
+
+        // Raycast를 이용하여 Ground와 충돌 검사
+        if (Physics.Raycast(player.position, -transform.forward, out hit, distance)) // 플레이어 위치에서 아래로 Raycast
+        {
+            if (hit.collider.CompareTag("Ground"))
+            {
+                // 충돌 시 distance 값을 2f로 점진적으로 줄여나감
+                distance = Mathf.Lerp(distance, minDistance, Time.deltaTime * 5f); // 거리 감소
+            }
+        }
+        else
+        {
+            distance = Mathf.Lerp(distance, 7f, Time.deltaTime * 5f); // 거리 복원
+        }
+
+        if (lockedTarget != null && isLockedOn) // Lock On 상태에서 카메라 조정
         {
             Vector3 direction = lockedTarget.position - player.position; // Lock On 타겟과의 방향벡터
             Quaternion rotationToFaceEnemy = Quaternion.LookRotation(direction); // Lock On 타겟으로 회전 계수 생성
             Quaternion targetRotation = Quaternion.Euler(Xaxis, rotationToFaceEnemy.eulerAngles.y, 0); // Lock On 타겟으로 위치 계수 생성
 
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // Lock On 타겟으로 부드럽게 회전
-            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f;
+            Vector3 targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
+            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, 0.2f);
         }
         else // Lock On 미실시 상태에서 카메라 조정
         {
-            Yaxis += Input.GetAxis("Mouse X") * rotationSensitive; // 마우스 X로 Y축 회전 감지
-            Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive; // 마우스 Y로 X축 회전 감지
-            Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);   // X축 회전 각도 제한
+            // 마우스 입력에 따라 smoothMove 값을 조정
+            float mouseInput = Mathf.Abs(Input.GetAxis("Mouse X")) + Mathf.Abs(Input.GetAxis("Mouse Y"));
 
-            Quaternion targetRotation = Quaternion.Euler(new Vector3(Xaxis, Yaxis)); // 회전 계수 생성
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // 부드러운 회전
-            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f; // 기본 카메라 위치 설정
+            
+
+            // 마우스 이동으로 인한 회전 감지 및 적용
+            Yaxis += Input.GetAxis("Mouse X") * rotationSensitive;
+            Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive;
+            Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);
+
+            Quaternion targetRotation = Quaternion.Euler(new Vector3(Xaxis, Yaxis));
+            transform.rotation = targetRotation;
+            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f;
+            // 카메라 위치 부드럽게 이동
+            /*Vector3 targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
+            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, currentSmoothMove);
+
+            if (mouseInput > 0f) // 마우스가 움직일 때
+            {
+                currentSmoothMove = Mathf.Lerp(currentSmoothMove, minSmoothMove, Time.deltaTime / smoothChangeTime);
+            }
+            else // 마우스가 멈출 때
+            {
+                currentSmoothMove = Mathf.Lerp(currentSmoothMove, maxSmoothMove, Time.deltaTime / smoothChangeTime);
+            }*/
         }
     }
 
