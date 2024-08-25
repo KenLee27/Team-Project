@@ -9,6 +9,8 @@ public class SuperPlayerController : MonoBehaviour
     private float targetSpeed;
     private float rotationVelocity;
     private float smoothRotationTime = 0.3f;
+    private Vector3 lastMovement;                  //최근 이동 방향
+
 
     public float moveSpeed = 5f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
@@ -23,6 +25,8 @@ public class SuperPlayerController : MonoBehaviour
     public bool isMoving = false;
     public bool isAttacking = false;
     public bool isDive = false;
+    public bool isStand = true;
+
 
     private Coroutine resetPhaseCoroutine;
 
@@ -42,6 +46,7 @@ public class SuperPlayerController : MonoBehaviour
     private int attackPhase = 0;
     public bool canAttack = true; // 공격 가능 여부
     public bool canDive = true;
+    public bool canCrouched = true;
     private float attackDelay = 1f; // 각 공격 사이의 딜레이
 
     void Start()
@@ -56,6 +61,22 @@ public class SuperPlayerController : MonoBehaviour
 
     void Update()
     {
+
+        if(isStand)
+        {
+            moveSpeed = 5f;
+        }
+        else if(!isStand)
+        {
+            moveSpeed = 2.5f;
+        }
+
+        //다이브 전까지 방향을 저장
+        if (!isDive)
+        {
+            lastMovement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        }
+
         if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
         {
             RotateTowardsEnemy();
@@ -73,11 +94,16 @@ public class SuperPlayerController : MonoBehaviour
         {
             HandleAttack();
         }
+        //앉기
+        if(canCrouched && Input.GetKeyDown(KeyCode.LeftControl) && isGround && !isAttacking && !isDive)
+        {
+            HandleCrouched();
+        }
+
         if(canDive)
         {
-            isMoving = false;
             //카메라가 락온일때와 아닐때의 구르기 차이
-            if (cameraController.IsLockedOn)
+            if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
             {
                 if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") < 0 && !isAttacking && isGround)
                 {
@@ -101,6 +127,12 @@ public class SuperPlayerController : MonoBehaviour
                 {
                     HandleDive_Back();
                     Debug.Log("뒤로 구른다!");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0 && !isAttacking && isGround)
+                {
+                    HandleStep_Back();
+                    Debug.Log("백스탭!");
                 }
             }
             else
@@ -128,11 +160,78 @@ public class SuperPlayerController : MonoBehaviour
                     HandleDive_Forward();
                     Debug.Log("구른다!");
                 }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0 && !isAttacking && isGround)
+                {
+                    HandleStep_Back();
+                    Debug.Log("백스탭!");
+                }
             }
         }
-        
+    }
+
+    private void HandleCrouched()
+    {
+        if(isStand == true)
+        {
+            Debug.Log("앉아야지");
+            isStand = false;
+        }
+        else if(isStand == false)
+        {
+            Debug.Log("일어나야지");
+            isStand = true;
+        }
+
+        animator.SetBool("isCrouching",!isStand);
+
+        StartCoroutine(EnableNextCrouchedAfterDelay());
+    }
+
+    private IEnumerator EnableNextCrouchedAfterDelay()
+    {
+        canCrouched = false;
+        Debug.Log("앉기 쿨타임");
+        yield return new WaitForSeconds(0.2f);
+        Debug.Log("앉기 쿨타임 끝!");
+        canCrouched = true;
+    }
+
+    private void HandleStep_Back()
+    {
+        canDive = false;
+        currentState = State.DIVE;
+        isDive = true;
+        animator.CrossFade("BackStep", 0.1f, 0, 0);
+        StartCoroutine(BackStepDirection());
+        StartCoroutine(EnableNextBackStepAfterDelay());
+    }
         
 
+    private IEnumerator EnableNextBackStepAfterDelay()
+    {
+
+        Debug.Log("백스탭 쿨타임");
+        yield return new WaitForSeconds(0.7f);
+        Debug.Log("백스탭 쿨타임 끝!");
+        canDive = true;
+        currentState = State.IDLE;
+    }
+
+    private IEnumerator BackStepDirection()
+    {
+        isStand = true;
+        float startTime = Time.time;
+        while (Time.time < startTime + 0.7f)                                //애니메이션 시간
+        {
+             transform.Translate(Vector3.back * 3f * Time.deltaTime);
+
+            yield return null;
+        }
+        Debug.Log("애니메이션 끝!");
+        animator.SetBool("isCrouching", !isStand);
+        isDive = false;
+        currentState = State.IDLE;
     }
 
     private void HandleDive_left()
@@ -187,6 +286,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator DiveDirection()
     {
+        isStand = true;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
         while (Time.time < startTime + 1.3f)
@@ -194,11 +294,11 @@ public class SuperPlayerController : MonoBehaviour
             // 공격 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
             {
-                transform.Translate(Vector3.left * 5f * Time.deltaTime);
+                transform.Translate(lastMovement * 5f * Time.deltaTime);
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightDive"))
             {
-                transform.Translate(Vector3.right * 5f * Time.deltaTime);
+                transform.Translate(lastMovement * 5f * Time.deltaTime);
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ForwardDive"))
             {
@@ -211,6 +311,7 @@ public class SuperPlayerController : MonoBehaviour
             yield return null;
         }
         Debug.Log("애니메이션 끝!");
+        animator.SetBool("isCrouching", !isStand);
         isDive = false;
         isMoving = true;
         currentState = State.IDLE;
@@ -290,6 +391,15 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleJump()
     {
+        if(!isStand)
+        {
+            isStand = true;
+            animator.SetBool("isCrouching", !isStand);
+            currentState = State.IDLE;
+
+            return;
+        }
+
         if (isGround)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -297,10 +407,12 @@ public class SuperPlayerController : MonoBehaviour
             animator.SetBool("isJumping", true); // 점프 애니메이션
             currentState = State.IDLE;
         }
+        
     }
 
     private void HandleAttack()
     {
+        isStand = true;
         currentState = State.ATTACK;
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
@@ -368,6 +480,7 @@ public class SuperPlayerController : MonoBehaviour
 
         moveSpeed = 0; //공격중 속도 제어
         yield return new WaitForSeconds(attackDelay);
+        animator.SetBool("isCrouching", !isStand);
         canAttack = true; // 다시 공격 가능해짐
         isAttacking = false; //공격중이 아님.
         moveSpeed = 5;
