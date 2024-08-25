@@ -14,18 +14,22 @@ public class EnemyController2 : MonoBehaviour
 
     public Transform player; //플레이어 타겟
     public LayerMask playerLayer;
+    public GameObject attackRangeL;
+    public GameObject attackRangeR;
 
     private bool firstlooking = true; //캐릭터 최초 목격
 
     private float HP = 0; //적 체력 선언 및 초기화
     private float detectingRange = 20f;         //적 탐지 거리
     private float sensingRange = 13.5f;         //적 인지 거리
-    public float attackRange = 2.5f;           //적 공격 사거리
+    public float attackRange = 2f;           //적 공격 사거리
     private float smoothRotationSpeed = 15f;     //적 최적화 회전 속도
     //public float moveSpeed = 4.0f;             //적 이동속도
     //private float returnSpeed = 2f;           //적 복귀속도
 
-    public bool isHit = false;
+    public bool isHit = false;                  //맞은 상태
+    public bool isinvincibility = false;      //무적상태
+    public bool isAttack = false;
 
     Vector3 directionToPlayer;
     Vector3 directionToBase;
@@ -122,10 +126,11 @@ public class EnemyController2 : MonoBehaviour
         if (isHit)
         {
             ChangeState(State.HIT);
+            yield break;
         }
 
         // 플레이어와의 남은 거리가 공격 지점보다 작거나 같으면
-        if (distanceToPlayer <= attackRange)
+        if (distanceToPlayer <= 2f)
         {
             // StateMachine 을 공격으로 변경
             ChangeState(State.ATTACK);
@@ -151,25 +156,49 @@ public class EnemyController2 : MonoBehaviour
 
         anim.CrossFade("Creep|Punch_Idle", 0.1f, 0, 0);
 
-        float attackDuration = 2.0f;  // 공격 애니메이션의 지속 시간
+        float attackDuration = 2.5f;  // 공격 애니메이션의 지속 시간
         float elapsedTime = 0f;
         while (elapsedTime < attackDuration)
         {
-            // 공격 가능 범위보다 플레이어와의 거리가 멀어지면
-            if (distanceToPlayer > attackRange)
+            curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            if (curAnimStateInfo.IsName("Creep|Punch_Action"))
             {
-                // StateMachine을 추적으로 변경
-                ChangeState(State.CHASE);
-                yield break;  // 코루틴 종료
-            }
+                if (isHit)                                                      //데미지 판정
+                {
+                    ChangeState(State.HIT);
+                    yield break;  // 코루틴 종료
+                }
 
-            if (isHit)
+                if (elapsedTime > 0.8f && elapsedTime < 1.5f)                   //공격 판정 시간
+                {
+                    
+                    isAttack = true;
+                    
+                }
+                else
+                {
+                    isAttack = false;
+                }
+            }
+            else
             {
-                ChangeState(State.HIT);
-                yield break;  // 코루틴 종료
+                //맞으면 HIT로 변경
+                if (isHit)
+                {
+                    ChangeState(State.HIT);
+                    yield break;  // 코루틴 종료
+                }
+
             }
             elapsedTime += Time.deltaTime;
             yield return null;
+        }
+        // 공격 가능 범위보다 플레이어와의 거리가 멀어지면
+        if (distanceToPlayer > attackRange)
+        {
+            // StateMachine을 추적으로 변경
+            ChangeState(State.CHASE);
+            yield break;
         }
     }
 
@@ -196,6 +225,7 @@ public class EnemyController2 : MonoBehaviour
         if(isHit)
         {
             ChangeState(State.HIT);
+            yield break;
         }
 
         yield return null;
@@ -226,7 +256,12 @@ public class EnemyController2 : MonoBehaviour
             yield return null;
             curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         }
-
+        //맞으면 즉시 HIT 상태로 변경
+        if (isHit)
+        {
+            ChangeState(State.HIT);
+            yield break;
+        }
 
         // 거리가 가까워지면
         if (sensingRange > distanceToPlayer)
@@ -272,12 +307,12 @@ public class EnemyController2 : MonoBehaviour
         {
             yield return null;
             curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        }
-
-        if (isHit)
-        {
-            ChangeState(State.HIT);
-            yield break;  // 코루틴 종료
+            //맞으면 HIT 상태로 즉시 변경
+            if (isHit)
+            {
+                ChangeState(State.HIT);
+                yield break;  // 코루틴 종료
+            }
         }
 
         if (curAnimStateInfo.IsName("Creep|Idle1_Action"))
@@ -291,7 +326,7 @@ public class EnemyController2 : MonoBehaviour
 
     IEnumerator HIT()
     {
-        HP = HP - 3; //캐릭터 데미지 나중에 가져오기
+        HP = HP - 3;
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         if (HP > 0)
         {
@@ -323,6 +358,7 @@ public class EnemyController2 : MonoBehaviour
 
             if (curAnimStateInfo.IsName("Creep|Walk1_Action"))
             {
+                isinvincibility = false;
                 ChangeState(State.ATTACK);
             }
 
@@ -398,6 +434,18 @@ public class EnemyController2 : MonoBehaviour
         {
             ReturnToBase();
         }
+
+        if (isAttack)
+        {
+            // 공격 상태일 때 콜라이더를 활성화합니다.
+            EnableAttackColliders(true);
+        }
+        else
+        {
+            // 공격 상태가 아닐 때 콜라이더를 비활성화합니다.
+            EnableAttackColliders(false);
+        }
+
         /*
                 if (distanceToPlayer <= attackRange)        //적 공격 사거리 내에 들어오면 공격             
                 {
@@ -463,14 +511,28 @@ public class EnemyController2 : MonoBehaviour
             ChangeState(State.IDLE); //idle 상태로 변경
         }
     }
+    //공격 비활성화 or 활성화 기능
+    void EnableAttackColliders(bool enable)
+    {
+        // attackRangeL과 attackRangeR의 콜라이더를 활성화 또는 비활성화
+        if (attackRangeL != null)
+        {
+            attackRangeL.GetComponent<Collider>().enabled = enable;
+        }
+
+        if (attackRangeR != null)
+        {
+            attackRangeR.GetComponent<Collider>().enabled = enable;
+        }
+    }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Weapon") && player_1.GetComponent<SuperPlayerController>().isAttacking)
+        if (other.CompareTag("Weapon") && player_1.GetComponent<SuperPlayerController>().isAttackHit && !isinvincibility)
         {
+            isinvincibility = true;
             Debug.Log("아프다!");
             isHit = true;
-
         }
     }
 

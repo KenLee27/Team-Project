@@ -16,6 +16,9 @@ public class SuperPlayerController : MonoBehaviour
     public float jumpForce = 3f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
     public float DiveDelay = 1.2f;                 // 다이브 쿨타임
+    public float PlayerHP = 100f;
+
+    public float GetDamage = 10f;
 
     public SuperCameraController cameraController; // SuperCameraController 참조
     public Animator animator;                      // 애니메이터 참조
@@ -26,6 +29,10 @@ public class SuperPlayerController : MonoBehaviour
     public bool isAttacking = false;
     public bool isDive = false;
     public bool isStand = true;
+    public bool isAttacked = false;
+    public bool isinvincibility = false;
+    public bool isDie = false;
+    public bool isAttackHit = false;
 
 
     private Coroutine resetPhaseCoroutine;
@@ -37,7 +44,9 @@ public class SuperPlayerController : MonoBehaviour
         MOVE,
         JUMP,
         ATTACK,
-        DIVE
+        DIVE,
+        HIT,
+        DIE
     }
 
     private State currentState = State.IDLE;
@@ -47,6 +56,7 @@ public class SuperPlayerController : MonoBehaviour
     public bool canAttack = true; // 공격 가능 여부
     public bool canDive = true;
     public bool canCrouched = true;
+
     private float attackDelay = 1f; // 각 공격 사이의 딜레이
 
     void Start()
@@ -61,6 +71,12 @@ public class SuperPlayerController : MonoBehaviour
 
     void Update()
     {
+
+
+        if (PlayerHP <= 0)
+        {
+            HandleDead();
+        }
 
         if(isStand)
         {
@@ -170,6 +186,15 @@ public class SuperPlayerController : MonoBehaviour
         }
     }
 
+    private void HandleDead()
+    {
+        animator.SetBool("isDead", true);
+
+
+        currentState = State.DIE;
+        isDie = true;
+    }
+
     private void HandleCrouched()
     {
         if(isStand == true)
@@ -224,7 +249,16 @@ public class SuperPlayerController : MonoBehaviour
         float startTime = Time.time;
         while (Time.time < startTime + 0.7f)                                //애니메이션 시간
         {
-             transform.Translate(Vector3.back * 3f * Time.deltaTime);
+            //벡스탭 무적시간 설정
+            if (Time.time >= startTime + 0.2f && Time.time <= startTime + 0.5f)
+            {
+                isinvincibility = true;
+            }
+            else
+            {
+                isinvincibility = false;
+            }
+            transform.Translate(Vector3.back * 3f * Time.deltaTime);
 
             yield return null;
         }
@@ -291,6 +325,18 @@ public class SuperPlayerController : MonoBehaviour
         float startTime = Time.time;
         while (Time.time < startTime + 1.3f)
         {
+
+            //다이브 무적시간
+            if (Time.time >= startTime + 0.1f && Time.time <= startTime + 1.0f)
+            {
+                isinvincibility = true;
+            }
+            else
+            {
+                isinvincibility = false;
+            }
+
+
             // 공격 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
             {
@@ -335,18 +381,23 @@ public class SuperPlayerController : MonoBehaviour
                 break;
             case State.DIVE:
                 break;
+            /*case State.HIT:
+                HandleHit();
+                break;
+            case State.DIE:
+                break;*/
         }
     }
 
     private void HandleMove()
     {
-
-        if (currentState == State.JUMP || currentState == State.DIVE || currentState ==State.ATTACK)
+        //움직이지 못하는 상태 구현
+        if (currentState == State.JUMP || currentState == State.DIVE || currentState ==State.ATTACK || currentState == State.HIT || currentState == State.DIE)
         {
             return;
         }
 
-
+        //움직임 구현
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector2 inputDir = input.normalized;
         isMoving = inputDir != Vector2.zero;
@@ -421,6 +472,7 @@ public class SuperPlayerController : MonoBehaviour
         {
             case 1:
                 animator.CrossFade("SwordAttack_1", 0.1f);
+                StartCoroutine(PerformAttackMovement());
                 break;
             case 2:
                 animator.CrossFade("SwordAttack_2",0.1f);
@@ -447,20 +499,56 @@ public class SuperPlayerController : MonoBehaviour
     {
         // 애니메이션의 특정 시간 동안 이동
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
-        float startTime = Time.time;
+        float startTime = 0f;
 
-        while (Time.time < startTime + attackAnimationDuration)
+        while (startTime < attackAnimationDuration)
         {
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_1"))
+            {
+                if(startTime > 0.5f && startTime < 0.8f)                                        //공격 판정 시간
+                {
+                    isAttackHit = true;
+                }
+
+                else
+                {
+                    isAttackHit = false;
+                }
+            }
             // 공격 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_2"))
             {
-                transform.Translate(Vector3.forward * 0.5f * Time.deltaTime);
+                transform.Translate(Vector3.forward * 0.3f * Time.deltaTime);
+
+                if (startTime > 0.666f && startTime < 1f)                                        //공격 판정 시간
+                {
+                    isAttackHit = true;
+                }
+
+                else
+                {
+                    isAttackHit = false;
+                }
+
             }
 
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
             {
                 transform.Translate(Vector3.forward * 1.2f * Time.deltaTime);
+
+                if (startTime > 0.666f && startTime < 1f)                                        //공격 판정 시간
+                {
+                    isAttackHit = true;
+                }
+
+                else
+                {
+                    isAttackHit = false;
+                }
+
             }
+
+            startTime += Time.deltaTime;
             yield return null;
         }
     }
@@ -481,8 +569,8 @@ public class SuperPlayerController : MonoBehaviour
         yield return new WaitForSeconds(attackDelay);
         isStand = true;
         animator.SetBool("isCrouching", !isStand);
+        isAttacking = false;
         canAttack = true; // 다시 공격 가능해짐
-        isAttacking = false; //공격중이 아님.
         moveSpeed = 5;
 
         if (attackPhase >= 3) // 공격이 완료된 경우
@@ -521,5 +609,62 @@ public class SuperPlayerController : MonoBehaviour
             isGround = true;
             animator.SetBool("isJumping", false);
         }
+
+        
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("EnemyAttack"))
+        {
+            if (!isinvincibility)
+            {
+                currentState = State.HIT;
+                Debug.Log("구울에게 맞았다!");
+                isAttacked = true;
+                HandleHit();
+            }
+        }
+    }
+
+    private void HandleHit()
+    {
+        Debug.Log("10데미지!");
+        PlayerHP = PlayerHP - GetDamage;
+        animator.CrossFade("Hit", 0.1f,0,0);
+        attackPhase = 0;
+
+
+        StartCoroutine(AttackedMotionDelay());
+        
+    }
+
+    private IEnumerator AttackedMotionDelay()
+    {
+        isAttacked = false;
+        isStand = true;
+        float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
+        float startTime = Time.time;
+        while (Time.time < startTime + 0.8f)
+        {
+
+            //피격 무적시간
+            if (Time.time >= startTime + 0.0f && Time.time <= startTime + 0.7f)
+            {
+                isinvincibility = true;
+            }
+            else
+            {
+                isinvincibility = false;
+            }
+
+            yield return null;
+        }
+        animator.SetBool("isAttacked", isAttacked);
+
+        animator.SetBool("isCrouching", !isStand);
+
+        currentState = State.IDLE;
+    }
+
 }
