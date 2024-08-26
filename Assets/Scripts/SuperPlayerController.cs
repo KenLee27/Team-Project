@@ -320,18 +320,24 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator DiveDirection()
     {
+        bool invincibilityCheck = true;
         isStand = true;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
         while (Time.time < startTime + 1.3f)
         {
-
+            
             //다이브 무적시간
             if (Time.time >= startTime + 0.1f && Time.time <= startTime + 1.0f)
             {
                 isinvincibility = true;
             }
-            else
+            else if(invincibilityCheck && !(Time.time <= startTime + 1.0f))
+            {
+                isinvincibility = false;
+                invincibilityCheck = false;
+            }
+            else if(!(Time.time >= startTime + 0.1f))
             {
                 isinvincibility = false;
             }
@@ -617,6 +623,7 @@ public class SuperPlayerController : MonoBehaviour
         {
             if (!isinvincibility)
             {
+                isinvincibility = true;
                 currentState = State.HIT;
                 Debug.Log("구울에게 맞았다!");
                 isAttacked = true;
@@ -651,7 +658,7 @@ public class SuperPlayerController : MonoBehaviour
             //피격 무적시간
             if (Time.time >= startTime + 0.0f && Time.time <= startTime + 0.7f)
             {
-                isinvincibility = true;
+                
             }
             else
             {

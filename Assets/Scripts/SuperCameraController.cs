@@ -115,7 +115,7 @@ public class SuperCameraController : MonoBehaviour
 
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // Lock On 타겟으로 부드럽게 회전
             Vector3 targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
-            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, 0.2f);
+            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
         }
         else // Lock On 미실시 상태에서 카메라 조정
         {
