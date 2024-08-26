@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     public SuperPlayerController playerController;
     public ImgsFillDynamic hpBar;
 
+    public GameObject hpSliderPrefab;     // HP 슬라이더 프리팹
+
     void Awake()
     {
         if (Instance == null)
@@ -23,6 +25,17 @@ public class GameManager : MonoBehaviour
         }
 
         InitializePlayerHP();
+        InitializeMonsters();
+    }
+
+    public void InitializeMonsters()
+    {
+        EnemyController2[] monsters = FindObjectsOfType<EnemyController2>(); // 모든 몬스터 탐색
+
+        foreach (var monster in monsters)
+        {
+            monster.InitializeHPBar(hpSliderPrefab); // 각 몬스터에 슬라이더 초기화
+        }
     }
 
     public void UpdatePlayerHP(float currentHP)

@@ -22,6 +22,7 @@ public class EnemyController2 : MonoBehaviour
     private bool firstlooking = true; //캐릭터 최초 목격
 
     private float HP = 0; //적 체력 선언 및 초기화
+    private float MaxHP = 10;
     private float detectingRange = 20f;         //적 탐지 거리
     private float sensingRange = 13.5f;         //적 인지 거리
     private float checkRange = 7f;
@@ -75,12 +76,66 @@ public class EnemyController2 : MonoBehaviour
     void Start()
     {
         initialPoint = new Vector3(transform.position.x, transform.position.y, transform.position.z);   //적 배치 위치 초기화
-        HP = 10; //체력 초기화
+        HP = MaxHP; //체력 초기화
         anim = GetComponent<Animator>();
         nmAgent = GetComponent<NavMeshAgent>();
         state = State.IDLE;
         StartCoroutine(StateMachine());
     }
+
+
+
+
+
+
+
+
+    // 작성자 이겸
+
+
+    private bool isAttacked = false;
+    private Slider hpSlider;                     // 몬스터 HP 슬라이더
+    private GameObject hpSliderObject;          // 슬라이더 UI 오브젝트
+
+    public void InitializeHPBar(GameObject hpSliderPrefab)
+    {
+        hpSliderObject = Instantiate(hpSliderPrefab, GameObject.Find("Canvas").transform); // 슬라이더 생성 및 부모를 Canvas로 설정
+        hpSlider = hpSliderObject.GetComponent<Slider>();
+        //hpSliderObject.SetActive(true);
+        UpdateHPBar();
+    }
+
+    private void UpdateHPBar()
+    {
+        if (hpSlider != null)
+        {
+            hpSlider.value = HP / MaxHP; // 슬라이더 값 업데이트
+            PositionHPBarAboveMonster(); // HP 슬라이더 위치 업데이트
+        }
+    }
+
+    private void PositionHPBarAboveMonster()
+    {
+        if (hpSliderObject != null)
+        {
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2f); // 머리 위로 위치 조정
+            hpSliderObject.transform.position = screenPosition; // UI 슬라이더 위치 설정
+        }
+    }
+
+
+
+
+    //  작성자 이겸
+
+
+
+
+
+
+
+
+
 
     IEnumerator StateMachine()
     {
@@ -354,6 +409,16 @@ public class EnemyController2 : MonoBehaviour
 
     IEnumerator HIT()
     {
+        //작성자 이겸
+        if(isAttacked != true) 
+        { 
+            isAttacked = true;
+            hpSliderObject.SetActive(true);
+        }
+        //작성자 이겸
+
+
+
         nmAgent.speed = 0f;
         HP = HP - 3;
 
@@ -479,6 +544,10 @@ public class EnemyController2 : MonoBehaviour
 
         // 애니메이션이 끝난 후 오브젝트를 제거
         Destroy(gameObject);
+
+        //작성자 이겸
+        Destroy(hpSliderObject);
+        //작성자 이겸
     }
 
 
@@ -488,6 +557,7 @@ public class EnemyController2 : MonoBehaviour
 
     void Update()
     {
+        UpdateHPBar(); // 작성자 이겸
 
         directionToPlayer = new Vector3(player.position.x - transform.position.x,
             0f, player.position.z - transform.position.z);    //플레이어와의 위치관계

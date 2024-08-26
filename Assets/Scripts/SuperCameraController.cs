@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SuperCameraController : MonoBehaviour
 {
     public Transform player;                       // 플레이어의 Transform
-    public GameObject lockOnMarker;                // Lock On 마커 프리팹w
+    public GameObject lockOnMarker;
 
     private float rotationSensitive = 3f;          // 카메라 회전 감도
     private float distance = 7f;                   // 카메라-플레이어 거리
@@ -232,19 +233,21 @@ public class SuperCameraController : MonoBehaviour
     {
         if (currentMarker == null)
         {
-            currentMarker = Instantiate(lockOnMarker, lockedTarget.position + Vector3.up * 1f, Quaternion.identity); // 마커 생성
+            currentMarker = Instantiate(lockOnMarker, GameObject.Find("Canvas").transform); // Canvas를 부모로 설정
+
+            currentMarker.gameObject.SetActive(true); // 생성된 마커를 활성화
         }
-        else
-        {
-            currentMarker.transform.position = lockedTarget.position + Vector3.up * 1f; // 마커 위치 업데이트
-        }
+
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(lockedTarget.position);
+        currentMarker.transform.position = screenPosition; // 마커 위치 업데이트
     }
 
     private void DestroyCurrentMarker()
     {
         if (currentMarker != null)
         {
-            Destroy(currentMarker);
+            //Destroy(currentMarker);
+            Destroy(currentMarker.gameObject);
             currentMarker = null; // 마커 초기화
         }
     }
