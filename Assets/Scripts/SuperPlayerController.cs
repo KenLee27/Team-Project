@@ -629,6 +629,7 @@ public class SuperPlayerController : MonoBehaviour
     {
         Debug.Log("10µ¥¹ÌÁö!");
         PlayerHP = PlayerHP - GetDamage;
+        GameManager.Instance.UpdatePlayerHP(PlayerHP);
         isAttackHit = false;
         animator.CrossFade("Hit", 0.1f,0,0);
         attackPhase = 0;

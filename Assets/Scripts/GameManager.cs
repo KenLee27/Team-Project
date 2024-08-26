@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    // 주석
-    
+
+    public SuperPlayerController playerController;
+    public ImgsFillDynamic hpBar;
+
     void Awake()
     {
         if (Instance == null)
@@ -18,7 +21,22 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);  // 이미 인스턴스가 존재하면 새로 생성된 객체를 파괴
         }
+
+        InitializePlayerHP();
     }
 
-    // 여기에 게임 관리 로직을 추가하세요.
+    public void UpdatePlayerHP(float currentHP)
+    {
+        float hpRatio = currentHP / 100f;
+        hpBar.SetValue(hpRatio);
+    }
+
+    private void InitializePlayerHP()
+    {
+        if (playerController != null && hpBar != null)
+        {
+            float initialHPRatio = playerController.PlayerHP / 100f;
+            hpBar.SetValue(initialHPRatio, true); // 체력을 직접 설정
+        }
+    }
 }

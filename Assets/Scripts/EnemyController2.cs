@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
 public class EnemyController2 : MonoBehaviour
@@ -46,8 +48,6 @@ public class EnemyController2 : MonoBehaviour
     private bool directionInitialized = false;  // 방향이 초기화되었는지 여부를 확인하는 변수
     private float timeSinceLastCheck = 0f;
     private float checkInterval = 2f; // 2초마다 체크
-
-
 
     Vector3 initialPoint; //적 배치 위치 변수 선언
 
@@ -356,6 +356,7 @@ public class EnemyController2 : MonoBehaviour
     {
         nmAgent.speed = 0f;
         HP = HP - 3;
+
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         if (HP > 0)
         {
@@ -487,6 +488,7 @@ public class EnemyController2 : MonoBehaviour
 
     void Update()
     {
+
         directionToPlayer = new Vector3(player.position.x - transform.position.x,
             0f, player.position.z - transform.position.z);    //플레이어와의 위치관계
         distanceToPlayer = directionToPlayer.magnitude;                                       //플레이어와의 위치관계 수치화
@@ -552,7 +554,7 @@ public class EnemyController2 : MonoBehaviour
                 }
         */
     }
-    
+
 
     void ChangeState(State newState)
     {
