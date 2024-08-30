@@ -8,7 +8,7 @@ public class SuperCameraController : MonoBehaviour
     public GameObject lockOnMarker;
 
     private float rotationSensitive = 3f;          // 카메라 회전 감도
-    private float distance = 7f;                   // 카메라-플레이어 거리
+    private float distance = 5f;                   // 카메라-플레이어 거리
     private float minDistance = 1f;                // 최소 거리
     private float rotationMin = -20f;                // 카메라 X축 회전 하한
     private float rotationMax = 80f;               // 카메라 X축 회전 상한

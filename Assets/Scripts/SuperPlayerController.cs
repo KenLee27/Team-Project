@@ -324,11 +324,11 @@ public class SuperPlayerController : MonoBehaviour
         isStand = true;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
-        while (Time.time < startTime + 1.3f)
+        while (Time.time < startTime + 1.1f)
         {
             
             //다이브 무적시간
-            if (Time.time >= startTime + 0.1f && Time.time <= startTime + 1.0f)
+            if (Time.time >= startTime + 0.1f && Time.time <= startTime + 0.8f)
             {
                 isinvincibility = true;
             }
@@ -564,11 +564,11 @@ public class SuperPlayerController : MonoBehaviour
         //공격 단수 별 딜레이 조정
         if (attackPhase == 3)
         {
-            attackDelay = 2f;
+            attackDelay = 1.8f;
         }
         else
         {
-            attackDelay = 1.5f;
+            attackDelay = 1.1f;
         }
 
         yield return new WaitForSeconds(attackDelay);
