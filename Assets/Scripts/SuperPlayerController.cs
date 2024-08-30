@@ -15,7 +15,7 @@ public class SuperPlayerController : MonoBehaviour
     public float moveSpeed = 4f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
-    public float DiveDelay = 1.2f;                 // 다이브 쿨타임
+    public float DiveDelay = 1.1f;                 // 다이브 쿨타임
     public float PlayerHP = 100f;
 
     public float GetDamage = 10f;
@@ -312,7 +312,7 @@ public class SuperPlayerController : MonoBehaviour
     {
 
         Debug.Log("다이브 쿨타임");
-        yield return new WaitForSeconds(1.3f);
+        yield return new WaitForSeconds(DiveDelay);
         Debug.Log("다이브 쿨타임 끝!");
         canDive = true;
         currentState = State.IDLE;
@@ -526,7 +526,7 @@ public class SuperPlayerController : MonoBehaviour
             {
                 transform.Translate(Vector3.forward * 0.3f * Time.deltaTime);
 
-                if (startTime > 0.666f && startTime < 1f)                                        //공격 판정 시간
+                if (startTime > 0.566f && startTime < 1f)                                        //공격 판정 시간
                 {
                     isAttackHit = true;
                 }
