@@ -18,7 +18,7 @@ public class SuperPlayerController : MonoBehaviour
     public float DiveDelay = 1.1f;                 // 다이브 쿨타임
     public float PlayerHP = 100f;
 
-    public float GetDamage = 10f;
+    public float GetDamage = 30f;
 
     public SuperCameraController cameraController; // SuperCameraController 참조
     public Animator animator;                      // 애니메이터 참조
@@ -625,7 +625,7 @@ public class SuperPlayerController : MonoBehaviour
             {
                 isinvincibility = true;
                 currentState = State.HIT;
-                Debug.Log("구울에게 맞았다!");
+                Debug.Log("맞았다!");
                 isAttacked = true;
                 HandleHit();
             }
@@ -634,7 +634,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleHit()
     {
-        Debug.Log("10데미지!");
+        Debug.Log("데미지!");
         PlayerHP = PlayerHP - GetDamage;
         GameManager.Instance.UpdatePlayerHP(PlayerHP);
         isAttackHit = false;
@@ -650,6 +650,9 @@ public class SuperPlayerController : MonoBehaviour
     {
         isAttacked = false;
         isStand = true;
+        canDive = false;
+        isGround = false;
+        canCrouched = false;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
         while (Time.time < startTime + 0.8f)
@@ -667,6 +670,10 @@ public class SuperPlayerController : MonoBehaviour
 
             yield return null;
         }
+        canDive = true;
+        isGround = true;
+        canCrouched = true;
+
         animator.SetBool("isAttacked", isAttacked);
 
         animator.SetBool("isCrouching", !isStand);
