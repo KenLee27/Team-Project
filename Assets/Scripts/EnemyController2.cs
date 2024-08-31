@@ -52,6 +52,10 @@ public class EnemyController2 : MonoBehaviour
 
     Vector3 initialPoint; //적 배치 위치 변수 선언
 
+    private bool isAttacked = false;
+    private Slider hpSlider;                     // 몬스터 HP 슬라이더
+    private GameObject hpSliderObject;          // 슬라이더 UI 오브젝트
+
     enum State
     {
         IDLE,
@@ -82,56 +86,6 @@ public class EnemyController2 : MonoBehaviour
         state = State.IDLE;
         StartCoroutine(StateMachine());
     }
-
-
-
-
-
-
-
-
-    // 작성자 이겸
-
-
-    private bool isAttacked = false;
-    private Slider hpSlider;                     // 몬스터 HP 슬라이더
-    private GameObject hpSliderObject;          // 슬라이더 UI 오브젝트
-
-    public void InitializeHPBar(GameObject hpSliderPrefab)
-    {
-        hpSliderObject = Instantiate(hpSliderPrefab, GameObject.Find("Canvas").transform); // 슬라이더 생성 및 부모를 Canvas로 설정
-        hpSlider = hpSliderObject.GetComponent<Slider>();
-        //hpSliderObject.SetActive(true);
-        UpdateHPBar();
-    }
-
-    private void UpdateHPBar()
-    {
-        if (hpSlider != null)
-        {
-            hpSlider.value = HP / MaxHP; // 슬라이더 값 업데이트
-            PositionHPBarAboveMonster(); // HP 슬라이더 위치 업데이트
-        }
-    }
-
-    private void PositionHPBarAboveMonster()
-    {
-        if (hpSliderObject != null)
-        {
-            Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2f); // 머리 위로 위치 조정
-            hpSliderObject.transform.position = screenPosition; // UI 슬라이더 위치 설정
-        }
-    }
-
-
-
-
-    //  작성자 이겸
-
-
-
-
-
 
 
 
@@ -736,5 +690,39 @@ public class EnemyController2 : MonoBehaviour
             isHit = true;
         }
     }
+    // 작성자 이겸
+
+
+    
+
+    public void InitializeHPBar(GameObject hpSliderPrefab)
+    {
+        hpSliderObject = Instantiate(hpSliderPrefab, GameObject.Find("Canvas").transform); // 슬라이더 생성 및 부모를 Canvas로 설정
+        hpSlider = hpSliderObject.GetComponent<Slider>();
+        //hpSliderObject.SetActive(true);
+        UpdateHPBar();
+    }
+
+    private void UpdateHPBar()
+    {
+        if (hpSlider != null)
+        {
+            hpSlider.value = HP / MaxHP; // 슬라이더 값 업데이트
+            PositionHPBarAboveMonster(); // HP 슬라이더 위치 업데이트
+        }
+    }
+
+    private void PositionHPBarAboveMonster()
+    {
+        if (hpSliderObject != null)
+        {
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2f); // 머리 위로 위치 조정
+            hpSliderObject.transform.position = screenPosition; // UI 슬라이더 위치 설정
+        }
+    }
+
+
+
+
 
 }
