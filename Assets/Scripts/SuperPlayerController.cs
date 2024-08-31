@@ -15,10 +15,10 @@ public class SuperPlayerController : MonoBehaviour
     public float moveSpeed = 4f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
-    public float DiveDelay = 1.2f;                 // 다이브 쿨타임
+    public float DiveDelay = 1.1f;                 // 다이브 쿨타임
     public float PlayerHP = 100f;
 
-    public float GetDamage = 10f;
+    public float GetDamage = 30f;
 
     public SuperCameraController cameraController; // SuperCameraController 참조
     public Animator animator;                      // 애니메이터 참조
@@ -312,7 +312,7 @@ public class SuperPlayerController : MonoBehaviour
     {
 
         Debug.Log("다이브 쿨타임");
-        yield return new WaitForSeconds(1.3f);
+        yield return new WaitForSeconds(DiveDelay);
         Debug.Log("다이브 쿨타임 끝!");
         canDive = true;
         currentState = State.IDLE;
@@ -320,18 +320,24 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator DiveDirection()
     {
+        bool invincibilityCheck = true;
         isStand = true;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
-        while (Time.time < startTime + 1.3f)
+        while (Time.time < startTime + 1.1f)
         {
-
+            
             //다이브 무적시간
-            if (Time.time >= startTime + 0.1f && Time.time <= startTime + 1.0f)
+            if (Time.time >= startTime + 0.1f && Time.time <= startTime + 0.8f)
             {
                 isinvincibility = true;
             }
-            else
+            else if(invincibilityCheck && !(Time.time <= startTime + 1.0f))
+            {
+                isinvincibility = false;
+                invincibilityCheck = false;
+            }
+            else if(!(Time.time >= startTime + 0.1f))
             {
                 isinvincibility = false;
             }
@@ -520,7 +526,7 @@ public class SuperPlayerController : MonoBehaviour
             {
                 transform.Translate(Vector3.forward * 0.3f * Time.deltaTime);
 
-                if (startTime > 0.666f && startTime < 1f)                                        //공격 판정 시간
+                if (startTime > 0.566f && startTime < 1f)                                        //공격 판정 시간
                 {
                     isAttackHit = true;
                 }
@@ -558,11 +564,11 @@ public class SuperPlayerController : MonoBehaviour
         //공격 단수 별 딜레이 조정
         if (attackPhase == 3)
         {
-            attackDelay = 2f;
+            attackDelay = 1.8f;
         }
         else
         {
-            attackDelay = 1.5f;
+            attackDelay = 1.1f;
         }
 
         yield return new WaitForSeconds(attackDelay);
@@ -617,8 +623,9 @@ public class SuperPlayerController : MonoBehaviour
         {
             if (!isinvincibility)
             {
+                isinvincibility = true;
                 currentState = State.HIT;
-                Debug.Log("구울에게 맞았다!");
+                Debug.Log("맞았다!");
                 isAttacked = true;
                 HandleHit();
             }
@@ -627,7 +634,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleHit()
     {
-        Debug.Log("10데미지!");
+        Debug.Log("데미지!");
         PlayerHP = PlayerHP - GetDamage;
         GameManager.Instance.UpdatePlayerHP(PlayerHP);
         isAttackHit = false;
@@ -643,6 +650,9 @@ public class SuperPlayerController : MonoBehaviour
     {
         isAttacked = false;
         isStand = true;
+        canDive = false;
+        isGround = false;
+        canCrouched = false;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
         while (Time.time < startTime + 0.8f)
@@ -651,7 +661,7 @@ public class SuperPlayerController : MonoBehaviour
             //피격 무적시간
             if (Time.time >= startTime + 0.0f && Time.time <= startTime + 0.7f)
             {
-                isinvincibility = true;
+                
             }
             else
             {
@@ -660,6 +670,10 @@ public class SuperPlayerController : MonoBehaviour
 
             yield return null;
         }
+        canDive = true;
+        isGround = true;
+        canCrouched = true;
+
         animator.SetBool("isAttacked", isAttacked);
 
         animator.SetBool("isCrouching", !isStand);
