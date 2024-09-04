@@ -18,9 +18,13 @@ public class SuperCameraController : MonoBehaviour
     private float Xaxis = 0f;                      // 카메라 X축 회전 각도
     private float Yaxis = 0f;                      // 카메라 Y축 회전 각도
 
+    private float previousYaxis;
+    private float previousXaxis;
+
     private Transform lockedTarget;                 // Lock On 대상
     private List<Transform> enemies = new List<Transform>(); // Lock On할 적 리스트
     private bool isLockedOn = false;                // Lock On 상태 여부
+    private bool wasLockedOn = false;
 
     private GameObject currentMarker;               // 현재 Lock On 마커 객체
     private float lockOnCooldown = 1f;              // Lock On 재변경 쿨타임
@@ -92,6 +96,8 @@ public class SuperCameraController : MonoBehaviour
     {
         Vector3 desiredPosition = player.position - transform.forward * distance; // 기본 카메라 위치 설정
         RaycastHit hit;
+        Vector3 targetPosition;
+        Quaternion targetRotation;
 
         // Raycast를 이용하여 Ground와 충돌 검사
         if (Physics.Raycast(player.position, -transform.forward, out hit, distance)) // 플레이어 위치에서 아래로 Raycast
@@ -111,39 +117,38 @@ public class SuperCameraController : MonoBehaviour
         {
             Vector3 direction = lockedTarget.position - player.position; // Lock On 타겟과의 방향벡터
             Quaternion rotationToFaceEnemy = Quaternion.LookRotation(direction); // Lock On 타겟으로 회전 계수 생성
-            Quaternion targetRotation = Quaternion.Euler(Xaxis, rotationToFaceEnemy.eulerAngles.y, 0); // Lock On 타겟으로 위치 계수 생성
+            targetRotation = Quaternion.Euler(Xaxis, rotationToFaceEnemy.eulerAngles.y, 0); // Lock On 타겟으로 위치 계수 생성
+
 
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // Lock On 타겟으로 부드럽게 회전
-            Vector3 targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
+            targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
             transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
+
+            previousYaxis = rotationToFaceEnemy.eulerAngles.y;
+            previousXaxis = Xaxis;
+
+            wasLockedOn = true; // 락온 상태임을 기록
+
         }
         else // Lock On 미실시 상태에서 카메라 조정
         {
-            // 마우스 입력에 따라 smoothMove 값을 조정
-            float mouseInput = Mathf.Abs(Input.GetAxis("Mouse X")) + Mathf.Abs(Input.GetAxis("Mouse Y"));
+            if (wasLockedOn) // 락온 상태에서 해제되었을 때
+            {
+                // 저장된 Yaxis와 Xaxis 값을 사용하여 부드럽게 전환
+                Yaxis = previousYaxis;
+                Xaxis = previousXaxis;
+                wasLockedOn = false; // 상태 전환 기록
+            }
+            else // 기본 상태에서 정상적인 마우스 이동에 따른 조정
+            {
+                Yaxis += Input.GetAxis("Mouse X") * rotationSensitive;
+                Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive;
+                Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);
+            }
 
-            
-
-            // 마우스 이동으로 인한 회전 감지 및 적용
-            Yaxis += Input.GetAxis("Mouse X") * rotationSensitive;
-            Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive;
-            Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);
-
-            Quaternion targetRotation = Quaternion.Euler(new Vector3(Xaxis, Yaxis));
+            targetRotation = Quaternion.Euler(new Vector3(Xaxis, Yaxis));
             transform.rotation = targetRotation;
             transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f;
-            // 카메라 위치 부드럽게 이동
-            /*Vector3 targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
-            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, currentSmoothMove);
-
-            if (mouseInput > 0f) // 마우스가 움직일 때
-            {
-                currentSmoothMove = Mathf.Lerp(currentSmoothMove, minSmoothMove, Time.deltaTime / smoothChangeTime);
-            }
-            else // 마우스가 멈출 때
-            {
-                currentSmoothMove = Mathf.Lerp(currentSmoothMove, maxSmoothMove, Time.deltaTime / smoothChangeTime);
-            }*/
         }
     }
 
