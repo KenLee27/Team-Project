@@ -88,6 +88,13 @@ public class SuperCameraController : MonoBehaviour
             }
         }
 
+
+        if (lockedTarget == null)                                                 // Lock On 실행 중 인식 거리 이탈 시 자동 해제
+        {
+            DestroyCurrentMarker(); // 마커 삭제
+        }
+
+
         // 충돌 검사 및 카메라 위치 조정
         //HandleCameraCollision(); // 장애물 감지 및 거리 조정
     }
@@ -121,8 +128,9 @@ public class SuperCameraController : MonoBehaviour
 
 
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // Lock On 타겟으로 부드럽게 회전
-            targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
-            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
+            /*targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
+            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);*/ //부드러운 카메라 이동
+            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f; //즉각적인 카메라 이동
 
             previousYaxis = rotationToFaceEnemy.eulerAngles.y;
             previousXaxis = Xaxis;
