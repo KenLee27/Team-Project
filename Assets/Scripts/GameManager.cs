@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public ImgsFillDynamic hpBar;
 
     public GameObject hpSliderPrefab;     // HP 슬라이더 프리팹
+    public GameObject crabHPSliderPrefab;     // HP 슬라이더 프리팹
 
     void Awake()
     {
@@ -31,10 +32,15 @@ public class GameManager : MonoBehaviour
     public void InitializeMonsters()
     {
         EnemyController2[] monsters = FindObjectsOfType<EnemyController2>(); // 모든 몬스터 탐색
+        EnemyControllerClabKing[] crabKing = FindObjectsOfType<EnemyControllerClabKing>();
 
         foreach (var monster in monsters)
         {
-            monster.InitializeHPBar(hpSliderPrefab); // 각 몬스터에 슬라이더 초기화
+            monster.InitializeHPBar(hpSliderPrefab); // 각 몬스터에 슬라이더 초기
+        }
+        foreach (var king in crabKing)
+        {
+            king.InitializeHPBar(crabHPSliderPrefab); // 각 보스에 슬라이더 초기화
         }
     }
 

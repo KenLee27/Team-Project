@@ -125,24 +125,8 @@ public class EnemyControllerClabKing : MonoBehaviour
         if (hpSlider != null)
         {
             hpSlider.value = HP / MaxHP; // 슬라이더 값 업데이트
-            PositionHPBarAboveMonster(); // HP 슬라이더 위치 업데이트
         }
     }
-
-    private void PositionHPBarAboveMonster()
-    {
-        if (hpSliderObject != null)
-        {
-            Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 9f); // 머리 위로 위치 조정
-            hpSliderObject.transform.position = screenPosition; // UI 슬라이더 위치 설정
-        }
-    }
-
-
-
-
-
-
 
 
     IEnumerator StateMachine()
@@ -167,11 +151,13 @@ public class EnemyControllerClabKing : MonoBehaviour
         {
             // StateMachine 을 대시로 변경
             ChangeState(State.DASH);
+            hpSliderObject.SetActive(true);
         }
 
         if (isHit)  //기습 대경직
         {
             ChangeState(State.BIG_STUN);
+            hpSliderObject.SetActive(true);
         }
         yield return null;
 
