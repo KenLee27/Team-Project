@@ -10,15 +10,24 @@ public class SuperPlayerController : MonoBehaviour
     private float rotationVelocity;
     private float smoothRotationTime = 0.15f;
     private Vector3 lastMovement;                  //최근 이동 방향
+    private float timeSinceLastDive;
 
 
     public float moveSpeed = 4f;                   // 이동 속도
     public float jumpForce = 3f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
     public float DiveDelay = 1.1f;                 // 다이브 쿨타임
-    public float PlayerHP = 100f;
+    public float PlayerHP = 0f;
+    public float PlayerMaxHP = 100f;
+    public float PlayerStamina = 0f;
+    public float PlayerMaxStamina = 100f;
+    public float StaminaRegenTime = 1f;          //스테미나 회복을 위해 스테미나 소모를 멈추고 기다려야 하는 시간
+    public float StaminaRegenSpeed = 20f;          //스테미나 초당 회복 수치
+    
 
-    public float GetDamage = 30f;
+
+
+    public float PlayerDamage = 3f;                //플레이어 데미지
 
     public SuperCameraController cameraController; // SuperCameraController 참조
     public Animator animator;                      // 애니메이터 참조
@@ -33,6 +42,7 @@ public class SuperPlayerController : MonoBehaviour
     public bool isinvincibility = false;
     public bool isDie = false;
     public bool isAttackHit = false;
+    public bool FirstStaminaCheck = false;
 
 
     private Coroutine resetPhaseCoroutine;
@@ -67,17 +77,47 @@ public class SuperPlayerController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        PlayerHP = PlayerMaxHP;
+        PlayerStamina = PlayerMaxStamina;
+        GameManager.Instance.UpdatePlayerHP(PlayerHP);
+        GameManager.Instance.UpdatePlayerST(PlayerStamina);
+        timeSinceLastDive = StaminaRegenTime;
     }
 
     void Update()
     {
+        GameManager.Instance.UpdatePlayerST(PlayerStamina);
 
+        //플레이어 스테미나 컨트롤러
+        if ( PlayerStamina < 30f )
+        {
+            canDive = false;
+            FirstStaminaCheck = true;
+        }
+        else if( PlayerStamina >=40 && FirstStaminaCheck)
+        {
+            canDive = true;
+            FirstStaminaCheck = false;
+        }
 
+        //회피 시전 후 1초가 지나야 스테미나가 회복 가능.
+        if (timeSinceLastDive >= StaminaRegenTime)
+        {
+            RecoverStamina();
+        }
+        else
+        {
+            timeSinceLastDive += Time.deltaTime;
+        }
+
+        //사망 컨트롤러
         if (PlayerHP <= 0)
         {
             HandleDead();
         }
 
+        //서있을 때와 앉아 있을 때의 속도 컨트롤러
         if(isStand)
         {
             moveSpeed = 4f;
@@ -93,6 +133,7 @@ public class SuperPlayerController : MonoBehaviour
             lastMovement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         }
 
+        //락온 상태일때 적 바라보기 기능
         if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
         {
             RotateTowardsEnemy();
@@ -100,12 +141,13 @@ public class SuperPlayerController : MonoBehaviour
 
         HandleState();
 
+        //점프 컨트롤러
         if (Input.GetButtonDown("Jump") && isGround &&!isAttacking&&!isDive)
         {
             currentState = State.JUMP;
         }
 
-        // Mouse Button Click Handling
+        //버튼 클릭 & 공격 컨트롤러
         if (Input.GetMouseButtonDown(0) && canAttack && (currentState == State.IDLE || currentState == State.MOVE)&&isGround&&!isDive)
         {
             HandleAttack();
@@ -186,6 +228,16 @@ public class SuperPlayerController : MonoBehaviour
         }
     }
 
+    void RecoverStamina()
+    {
+        PlayerStamina += StaminaRegenSpeed * Time.deltaTime;
+        if (PlayerStamina > PlayerMaxStamina)
+        {
+            PlayerStamina = PlayerMaxStamina;
+        }
+    }
+
+
     private void HandleDead()
     {
         animator.SetBool("isDead", true);
@@ -245,6 +297,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator BackStepDirection()
     {
+        PlayerStamina -= 20f;
         isStand = true;
         float startTime = Time.time;
         while (Time.time < startTime + 0.7f)                                //애니메이션 시간
@@ -260,6 +313,8 @@ public class SuperPlayerController : MonoBehaviour
             }
             transform.Translate(Vector3.back * 3f * Time.deltaTime);
 
+            //벡스탭 실행 중에 스테미나 회복 대기 시간 0초 고정
+            timeSinceLastDive = 0f;
             yield return null;
         }
         Debug.Log("애니메이션 끝!");
@@ -320,6 +375,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator DiveDirection()
     {
+        PlayerStamina -= 30f;
         bool invincibilityCheck = true;
         isStand = true;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
@@ -331,15 +387,12 @@ public class SuperPlayerController : MonoBehaviour
             if (Time.time >= startTime + 0.1f && Time.time <= startTime + 0.8f)
             {
                 isinvincibility = true;
+                invincibilityCheck = true;
             }
             else if(invincibilityCheck && !(Time.time <= startTime + 1.0f))
             {
                 isinvincibility = false;
                 invincibilityCheck = false;
-            }
-            else if(!(Time.time >= startTime + 0.1f))
-            {
-                isinvincibility = false;
             }
 
 
@@ -360,6 +413,9 @@ public class SuperPlayerController : MonoBehaviour
             {
                 transform.Translate(Vector3.back * 5f * Time.deltaTime);
             }
+
+            //다이브 애니메이션이 실행 중일 때 스테미나 회복 대기 시간 0초 고정
+            timeSinceLastDive = 0f;
             yield return null;
         }
         Debug.Log("애니메이션 끝!");
@@ -408,8 +464,12 @@ public class SuperPlayerController : MonoBehaviour
         Vector2 inputDir = input.normalized;
         isMoving = inputDir != Vector2.zero;
 
+        animator.SetBool("isMoving", isMoving);
+
         if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
         {
+            animator.SetBool("isLockOn", true);
+
             Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
             float targetRotation = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
             float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
@@ -419,9 +479,26 @@ public class SuperPlayerController : MonoBehaviour
             targetSpeed = moveSpeed * moveDir.magnitude;
             currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
             transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
+
+            if(Input.GetAxisRaw("Horizontal") > 0)
+            {
+                animator.SetBool("isLockOnLeft", true);
+                animator.SetBool("isLockOnRight", false);
+            }
+            else if (Input.GetAxisRaw("Horizontal") < 0)
+            {
+                animator.SetBool("isLockOnRight", true);
+                animator.SetBool("isLockOnLeft", false);
+            }
+            else
+            {
+                animator.SetBool("isLockOnLeft", false);
+                animator.SetBool("isLockOnRight", false);
+            }
         }
         else
         {
+            animator.SetBool("isLockOn", false);
             if (isMoving)
             {
                 float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
@@ -432,9 +509,11 @@ public class SuperPlayerController : MonoBehaviour
             targetSpeed = moveSpeed * inputDir.magnitude;
             currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
             transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
+
+            animator.SetBool("isLockOn", false);
         }
 
-        animator.SetBool("isMoving", isMoving);
+        
 
         if (!isMoving && currentState == State.MOVE)
         {
@@ -511,7 +590,8 @@ public class SuperPlayerController : MonoBehaviour
         {
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_1"))
             {
-                if(startTime > 0.5f && startTime < 0.8f)                                        //공격 판정 시간
+                PlayerDamage = 3f;
+                if (startTime > 0.5f && startTime < 0.8f)                                        //공격 판정 시간
                 {
                     isAttackHit = true;
                 }
@@ -525,7 +605,7 @@ public class SuperPlayerController : MonoBehaviour
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_2"))
             {
                 transform.Translate(Vector3.forward * 0.3f * Time.deltaTime);
-
+                PlayerDamage = 4f;
                 if (startTime > 0.566f && startTime < 1f)                                        //공격 판정 시간
                 {
                     isAttackHit = true;
@@ -541,7 +621,7 @@ public class SuperPlayerController : MonoBehaviour
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
             {
                 transform.Translate(Vector3.forward * 1.2f * Time.deltaTime);
-
+                PlayerDamage = 6f;
                 if (startTime > 0.666f && startTime < 1f)                                        //공격 판정 시간
                 {
                     isAttackHit = true;
@@ -627,13 +707,15 @@ public class SuperPlayerController : MonoBehaviour
                 currentState = State.HIT;
                 Debug.Log("맞았다!");
                 isAttacked = true;
-                HandleHit();
+                HandleHit(other);
             }
         }
     }
 
-    private void HandleHit()
+    private void HandleHit(Collider other)
     {
+        Ienemy enemy = other.GetComponentInParent<Ienemy>();
+        float GetDamage = enemy.Damage;
         Debug.Log("데미지!");
         PlayerHP = PlayerHP - GetDamage;
         GameManager.Instance.UpdatePlayerHP(PlayerHP);

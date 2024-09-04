@@ -9,8 +9,10 @@ public class GameManager : MonoBehaviour
 
     public SuperPlayerController playerController;
     public ImgsFillDynamic hpBar;
+    public ImgsFillDynamic stBar;
 
     public GameObject hpSliderPrefab;     // HP 슬라이더 프리팹
+    public GameObject stSliderPrefab;     // ST 슬라이더 프리팹
     public GameObject crabHPSliderPrefab;     // HP 슬라이더 프리팹
 
     void Awake()
@@ -27,6 +29,8 @@ public class GameManager : MonoBehaviour
 
         InitializePlayerHP();
         InitializeMonsters();
+
+        InitializePlayerST();
     }
 
     public void InitializeMonsters()
@@ -58,4 +62,20 @@ public class GameManager : MonoBehaviour
             hpBar.SetValue(initialHPRatio, true); // 체력을 직접 설정
         }
     }
+
+    public void UpdatePlayerST(float currentST)
+    {
+        float stRatio = currentST / 100f;
+        stBar.SetValue(stRatio);
+    }
+
+    private void InitializePlayerST()
+    {
+        if (playerController != null && stBar != null)
+        {
+            float initialSTRatio = playerController.PlayerHP / 100f;
+            stBar.SetValue(initialSTRatio, true); // 체력을 직접 설정
+        }
+    }
+
 }
