@@ -300,17 +300,21 @@ public class SuperPlayerController : MonoBehaviour
         PlayerStamina -= 20f;
         isStand = true;
         float startTime = Time.time;
+        bool invincibilityCheck = true;
         while (Time.time < startTime + 0.7f)                                //애니메이션 시간
         {
             //벡스탭 무적시간 설정
-            if (Time.time >= startTime + 0.2f && Time.time <= startTime + 0.5f)
+            if (Time.time >= startTime + 0.15f && Time.time <= startTime + 0.5f)
             {
                 isinvincibility = true;
+                invincibilityCheck = true;
             }
-            else
+            else if (invincibilityCheck && !(Time.time <= startTime + 5.0f))
             {
                 isinvincibility = false;
+                invincibilityCheck = false;
             }
+
             transform.Translate(Vector3.back * 3f * Time.deltaTime);
 
             //벡스탭 실행 중에 스테미나 회복 대기 시간 0초 고정
@@ -384,7 +388,7 @@ public class SuperPlayerController : MonoBehaviour
         {
             
             //다이브 무적시간
-            if (Time.time >= startTime + 0.1f && Time.time <= startTime + 0.8f)
+            if (Time.time >= startTime + 0.15f && Time.time <= startTime + 0.8f)
             {
                 isinvincibility = true;
                 invincibilityCheck = true;
