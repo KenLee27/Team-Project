@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public GameObject crabHPSliderPrefab;     // HP 슬라이더 프리팹
 
     public GameObject gameOverTextPrefab;
+    public GameObject mapNameTextPrefab;
 
     void Awake()
     {
@@ -31,9 +32,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);  // 이미 인스턴스가 존재하면 새로 생성된 객체를 파괴
         }
 
-        //InitializePlayerHP();
         InitializeMonsters();
-        //InitializePlayerST();
     }
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -41,6 +40,21 @@ public class GameManager : MonoBehaviour
 
         InitializePlayerHP();
         InitializePlayerST();
+
+        string displayName = GetDisplayNameForScene(scene.name);
+        DisplayMapName(displayName);
+    }
+
+    private string GetDisplayNameForScene(string sceneName)
+    {
+        // 씬 이름과 표시될 텍스트를 매핑
+        switch (sceneName)
+        {
+            case "Old_Dock":
+                return "버려진 부둣가";
+            default:
+                return sceneName; // 기본적으로는 씬 이름을 사용
+        }
     }
 
     private void FindAndSetSliders()
@@ -54,6 +68,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void DisplayMapName(string displayName)
+    {
+        GameObject mapNameInstance = Instantiate(mapNameTextPrefab, FindObjectOfType<Canvas>().transform);
+        Text mapNameText = mapNameInstance.GetComponent<Text>();
+        mapNameText.text = displayName;
+
+        // 텍스트가 서서히 나타났다 사라지는 코루틴 시작
+        StartCoroutine(FadeInAndOut(mapNameInstance.GetComponent<CanvasGroup>()));
+    }
 
 
     public void InitializeMonsters()
@@ -115,6 +138,37 @@ public class GameManager : MonoBehaviour
         GameObject gameOverTextInstance = Instantiate(gameOverTextPrefab, FindObjectOfType<Canvas>().transform);
         StartCoroutine(FadeInAndLoadScene(gameOverTextInstance.GetComponent<CanvasGroup>()));
     }
+
+    private IEnumerator FadeInAndOut(CanvasGroup canvasGroup)
+    {
+        float fadeDuration = 1f;
+        float displayDuration = 3f;
+        float elapsedTime = 0f;
+
+        // 서서히 나타남
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Clamp01(elapsedTime / fadeDuration);
+            yield return null;
+        }
+
+        // 일정 시간 보여줌
+        yield return new WaitForSeconds(displayDuration);
+
+        elapsedTime = 0f;
+
+        // 서서히 사라짐
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Clamp01(1 - (elapsedTime / fadeDuration));
+            yield return null;
+        }
+
+        Destroy(canvasGroup.gameObject); // 텍스트 오브젝트 삭제
+    }
+
 
     private IEnumerator FadeInAndLoadScene(CanvasGroup canvasGroup)
     {
