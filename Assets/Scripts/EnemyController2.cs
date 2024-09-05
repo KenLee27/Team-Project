@@ -400,14 +400,14 @@ public class EnemyController2 : MonoBehaviour, Ienemy
                     curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
                 }
             }
-
+            isinvincibility = false;
             // 애니메이션이 Walk1_Action 변경될 때까지 대기
             while (curAnimStateInfo.IsName("Creep|Hit_Action"))
             {
                 yield return null;
                 curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
             }
-            isinvincibility = false;
+            
 
             if (curAnimStateInfo.IsName("Creep|Walk1_Action"))
             {

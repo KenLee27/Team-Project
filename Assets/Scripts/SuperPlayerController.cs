@@ -595,7 +595,7 @@ public class SuperPlayerController : MonoBehaviour
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_1"))
             {
                 PlayerDamage = 3f;
-                if (startTime > 0.5f && startTime < 0.8f)                                        //공격 판정 시간
+                if (startTime > 0.4f && startTime < 0.64f)                                        //1타 공격 판정 시간
                 {
                     isAttackHit = true;
                 }
@@ -610,7 +610,7 @@ public class SuperPlayerController : MonoBehaviour
             {
                 transform.Translate(Vector3.forward * 0.3f * Time.deltaTime);
                 PlayerDamage = 4f;
-                if (startTime > 0.566f && startTime < 1f)                                        //공격 판정 시간
+                if (startTime > 0.166f && startTime < 0.5f)                                        //2타 공격 판정 시간
                 {
                     isAttackHit = true;
                 }
@@ -626,7 +626,7 @@ public class SuperPlayerController : MonoBehaviour
             {
                 transform.Translate(Vector3.forward * 1.2f * Time.deltaTime);
                 PlayerDamage = 6f;
-                if (startTime > 0.666f && startTime < 1f)                                        //공격 판정 시간
+                if (startTime > 0.533f && startTime < 0.8f)                                        //3타 공격 판정 시간
                 {
                     isAttackHit = true;
                 }
@@ -648,11 +648,11 @@ public class SuperPlayerController : MonoBehaviour
         //공격 단수 별 딜레이 조정
         if (attackPhase == 3)
         {
-            attackDelay = 1.8f;
+            attackDelay = 1.44f;
         }
         else
         {
-            attackDelay = 1.1f;
+            attackDelay = 0.9f;
         }
 
         yield return new WaitForSeconds(attackDelay);
@@ -671,7 +671,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator ResetAttackPhaseAfterDelay()
     {
-        yield return new WaitForSeconds(1.7f); // 공격하지 않은 동안 대기
+        yield return new WaitForSeconds(1.5f); // 공격하지 않은 동안 대기
         if (attackPhase > 0) // 공격 단계가 0이 아니면
         {
             attackPhase = 0; // 공격 단계 초기화
