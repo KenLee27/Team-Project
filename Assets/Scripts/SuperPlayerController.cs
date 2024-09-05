@@ -77,6 +77,7 @@ public class SuperPlayerController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        isinvincibility = false;
 
         PlayerHP = PlayerMaxHP;
         PlayerStamina = PlayerMaxStamina;
@@ -240,6 +241,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleDead()
     {
+        isinvincibility = true;
         animator.SetBool("isDead", true);
 
 

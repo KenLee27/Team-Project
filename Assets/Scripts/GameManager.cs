@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
         }
 
         //InitializePlayerHP();
-        //InitializeMonsters();
+        InitializeMonsters();
         //InitializePlayerST();
     }
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
