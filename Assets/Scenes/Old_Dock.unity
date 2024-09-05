@@ -13348,19 +13348,13 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1158779308}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &691583843 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4187860285504820248, guid: 3363b60e2503d804c94431dc3a1a1440,
-    type: 3}
-  m_PrefabInstance: {fileID: 8399496249011226352}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &691583845 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4017166951326614417, guid: 3363b60e2503d804c94431dc3a1a1440,
     type: 3}
   m_PrefabInstance: {fileID: 8399496249011226352}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 691583843}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9538591a4fbab5046a09f20da5ca2ca0, type: 3}
@@ -33401,8 +33395,11 @@ MonoBehaviour:
   stBar: {fileID: 691583845}
   hpSliderPrefab: {fileID: 6619709200539892021, guid: 1104044851691a344879da8407ab1a0f,
     type: 3}
-  stSliderPrefab: {fileID: 691583843}
+  stSliderPrefab: {fileID: 4187860285504820248, guid: 3363b60e2503d804c94431dc3a1a1440,
+    type: 3}
   crabHPSliderPrefab: {fileID: 6619709200539892021, guid: e40787f7adb84d4438ebef6a9a000cb0,
+    type: 3}
+  gameOverTextPrefab: {fileID: 5394456506464469719, guid: 8c9ef21b4c7c6304a98cb44166b9cf9e,
     type: 3}
 --- !u!4 &1898374490
 Transform:

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,23 +16,45 @@ public class GameManager : MonoBehaviour
     public GameObject stSliderPrefab;     // ST 슬라이더 프리팹
     public GameObject crabHPSliderPrefab;     // HP 슬라이더 프리팹
 
+    public GameObject gameOverTextPrefab;
+
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);  // 게임 오브젝트가 씬 로드 시 파괴되지 않도록 설정
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
             Destroy(gameObject);  // 이미 인스턴스가 존재하면 새로 생성된 객체를 파괴
         }
 
-        InitializePlayerHP();
-        InitializeMonsters();
+        //InitializePlayerHP();
+        //InitializeMonsters();
+        //InitializePlayerST();
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        FindAndSetSliders();
 
+        InitializePlayerHP();
         InitializePlayerST();
     }
+
+    private void FindAndSetSliders()
+    {
+        Canvas canvas = FindObjectOfType<Canvas>();
+
+        if (canvas != null)
+        {
+            hpBar = canvas.transform.Find("HPprogress").GetComponent<ImgsFillDynamic>();
+            stBar = canvas.transform.Find("STprogress").GetComponent<ImgsFillDynamic>();
+        }
+    }
+
+
 
     public void InitializeMonsters()
     {
@@ -50,8 +73,15 @@ public class GameManager : MonoBehaviour
 
     public void UpdatePlayerHP(float currentHP)
     {
-        float hpRatio = currentHP / 100f;
-        hpBar.SetValue(hpRatio);
+        if (hpBar != null)
+        {
+            float hpRatio = currentHP / 100f;
+            hpBar.SetValue(hpRatio);
+        }
+        if (currentHP <= 0)
+        {
+            DisplayGameOver();
+        }
     }
 
     private void InitializePlayerHP()
@@ -65,8 +95,11 @@ public class GameManager : MonoBehaviour
 
     public void UpdatePlayerST(float currentST)
     {
-        float stRatio = currentST / 100f;
-        stBar.SetValue(stRatio);
+        if (stBar != null)
+        {
+            float stRatio = currentST / 100f;
+            stBar.SetValue(stRatio);
+        }
     }
 
     private void InitializePlayerST()
@@ -75,7 +108,29 @@ public class GameManager : MonoBehaviour
         {
             float initialSTRatio = playerController.PlayerHP / 100f;
             stBar.SetValue(initialSTRatio, true); // 체력을 직접 설정
-        }
+        } 
+    }
+    public void DisplayGameOver()
+    {
+        GameObject gameOverTextInstance = Instantiate(gameOverTextPrefab, FindObjectOfType<Canvas>().transform);
+        StartCoroutine(FadeInAndLoadScene(gameOverTextInstance.GetComponent<CanvasGroup>()));
     }
 
+    private IEnumerator FadeInAndLoadScene(CanvasGroup canvasGroup)
+    {
+        float duration = 1f; // 서서히 나타나는 데 걸리는 시간
+        float elapsedTime = 0f;
+
+        // 서서히 Alpha 값을 0에서 1로 증가
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Clamp01(elapsedTime / duration);
+            yield return null;
+        }
+
+        // 5초 후 씬 로드
+        yield return new WaitForSeconds(5f);
+        SceneManager.LoadScene("Old_Dock");
+    }
 }
