@@ -7,7 +7,7 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
-public class EnemyController2 : MonoBehaviour
+public class EnemyController2 : MonoBehaviour, Ienemy
 {
     public Animator anim; //애니메이터
     NavMeshAgent nmAgent; //navmeshagent 추가
@@ -30,6 +30,8 @@ public class EnemyController2 : MonoBehaviour
     private float smoothRotationSpeed = 15f;     //적 최적화 회전 속도
     //public float moveSpeed = 4.0f;             //적 이동속도
     //private float returnSpeed = 2f;           //적 복귀속도
+    public float Damage = 10f;
+    float Ienemy.Damage => Damage;
 
     public bool isHit = false;                  //맞은 상태
     public bool isinvincibility = false;      //무적상태
@@ -375,7 +377,7 @@ public class EnemyController2 : MonoBehaviour
 
 
         nmAgent.speed = 0f;
-        HP = HP - 3;
+        HP = HP - player_1.GetComponent<SuperPlayerController>().PlayerDamage;
 
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         if (HP > 0)

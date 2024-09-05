@@ -7,7 +7,7 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
-public class EnemyControllerClabKing : MonoBehaviour
+public class EnemyControllerClabKing : MonoBehaviour, Ienemy
 {
     public Animator anim; //애니메이터
     NavMeshAgent nmAgent; //navmeshagent 추가
@@ -23,7 +23,7 @@ public class EnemyControllerClabKing : MonoBehaviour
 
 
     private float HP = 0; //적 체력 선언 및 초기화
-    private float MaxHP = 30;
+    private float MaxHP = 90;
     private float detectingRange = 40f;         //적 탐지 거리
     private float sensingRange = 30f;         //적 인지 거리
     private float checkRange = 8f;             //경계유지거리
@@ -35,7 +35,7 @@ public class EnemyControllerClabKing : MonoBehaviour
     private float dashSpeed = 25f;
     private float chaseSpeed = 8f;
     public float Damage = 30f;
-
+    float Ienemy.Damage => Damage;
 
 
     public bool isHit = false;                  //맞은 상태
@@ -43,6 +43,7 @@ public class EnemyControllerClabKing : MonoBehaviour
     public bool isLittleStun = false;
     public bool isBigStun = false;
     public bool firstStunCheck = true;
+    private bool isAlreadyHit = false;          //피격 무적 판정
 
     Vector3 directionToPlayer;
     Vector3 directionToBase;
@@ -327,10 +328,12 @@ public class EnemyControllerClabKing : MonoBehaviour
     {
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
-        anim.CrossFade("Alert_Walk", 0.1f, 0, 0);
+        anim.CrossFade("Fight_Read_2", 0.1f, 0, 0);
+
+        float checkTime = UnityEngine.Random.Range(0.5f, 1f);           //공격 준비 시간 랜덤
 
         float elapsedTime = 0f;
-        while (elapsedTime < 1f)
+        while (elapsedTime < checkTime)
         {
             //사망판정
             if (HP < 0)
@@ -672,6 +675,7 @@ public class EnemyControllerClabKing : MonoBehaviour
 
     IEnumerator DASH_ATTACK()
     {
+        Damage = 60f;
         anim.CrossFade("Attack_5", 0.04f, 0, 0);
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
@@ -770,6 +774,7 @@ public class EnemyControllerClabKing : MonoBehaviour
     //보스의 메인 상태
     IEnumerator CHECK()
     {
+        Damage = 30f;
         Debug.Log("주시중...");
 
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
@@ -1093,13 +1098,25 @@ public class EnemyControllerClabKing : MonoBehaviour
     //데미지 판정
     void OnTriggerEnter(Collider other)
     {
+        if(isAlreadyHit) { return; }
         if (other.CompareTag("Weapon") && player_1.GetComponent<SuperPlayerController>().isAttackHit)
         {
-            HP -= 1;
+            HP = HP - player_1.GetComponent<SuperPlayerController>().PlayerDamage;
             stunGauge += 3f;
             Debug.Log("아프다!");
             isHit = true;
+
+            isAlreadyHit = true; // 타격되었음을 표시
+            StartCoroutine(ResetHit()); // 일정 시간 후 플래그 초기화
+
         }
     }
+
+    IEnumerator ResetHit()
+    {
+        yield return new WaitForSeconds(0.5f); // 0.3초 후 초기화, 필요에 따라 조정 가능
+        isAlreadyHit = false;
+    }
+
 
 }
