@@ -44,6 +44,8 @@ public class SuperPlayerController : MonoBehaviour
     public bool isAttackHit = false;
     public bool FirstStaminaCheck = false;
 
+    private bool firstDropDie = true;
+
 
     private Coroutine resetPhaseCoroutine;
 
@@ -78,6 +80,7 @@ public class SuperPlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         isinvincibility = false;
+        firstDropDie = true;
 
         PlayerHP = PlayerMaxHP;
         PlayerStamina = PlayerMaxStamina;
@@ -242,6 +245,10 @@ public class SuperPlayerController : MonoBehaviour
     private void HandleDead()
     {
         isinvincibility = true;
+        canAttack = false;
+        canDive = false;
+
+        //GameManager.Instance.UpdatePlayerHP(PlayerHP);
         animator.SetBool("isDead", true);
 
 
@@ -311,7 +318,7 @@ public class SuperPlayerController : MonoBehaviour
                 isinvincibility = true;
                 invincibilityCheck = true;
             }
-            else if (invincibilityCheck && !(Time.time <= startTime + 5.0f))
+            else if (invincibilityCheck && !(Time.time <= startTime + 0.55f))
             {
                 isinvincibility = false;
                 invincibilityCheck = false;
@@ -700,7 +707,13 @@ public class SuperPlayerController : MonoBehaviour
             animator.SetBool("isJumping", false);
         }
 
-        
+        if (firstDropDie&&collision.gameObject.CompareTag("DeathZone"))
+        {
+            PlayerHP -= PlayerMaxHP;
+            GameManager.Instance.UpdatePlayerHP(PlayerHP);
+            firstDropDie = false;
+        }
+
     }
 
     void OnTriggerEnter(Collider other)
