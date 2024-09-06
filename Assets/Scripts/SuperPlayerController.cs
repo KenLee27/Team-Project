@@ -11,7 +11,12 @@ public class SuperPlayerController : MonoBehaviour
     private float smoothRotationTime = 0.15f;
     private Vector3 lastMovement;                  //최근 이동 방향
     private float timeSinceLastDive;
-
+        
+    public string currentWeaponName;              //무기의 이름을 받음
+    public void SetCurrentWeaponType(string weaponType)
+    {
+        currentWeaponName = weaponType;
+    }
 
     public float moveSpeed = 4f;                   // 이동 속도
     public float jumpForce = 5f;                   // 점프 힘
@@ -78,6 +83,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private float attackDelay = 1f; // 각 공격 사이의 딜레이
 
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -102,13 +108,25 @@ public class SuperPlayerController : MonoBehaviour
     {
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
 
+        //무기 스위칭 확인
+        if (currentWeaponName == "Falchion")
+        {
+
+            animator.SetFloat("Blend", 0);
+
+        }
+        else if (currentWeaponName == "Axe")
+        {
+            animator.SetFloat("Blend", 1);
+        }
+
         //플레이어 스테미나 컨트롤러
         if ( PlayerStamina < 30f )
         {
             canDive = false;
             FirstStaminaCheck = true;
         }
-        else if( PlayerStamina >=40 && FirstStaminaCheck)
+        else if( PlayerStamina >=30 && FirstStaminaCheck)
         {
             canDive = true;
             FirstStaminaCheck = false;
@@ -161,12 +179,12 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //버튼 클릭 & 공격 컨트롤러
-        if (Input.GetMouseButtonDown(0) && canAttack && (currentState == State.IDLE || currentState == State.MOVE)&&isGround&&!isDive)
+        if (Input.GetMouseButtonDown(0) && canAttack && (currentState == State.IDLE || currentState == State.MOVE)&&!isDive && isGround)
         {
             HandleAttack();
         }
 
-        if (Input.GetMouseButtonDown(1) && canAttack && (currentState == State.IDLE || currentState == State.MOVE) && isGround && !isDive)
+        if (Input.GetMouseButtonDown(1) && canAttack && (currentState == State.IDLE || currentState == State.MOVE) && !isDive && isGround)
         {
             HandleSpecialAttack();
         }
@@ -373,15 +391,16 @@ public class SuperPlayerController : MonoBehaviour
         canDive = true;
     }
 
+
     public void TriggerDive()
     {
         isinvincibility = true;
     }
-
     public void EndDive()
     {
         isinvincibility = false;
     }
+
 
     private IEnumerator DiveDirection()
     {
@@ -525,11 +544,12 @@ public class SuperPlayerController : MonoBehaviour
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGround = false;
-            animator.SetBool("isJumping", true); // 점프 애니메이션
+            animator.SetBool("isJumping", true);
             currentState = State.IDLE;
         }
         
     }
+
 
     private void HandleAttack()
     {
@@ -541,15 +561,15 @@ public class SuperPlayerController : MonoBehaviour
         switch (attackPhase)
         {
             case 1:
-                animator.CrossFade("SwordAttack_1", 0.1f);
+                animator.CrossFade(currentWeaponName+"Attack_1", 0.1f);
                 StartCoroutine(PerformAttackMovement());
                 break;
             case 2:
-                animator.CrossFade("SwordAttack_2", 0.1f);
+                animator.CrossFade(currentWeaponName + "Attack_2", 0.1f);
                 StartCoroutine(PerformAttackMovement());
                 break;
             case 3:
-                animator.CrossFade("SwordAttack_3", 0.1f);
+                animator.CrossFade(currentWeaponName + "Attack_3", 0.1f);
                 StartCoroutine(PerformAttackMovement());
                 break;
             default:
@@ -564,7 +584,6 @@ public class SuperPlayerController : MonoBehaviour
 
         resetPhaseCoroutine = StartCoroutine(ResetAttackPhaseAfterDelay());
     }
-
     private void HandleSpecialAttack()
     {
         if (PlayerMana >= 10) // 기본 마나 체크
@@ -579,7 +598,7 @@ public class SuperPlayerController : MonoBehaviour
                 case 1:
                     if (PlayerMana >= 10) // 1타에 필요한 마나 체크
                     {
-                        animator.CrossFade("SwordSpecialAttack_1", 0.1f);
+                        animator.CrossFade(currentWeaponName +"SpecialAttack_1", 0.1f);
                         PlayerMana -= 10; // 1타 마나 소모
                         GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
                         StartCoroutine(PerformS_AttackMovement());
@@ -588,7 +607,7 @@ public class SuperPlayerController : MonoBehaviour
                 case 2:
                     if (PlayerMana >= 15) // 2타에 필요한 마나 체크
                     {
-                        animator.CrossFade("SwordSpecialAttack_2", 0.1f);
+                        animator.CrossFade(currentWeaponName + "SpecialAttack_2", 0.1f);
                         PlayerMana -= 15; // 2타 마나 소모
                         GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
                         StartCoroutine(PerformS_AttackMovement());
@@ -606,39 +625,7 @@ public class SuperPlayerController : MonoBehaviour
 
             resetS_PhaseCoroutine = StartCoroutine(ResetS_AttackPhaseAfterDelay());
         }
-
-
-
-        /*
-        currentState = State.ATTACK;
-        isAttacking = true;
-        canAttack = false; // 공격 가능 플래그를 false로 설정
-        s_attackPhase++; // 공격 단계 증가
-
-        switch (s_attackPhase)
-        {
-            case 1:
-                animator.CrossFade("SwordSpecialAttack_1", 0.1f);
-                StartCoroutine(PerformS_AttackMovement());
-                break;
-            case 2:
-                animator.CrossFade("SwordSpecialAttack_2", 0.1f);
-                StartCoroutine(PerformS_AttackMovement());
-                break;
-            default:
-                return;
-        }
-        StartCoroutine(EnableNextS_AttackAfterDelay()); // 공격 가능 대기
-
-        if (resetS_PhaseCoroutine != null)
-        {
-            StopCoroutine(resetS_PhaseCoroutine);
-        }
-
-        resetS_PhaseCoroutine = StartCoroutine(ResetS_AttackPhaseAfterDelay());
-        */
     }
-
 
     private IEnumerator PerformAttackMovement()
     {
@@ -646,21 +633,51 @@ public class SuperPlayerController : MonoBehaviour
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = 0f;
 
+        
+
         while (startTime < attackAnimationDuration)
         {
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_1"))
+
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "Attack_1"))
             {
-                PlayerDamage = 3f;
+                if (currentWeaponName == "Falchion")
+                {
+
+                    PlayerDamage = 3f;
+
+                }
+                else if (currentWeaponName == "Axe")
+                {
+                    PlayerDamage = 4f;
+                }
             }
             // 공격 애니메이션이 실행 중일 때 이동
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_2"))
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "Attack_2"))
             {
-                PlayerDamage = 4f;
+                if (currentWeaponName == "Falchion")
+                {
+
+                    PlayerDamage = 4f;
+
+                }
+                else if (currentWeaponName == "Axe")
+                {
+                    PlayerDamage = 6f;
+                }
             }
 
-            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "Attack_3"))
             {
-                PlayerDamage = 6f;
+                if (currentWeaponName == "Falchion")
+                {
+
+                    PlayerDamage = 6f;
+
+                }
+                else if (currentWeaponName == "Axe")
+                {
+                    PlayerDamage = 10f;
+                }
             }
 
             startTime += Time.deltaTime;
@@ -675,12 +692,12 @@ public class SuperPlayerController : MonoBehaviour
 
         while (startTime < attackAnimationDuration)
         {
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordSpecialAttack_1"))
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "SpecialAttack_1"))
             {
                 PlayerDamage = 10f;
             }
             // 공격 애니메이션이 실행 중일 때 이동
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordSpecialAttack_2"))
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "SpecialAttack_2"))
             {
                 PlayerDamage = 20f;
             }
@@ -692,35 +709,62 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator EnableNextAttackAfterDelay()
     {
-        //공격 단수 별 딜레이 조정
-        if (attackPhase == 3)
+        //무기 별 공격 단수 별 딜레이 조정
+        if(currentWeaponName == "Falchion")
         {
-            attackDelay = 1.44f;
+            //공격 단수 별 딜레이 조정
+            if (attackPhase == 3)
+            {
+                attackDelay = 1.44f;
+            }
+            else
+            {
+                attackDelay = 0.9f;
+            }
         }
-        else
+        else if (currentWeaponName == "Axe")
         {
-            attackDelay = 0.9f;
+
+            if (attackPhase == 3)
+            {
+                attackDelay = 1.8f;
+            }
+            else
+            {
+                attackDelay = 1.3f;
+            }
+
         }
+
 
         yield return new WaitForSeconds(attackDelay);
         isStand = true;
         animator.SetBool("isCrouching", !isStand);
-        isAttacking = false;
         canAttack = true; // 다시 공격 가능해짐
+        isAttacking = false;
 
         if (attackPhase >= 3) // 공격이 완료된 경우
         {
             attackPhase = 0; // 공격 단계 초기화
-            currentState = State.IDLE; // IDLE로 돌아감
         }
+
+
         currentState = State.IDLE;
     }
     private IEnumerator EnableNextS_AttackAfterDelay()
     {
         //공격 단수 별 딜레이 조정
-        
-        attackDelay = 2f;
-        
+
+        if (currentWeaponName == "Falchion")
+        {
+            
+            attackDelay = 2f;
+            
+        }
+        else if (currentWeaponName == "Axe")
+        {
+                attackDelay = 3.7f;
+        }
 
         yield return new WaitForSeconds(attackDelay);
         isStand = true;
@@ -731,13 +775,26 @@ public class SuperPlayerController : MonoBehaviour
         if (s_attackPhase >= 2) // 공격이 완료된 경우
         {
             s_attackPhase = 0; // 공격 단계 초기화
-            currentState = State.IDLE; // IDLE로 돌아감
         }
+
+
         currentState = State.IDLE;
     }
 
     private IEnumerator ResetAttackPhaseAfterDelay()
     {
+        //무기 별 공격 초기화 시간 조정
+        if (currentWeaponName == "Falchion")
+        {
+            resetPhaseDelay = 1.2f;
+        }
+        else if (currentWeaponName == "Axe")
+        {
+
+            resetPhaseDelay = 2f;
+
+        }
+
         yield return new WaitForSeconds(resetPhaseDelay); // 공격하지 않은 동안 대기
         if (attackPhase > 0) // 공격 단계가 0이 아니면
         {
@@ -745,7 +802,6 @@ public class SuperPlayerController : MonoBehaviour
             Debug.Log("공격초기화!");
         }
     }
-
     private IEnumerator ResetS_AttackPhaseAfterDelay()
     {
         yield return new WaitForSeconds(2.2f); // 공격하지 않은 동안 대기
@@ -756,15 +812,16 @@ public class SuperPlayerController : MonoBehaviour
         }
     }
 
+
     public void TriggerAttack()
     {
         isAttackHit = true;
     }
-
     public void EndAttack()
     {
         isAttackHit = false;
     }
+
 
     private void RotateTowardsEnemy()
     {
@@ -783,10 +840,7 @@ public class SuperPlayerController : MonoBehaviour
         {
             isGround = true;
             animator.SetBool("isJumping", false);
-        }
-        else
-        {
-            isGround = false;
+
         }
 
         if (firstDropDie&&collision.gameObject.CompareTag("DeathZone"))
@@ -837,6 +891,8 @@ public class SuperPlayerController : MonoBehaviour
         canCrouched = false;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
+
+        animator.SetBool("isAttacked", isAttacked);
         while (Time.time < startTime + 0.8f)
         {
 
@@ -854,9 +910,9 @@ public class SuperPlayerController : MonoBehaviour
         }
         canDive = true;
         isGround = true;
+        canAttack = true;
         canCrouched = true;
 
-        animator.SetBool("isAttacked", isAttacked);
 
         animator.SetBool("isCrouching", !isStand);
 

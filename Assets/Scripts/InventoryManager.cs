@@ -11,17 +11,19 @@ public class InventoryManager : MonoBehaviour
     public Sprite axeSprite; // 각 무기의 스프라이트를 설정합니다
     public Sprite falchionSprite;
     public Sprite daggerSprite;
+    public string weaponName = "";
 
     private GameObject[] weaponPrefabs;
     private Sprite[] weaponSprites; // 각 무기의 스프라이트를 저장하는 배열
     private int currentWeaponIndex = 0;
-    private GameObject currentWeapon;
+    public GameObject currentWeapon;
 
     void Start()
     {
         weaponPrefabs = new GameObject[] { axePrefab, falchionPrefab, daggerPrefab };
         weaponSprites = new Sprite[] { axeSprite, falchionSprite, daggerSprite };
         EquipCurrentWeapon();
+        weaponName = currentWeapon.name;
     }
 
     void Update()
@@ -29,6 +31,7 @@ public class InventoryManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             SwitchToNextWeapon();
+            weaponName = currentWeapon.name;
         }
     }
 
@@ -43,6 +46,12 @@ public class InventoryManager : MonoBehaviour
         currentWeapon.name = weaponPrefabs[currentWeaponIndex].name + "_Instance";
 
         UpdateWeaponUI();
+
+        SuperPlayerController playerController = FindObjectOfType<SuperPlayerController>();
+        if (playerController != null)
+        {
+            playerController.SetCurrentWeaponType(weaponPrefabs[currentWeaponIndex].name);
+        }
 
         WeaponAttachment attachScript = currentWeapon.GetComponent<WeaponAttachment>();
         if (attachScript == null)
