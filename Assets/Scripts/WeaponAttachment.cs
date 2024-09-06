@@ -6,7 +6,7 @@ public class WeaponAttachment : MonoBehaviour
 {
     private Transform handTransform;
     private Vector3 positionOffset = new Vector3(0.1210944f, -0.02749907f, 0.07406192f);
-    private Vector3 rotationOffset = new Vector3(39.112f, -53.796f, -70);
+    private Vector3 rotationOffset = new Vector3(39.112f, -53.796f, -105);
 
     void Start()
     {
