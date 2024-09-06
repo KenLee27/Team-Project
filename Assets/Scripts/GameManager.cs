@@ -10,10 +10,12 @@ public class GameManager : MonoBehaviour
 
     public SuperPlayerController playerController;
     public ImgsFillDynamic hpBar;
-    public ImgsFillDynamic stBar;
+    public Slider stBar;
+    public Slider mnBar;
 
     public GameObject hpSliderPrefab;     // HP 슬라이더 프리팹
     public GameObject stSliderPrefab;     // ST 슬라이더 프리팹
+    public GameObject mnSliderPrefab;
     public GameObject crabHPSliderPrefab;     // HP 슬라이더 프리팹
 
     public GameObject gameOverTextPrefab;
@@ -40,6 +42,7 @@ public class GameManager : MonoBehaviour
 
         InitializePlayerHP();
         InitializePlayerST();
+        InitializePlayerMana();
 
         string displayName = GetDisplayNameForScene(scene.name);
         DisplayMapName(displayName);
@@ -64,7 +67,8 @@ public class GameManager : MonoBehaviour
         if (canvas != null)
         {
             hpBar = canvas.transform.Find("HPprogress").GetComponent<ImgsFillDynamic>();
-            stBar = canvas.transform.Find("STprogress").GetComponent<ImgsFillDynamic>();
+            stBar = canvas.transform.Find("STprogress").GetComponent<Slider>();
+            mnBar = canvas.transform.Find("MNprogress").GetComponent<Slider>();
         }
     }
 
@@ -121,7 +125,7 @@ public class GameManager : MonoBehaviour
         if (stBar != null)
         {
             float stRatio = currentST / 100f;
-            stBar.SetValue(stRatio);
+            stBar.value = stRatio;
         }
     }
 
@@ -129,10 +133,28 @@ public class GameManager : MonoBehaviour
     {
         if (playerController != null && stBar != null)
         {
-            float initialSTRatio = playerController.PlayerHP / 100f;
-            stBar.SetValue(initialSTRatio, true); // 체력을 직접 설정
-        } 
+            float initialSTRatio = playerController.PlayerStamina / playerController.PlayerMaxStamina;
+            stBar.value = initialSTRatio;
+        }
     }
+    public void UpdatePlayerMana(float currentMana)
+    {
+        if (mnBar != null)
+        {
+            float mnRatio = currentMana / playerController.PlayerMaxMana;
+            mnBar.value = mnRatio;
+        }
+    }
+
+    private void InitializePlayerMana()
+    {
+        if (playerController != null && mnBar != null)
+        {
+            float initialMNRacio = playerController.PlayerMana / playerController.PlayerMaxMana;
+            mnBar.value = initialMNRacio;
+        }
+    }
+
     public void DisplayGameOver()
     {
         GameObject gameOverTextInstance = Instantiate(gameOverTextPrefab, FindObjectOfType<Canvas>().transform);

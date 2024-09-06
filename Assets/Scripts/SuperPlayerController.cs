@@ -23,6 +23,8 @@ public class SuperPlayerController : MonoBehaviour
     public float PlayerMaxStamina = 100f;
     public float StaminaRegenTime = 1f;          //스테미나 회복을 위해 스테미나 소모를 멈추고 기다려야 하는 시간
     public float StaminaRegenSpeed = 20f;          //스테미나 초당 회복 수치
+    public float PlayerMana = 0f; // 현재 마나
+    public float PlayerMaxMana = 100f; // 최대 마나
 
 
     private Vector2 velocity = Vector2.zero;
@@ -89,8 +91,10 @@ public class SuperPlayerController : MonoBehaviour
 
         PlayerHP = PlayerMaxHP;
         PlayerStamina = PlayerMaxStamina;
+        PlayerMana = PlayerMaxMana;
         GameManager.Instance.UpdatePlayerHP(PlayerHP);
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
+        GameManager.Instance.UpdatePlayerMana(PlayerMana);
         timeSinceLastDive = StaminaRegenTime;
     }
 
@@ -562,6 +566,49 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleSpecialAttack()
     {
+        if (PlayerMana >= 10) // 기본 마나 체크
+        {
+            currentState = State.ATTACK;
+            isAttacking = true;
+            canAttack = false; // 공격 가능 플래그를 false로 설정
+            s_attackPhase++; // 공격 단계 증가
+
+            switch (s_attackPhase)
+            {
+                case 1:
+                    if (PlayerMana >= 10) // 1타에 필요한 마나 체크
+                    {
+                        animator.CrossFade("SwordSpecialAttack_1", 0.1f);
+                        PlayerMana -= 10; // 1타 마나 소모
+                        GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
+                        StartCoroutine(PerformS_AttackMovement());
+                    }
+                    break;
+                case 2:
+                    if (PlayerMana >= 15) // 2타에 필요한 마나 체크
+                    {
+                        animator.CrossFade("SwordSpecialAttack_2", 0.1f);
+                        PlayerMana -= 15; // 2타 마나 소모
+                        GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
+                        StartCoroutine(PerformS_AttackMovement());
+                    }
+                    break;
+                default:
+                    return;
+            }
+            StartCoroutine(EnableNextS_AttackAfterDelay()); // 공격 가능 대기
+
+            if (resetS_PhaseCoroutine != null)
+            {
+                StopCoroutine(resetS_PhaseCoroutine);
+            }
+
+            resetS_PhaseCoroutine = StartCoroutine(ResetS_AttackPhaseAfterDelay());
+        }
+
+
+
+        /*
         currentState = State.ATTACK;
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
@@ -588,6 +635,7 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         resetS_PhaseCoroutine = StartCoroutine(ResetS_AttackPhaseAfterDelay());
+        */
     }
 
 
