@@ -431,20 +431,11 @@ public class EnemyController2 : MonoBehaviour, Ienemy
 
         anim.CrossFade("Creep|Walk1_Action", 0.1f, 0, 0);
 
-        float checkTime = UnityEngine.Random.Range(2f, 6f);
+        float checkTime = UnityEngine.Random.Range(2f, 4f);
         float elapsedTime = 0f;
         while (elapsedTime < checkTime)
         {
             
-            // 플레이어와의 남은 거리가 공격 지점보다 작거나 같으면
-            if (distanceToPlayer <= attackRange)
-            {
-                // StateMachine 을 공격으로 변경
-                ChangeState(State.ATTACK);
-                yield break;            // 코루틴 종료
-            }
-
-
             //거리가 벌어지면
             if (detectingRange < distanceToPlayer)
             {
@@ -465,6 +456,15 @@ public class EnemyController2 : MonoBehaviour, Ienemy
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+
+        // 플레이어와의 남은 거리가 공격 지점보다 작거나 같으면
+        if (distanceToPlayer <= attackRange)
+        {
+            // StateMachine 을 공격으로 변경
+            ChangeState(State.ATTACK);
+            yield break;            // 코루틴 종료
+        }
+
 
         ChangeState(State.CHASE);
 
