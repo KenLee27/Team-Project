@@ -15,7 +15,7 @@ public class SuperPlayerController : MonoBehaviour
 
     public float moveSpeed = 4f;                   // 이동 속도
     public float jumpForce = 5f;                   // 점프 힘
-    public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
+    public float resetPhaseDelay = 1.2f;             // 공격 리셋 시간
     public float DiveDelay = 1.1f;                 // 다이브 쿨타임
     public float PlayerHP = 0f;
     public float PlayerMaxHP = 100f;
@@ -23,7 +23,9 @@ public class SuperPlayerController : MonoBehaviour
     public float PlayerMaxStamina = 100f;
     public float StaminaRegenTime = 1f;          //스테미나 회복을 위해 스테미나 소모를 멈추고 기다려야 하는 시간
     public float StaminaRegenSpeed = 20f;          //스테미나 초당 회복 수치
-    
+
+
+    private Vector2 velocity = Vector2.zero;
 
 
 
@@ -48,6 +50,7 @@ public class SuperPlayerController : MonoBehaviour
 
 
     private Coroutine resetPhaseCoroutine;
+    private Coroutine resetS_PhaseCoroutine;
 
 
     private enum State
@@ -65,6 +68,8 @@ public class SuperPlayerController : MonoBehaviour
     private Transform cameraTransform; // 카메라 Transform 변수 추가
 
     private int attackPhase = 0;
+    private int s_attackPhase = 0;
+
     public bool canAttack = true; // 공격 가능 여부
     public bool canDive = true;
     public bool canCrouched = true;
@@ -156,8 +161,13 @@ public class SuperPlayerController : MonoBehaviour
         {
             HandleAttack();
         }
+
+        if (Input.GetMouseButtonDown(1) && canAttack && (currentState == State.IDLE || currentState == State.MOVE) && isGround && !isDive)
+        {
+            HandleSpecialAttack();
+        }
         //앉기
-        if(canCrouched && Input.GetKeyDown(KeyCode.LeftControl) && isGround && !isAttacking && !isDive)
+        if (canCrouched && Input.GetKeyDown(KeyCode.LeftControl) && isGround && !isAttacking && !isDive)
         {
             HandleCrouched();
         }
@@ -298,18 +308,6 @@ public class SuperPlayerController : MonoBehaviour
         bool invincibilityCheck = true;
         while (Time.time < startTime + 0.7f)                                //애니메이션 시간
         {
-            //벡스탭 무적시간 설정
-            if (Time.time >= startTime + 0.15f && Time.time <= startTime + 0.5f)
-            {
-                isinvincibility = true;
-                invincibilityCheck = true;
-            }
-            else if (invincibilityCheck && !(Time.time <= startTime + 0.55f))
-            {
-                isinvincibility = false;
-                invincibilityCheck = false;
-            }
-
             transform.Translate(Vector3.back * 3f * Time.deltaTime);
 
             //벡스탭 실행 중에 스테미나 회복 대기 시간 0초 고정
@@ -458,6 +456,7 @@ public class SuperPlayerController : MonoBehaviour
 
         if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
         {
+
             animator.SetBool("isLockOn", true);
 
             Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
@@ -470,6 +469,12 @@ public class SuperPlayerController : MonoBehaviour
             currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
             transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
 
+            Vector3 localMoveDir = transform.InverseTransformDirection(moveDir);
+            float smoothX = Mathf.SmoothDamp(animator.GetFloat("Xaxis"), localMoveDir.x, ref velocity.x, 0.1f);
+            float smoothY = Mathf.SmoothDamp(animator.GetFloat("Yaxis"), localMoveDir.z, ref velocity.y, 0.1f);
+
+            animator.SetFloat("Xaxis", smoothX);
+            animator.SetFloat("Yaxis", smoothY);
         }
         else
         {
@@ -535,11 +540,11 @@ public class SuperPlayerController : MonoBehaviour
                 StartCoroutine(PerformAttackMovement());
                 break;
             case 2:
-                animator.CrossFade("SwordAttack_2",0.1f);
+                animator.CrossFade("SwordAttack_2", 0.1f);
                 StartCoroutine(PerformAttackMovement());
                 break;
             case 3:
-                animator.CrossFade("SwordAttack_3",0.1f);
+                animator.CrossFade("SwordAttack_3", 0.1f);
                 StartCoroutine(PerformAttackMovement());
                 break;
             default:
@@ -554,6 +559,37 @@ public class SuperPlayerController : MonoBehaviour
 
         resetPhaseCoroutine = StartCoroutine(ResetAttackPhaseAfterDelay());
     }
+
+    private void HandleSpecialAttack()
+    {
+        currentState = State.ATTACK;
+        isAttacking = true;
+        canAttack = false; // 공격 가능 플래그를 false로 설정
+        s_attackPhase++; // 공격 단계 증가
+
+        switch (s_attackPhase)
+        {
+            case 1:
+                animator.CrossFade("SwordSpecialAttack_1", 0.1f);
+                StartCoroutine(PerformS_AttackMovement());
+                break;
+            case 2:
+                animator.CrossFade("SwordSpecialAttack_2", 0.1f);
+                StartCoroutine(PerformS_AttackMovement());
+                break;
+            default:
+                return;
+        }
+        StartCoroutine(EnableNextS_AttackAfterDelay()); // 공격 가능 대기
+
+        if (resetS_PhaseCoroutine != null)
+        {
+            StopCoroutine(resetS_PhaseCoroutine);
+        }
+
+        resetS_PhaseCoroutine = StartCoroutine(ResetS_AttackPhaseAfterDelay());
+    }
+
 
     private IEnumerator PerformAttackMovement()
     {
@@ -576,6 +612,28 @@ public class SuperPlayerController : MonoBehaviour
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
             {
                 PlayerDamage = 6f;
+            }
+
+            startTime += Time.deltaTime;
+            yield return null;
+        }
+    }
+    private IEnumerator PerformS_AttackMovement()
+    {
+        // 애니메이션의 특정 시간 동안 컨트롤
+        float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
+        float startTime = 0f;
+
+        while (startTime < attackAnimationDuration)
+        {
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordSpecialAttack_1"))
+            {
+                PlayerDamage = 10f;
+            }
+            // 공격 애니메이션이 실행 중일 때 이동
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordSpecialAttack_2"))
+            {
+                PlayerDamage = 20f;
             }
 
             startTime += Time.deltaTime;
@@ -608,13 +666,43 @@ public class SuperPlayerController : MonoBehaviour
         }
         currentState = State.IDLE;
     }
+    private IEnumerator EnableNextS_AttackAfterDelay()
+    {
+        //공격 단수 별 딜레이 조정
+        
+        attackDelay = 2f;
+        
+
+        yield return new WaitForSeconds(attackDelay);
+        isStand = true;
+        animator.SetBool("isCrouching", !isStand);
+        isAttacking = false;
+        canAttack = true; // 다시 공격 가능해짐
+
+        if (s_attackPhase >= 2) // 공격이 완료된 경우
+        {
+            s_attackPhase = 0; // 공격 단계 초기화
+            currentState = State.IDLE; // IDLE로 돌아감
+        }
+        currentState = State.IDLE;
+    }
 
     private IEnumerator ResetAttackPhaseAfterDelay()
     {
-        yield return new WaitForSeconds(1.5f); // 공격하지 않은 동안 대기
+        yield return new WaitForSeconds(resetPhaseDelay); // 공격하지 않은 동안 대기
         if (attackPhase > 0) // 공격 단계가 0이 아니면
         {
             attackPhase = 0; // 공격 단계 초기화
+            Debug.Log("공격초기화!");
+        }
+    }
+
+    private IEnumerator ResetS_AttackPhaseAfterDelay()
+    {
+        yield return new WaitForSeconds(2.2f); // 공격하지 않은 동안 대기
+        if (s_attackPhase > 0) // 공격 단계가 0이 아니면
+        {
+            s_attackPhase = 0; // 공격 단계 초기화
             Debug.Log("공격초기화!");
         }
     }
