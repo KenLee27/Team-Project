@@ -14,7 +14,7 @@ public class SuperPlayerController : MonoBehaviour
 
 
     public float moveSpeed = 4f;                   // 이동 속도
-    public float jumpForce = 3f;                   // 점프 힘
+    public float jumpForce = 5f;                   // 점프 힘
     public float resetPhaseDelay = 0.5f;             // 공격 리셋 시간
     public float DiveDelay = 1.1f;                 // 다이브 쿨타임
     public float PlayerHP = 0f;
@@ -199,30 +199,16 @@ public class SuperPlayerController : MonoBehaviour
             }
             else
             {
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") < 0 && !isAttacking && isGround)
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !isAttacking && isGround)
                 {
                     HandleDive_Forward();
                     Debug.Log("구른다!");
                 }
-
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") > 0 && !isAttacking && isGround)
+                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") != 0 && !isAttacking && isGround)
                 {
                     HandleDive_Forward();
                     Debug.Log("구른다!");
                 }
-
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") > 0 && !isAttacking && isGround)
-                {
-                    HandleDive_Forward();
-                    Debug.Log("구른다!");
-                }
-
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") < 0 && !isAttacking && isGround)
-                {
-                    HandleDive_Forward();
-                    Debug.Log("구른다!");
-                }
-
                 if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0 && !isAttacking && isGround)
                 {
                     HandleStep_Back();
@@ -386,6 +372,16 @@ public class SuperPlayerController : MonoBehaviour
         currentState = State.IDLE;
     }
 
+    public void TriggerDive()
+    {
+        isinvincibility = true;
+    }
+
+    public void EndDive()
+    {
+        isinvincibility = false;
+    }
+
     private IEnumerator DiveDirection()
     {
         PlayerStamina -= 30f;
@@ -395,19 +391,6 @@ public class SuperPlayerController : MonoBehaviour
         float startTime = Time.time;
         while (Time.time < startTime + 1.1f)
         {
-            
-            //다이브 무적시간
-            if (Time.time >= startTime + 0.15f && Time.time <= startTime + 0.8f)
-            {
-                isinvincibility = true;
-                invincibilityCheck = true;
-            }
-            else if(invincibilityCheck && !(Time.time <= startTime + 1.0f))
-            {
-                isinvincibility = false;
-                invincibilityCheck = false;
-            }
-
 
             // 다이브 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
@@ -452,15 +435,9 @@ public class SuperPlayerController : MonoBehaviour
                 HandleJump();
                 break;
             case State.ATTACK:
-                // 공격 중일 때는 추가 로직 필요 없음
                 break;
             case State.DIVE:
                 break;
-            /*case State.HIT:
-                HandleHit();
-                break;
-            case State.DIE:
-                break;*/
         }
     }
 
@@ -493,21 +470,6 @@ public class SuperPlayerController : MonoBehaviour
             currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
             transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
 
-            if(Input.GetAxisRaw("Horizontal") > 0)
-            {
-                animator.SetBool("isLockOnLeft", true);
-                animator.SetBool("isLockOnRight", false);
-            }
-            else if (Input.GetAxisRaw("Horizontal") < 0)
-            {
-                animator.SetBool("isLockOnRight", true);
-                animator.SetBool("isLockOnLeft", false);
-            }
-            else
-            {
-                animator.SetBool("isLockOnLeft", false);
-                animator.SetBool("isLockOnRight", false);
-            }
         }
         else
         {
@@ -595,7 +557,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator PerformAttackMovement()
     {
-        // 애니메이션의 특정 시간 동안 이동
+        // 애니메이션의 특정 시간 동안 컨트롤
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = 0f;
 
@@ -604,47 +566,16 @@ public class SuperPlayerController : MonoBehaviour
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_1"))
             {
                 PlayerDamage = 3f;
-                if (startTime > 0.4f && startTime < 0.64f)                                        //1타 공격 판정 시간
-                {
-                    isAttackHit = true;
-                }
-
-                else
-                {
-                    isAttackHit = false;
-                }
             }
             // 공격 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_2"))
             {
-                transform.Translate(Vector3.forward * 0.3f * Time.deltaTime);
                 PlayerDamage = 4f;
-                if (startTime > 0.166f && startTime < 0.5f)                                        //2타 공격 판정 시간
-                {
-                    isAttackHit = true;
-                }
-
-                else
-                {
-                    isAttackHit = false;
-                }
-
             }
 
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("SwordAttack_3"))
             {
-                transform.Translate(Vector3.forward * 1.2f * Time.deltaTime);
                 PlayerDamage = 6f;
-                if (startTime > 0.533f && startTime < 0.8f)                                        //3타 공격 판정 시간
-                {
-                    isAttackHit = true;
-                }
-
-                else
-                {
-                    isAttackHit = false;
-                }
-
             }
 
             startTime += Time.deltaTime;
@@ -686,6 +617,16 @@ public class SuperPlayerController : MonoBehaviour
             attackPhase = 0; // 공격 단계 초기화
             Debug.Log("공격초기화!");
         }
+    }
+
+    public void TriggerAttack()
+    {
+        isAttackHit = true;
+    }
+
+    public void EndAttack()
+    {
+        isAttackHit = false;
     }
 
     private void RotateTowardsEnemy()
