@@ -391,7 +391,7 @@ public class SuperPlayerController : MonoBehaviour
         isStand = true;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
-        while (Time.time < startTime + 1.1f)
+        while (Time.time < startTime + 0.85f)        //다이브 시간
         {
 
             // 다이브 애니메이션이 실행 중일 때 이동
@@ -783,6 +783,10 @@ public class SuperPlayerController : MonoBehaviour
             isGround = true;
             animator.SetBool("isJumping", false);
         }
+        else
+        {
+            isGround = false;
+        }
 
         if (firstDropDie&&collision.gameObject.CompareTag("DeathZone"))
         {
@@ -829,7 +833,6 @@ public class SuperPlayerController : MonoBehaviour
         isAttacked = false;
         isStand = true;
         canDive = false;
-        isGround = false;
         canCrouched = false;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
