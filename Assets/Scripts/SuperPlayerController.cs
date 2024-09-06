@@ -371,7 +371,6 @@ public class SuperPlayerController : MonoBehaviour
         yield return new WaitForSeconds(DiveDelay);
         Debug.Log("다이브 쿨타임 끝!");
         canDive = true;
-        currentState = State.IDLE;
     }
 
     public void TriggerDive()
@@ -389,11 +388,13 @@ public class SuperPlayerController : MonoBehaviour
         PlayerStamina -= 30f;
         bool invincibilityCheck = true;
         isStand = true;
+        canAttack = false;
+
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
-        while (Time.time < startTime + 0.85f)        //다이브 시간
+        while (Time.time < startTime + 0.95f)        //다이브 시간
         {
-
+            
             // 다이브 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
             {
@@ -416,11 +417,11 @@ public class SuperPlayerController : MonoBehaviour
             timeSinceLastDive = 0f;
             yield return null;
         }
-        Debug.Log("애니메이션 끝!");
         animator.SetBool("isCrouching", !isStand);
+        currentState = State.IDLE;
         isDive = false;
         isMoving = true;
-        currentState = State.IDLE;
+        canAttack = true;
     }
 
     private void HandleState()
