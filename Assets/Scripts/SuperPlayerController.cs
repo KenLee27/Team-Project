@@ -23,6 +23,7 @@ public class SuperPlayerController : MonoBehaviour
     public float resetPhaseDelay = 1.2f;             // 공격 리셋 시간
     public float DiveDelay = 1.1f;                 // 다이브 쿨타임
     public float PlayerHP = 0f;
+    public float PlayerAtk = 3f;
     public float PlayerMaxHP = 100f;
     public float PlayerStamina = 0f;
     public float PlayerMaxStamina = 100f;
@@ -108,16 +109,19 @@ public class SuperPlayerController : MonoBehaviour
     {
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
 
+        
         //무기 스위칭 확인
         if (currentWeaponName == "Falchion")
         {
-
-            animator.SetFloat("Blend", 0);
-
+            animator.SetFloat("Blend", 0f);
         }
         else if (currentWeaponName == "Axe")
         {
-            animator.SetFloat("Blend", 1);
+            animator.SetFloat("Blend", 0.5f);
+        }
+        else if (currentWeaponName == "Dagger")
+        {
+            animator.SetFloat ("Blend", 1f);
         }
 
         //플레이어 스테미나 컨트롤러
@@ -151,7 +155,19 @@ public class SuperPlayerController : MonoBehaviour
         //서있을 때와 앉아 있을 때의 속도 컨트롤러
         if(isStand)
         {
-            moveSpeed = 4f;
+            //무기 스위칭 확인
+            if (currentWeaponName == "Falchion")
+            {
+                moveSpeed = 4f;
+            }
+            else if (currentWeaponName == "Axe")
+            {
+                moveSpeed = 3.5f;
+            }
+            else if (currentWeaponName == "Dagger")
+            {
+                moveSpeed = 3f;                      //이동 애니매이션에 자체 속도가 있어서 조절ㅠㅠ 추후 수정예정
+            }
         }
         else if(!isStand)
         {
@@ -640,43 +656,49 @@ public class SuperPlayerController : MonoBehaviour
 
             if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "Attack_1"))
             {
-                if (currentWeaponName == "Falchion")
+                if (currentWeaponName == "Dagger")
                 {
-
-                    PlayerDamage = 3f;
-
+                    PlayerDamage = (PlayerAtk/3)*2;
                 }
                 else if (currentWeaponName == "Axe")
                 {
-                    PlayerDamage = 4f;
+                    PlayerDamage = (PlayerAtk/3)*4;
+                }
+                else if (currentWeaponName == "Falchion")
+                {
+                    PlayerDamage = PlayerAtk;
                 }
             }
             // 공격 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "Attack_2"))
             {
-                if (currentWeaponName == "Falchion")
+                if (currentWeaponName == "Dagger")
                 {
-
-                    PlayerDamage = 4f;
-
+                    PlayerDamage = PlayerAtk;
                 }
                 else if (currentWeaponName == "Axe")
                 {
-                    PlayerDamage = 6f;
+                    PlayerDamage = PlayerAtk*2;
+                }
+                else if (currentWeaponName == "Falchion")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 4;
                 }
             }
 
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "Attack_3"))
             {
-                if (currentWeaponName == "Falchion")
+                if (currentWeaponName == "Dagger")
                 {
-
-                    PlayerDamage = 6f;
-
+                    PlayerDamage = (PlayerAtk / 3) * 5;
                 }
                 else if (currentWeaponName == "Axe")
                 {
-                    PlayerDamage = 10f;
+                    PlayerDamage = PlayerAtk * 3;
+                }
+                else if (currentWeaponName == "Falchion")
+                {
+                    PlayerDamage = PlayerAtk * 2;
                 }
             }
 
@@ -694,12 +716,34 @@ public class SuperPlayerController : MonoBehaviour
         {
             if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "SpecialAttack_1"))
             {
-                PlayerDamage = 10f;
+                if (currentWeaponName == "Dagger")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 8;
+                }
+                else if (currentWeaponName == "Axe")
+                {
+                    PlayerDamage = PlayerAtk * 5;
+                }
+                else if (currentWeaponName == "Falchion")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 9;
+                }
             }
             // 공격 애니메이션이 실행 중일 때 이동
             if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "SpecialAttack_2"))
             {
-                PlayerDamage = 20f;
+                if (currentWeaponName == "Dagger")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 9;
+                }
+                else if (currentWeaponName == "Axe")
+                {
+                    PlayerDamage = PlayerAtk * 5;
+                }
+                else if (currentWeaponName == "Falchion")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 11;
+                }
             }
 
             startTime += Time.deltaTime;
@@ -715,7 +759,7 @@ public class SuperPlayerController : MonoBehaviour
             //공격 단수 별 딜레이 조정
             if (attackPhase == 3)
             {
-                attackDelay = 1.44f;
+                attackDelay = 1.6f;
             }
             else
             {
@@ -724,7 +768,6 @@ public class SuperPlayerController : MonoBehaviour
         }
         else if (currentWeaponName == "Axe")
         {
-
             if (attackPhase == 3)
             {
                 attackDelay = 1.8f;
@@ -733,7 +776,18 @@ public class SuperPlayerController : MonoBehaviour
             {
                 attackDelay = 1.3f;
             }
-
+        }
+        else if (currentWeaponName == "Dagger")
+        {
+            //공격 단수 별 딜레이 조정
+            if (attackPhase == 3)
+            {
+                attackDelay = 1.3f;
+            }
+            else
+            {
+                attackDelay = 0.7f;
+            }
         }
 
 
@@ -757,13 +811,22 @@ public class SuperPlayerController : MonoBehaviour
 
         if (currentWeaponName == "Falchion")
         {
-            
-            attackDelay = 2f;
-            
+            if (s_attackPhase == 2)
+            {
+                attackDelay = 1.9f;
+            }
+            else
+            {
+                attackDelay = 1.2f;
+            }
         }
         else if (currentWeaponName == "Axe")
         {
-                attackDelay = 3.7f;
+            attackDelay = 3.7f;
+        }
+        else if (currentWeaponName == "Dageer")
+        {
+            attackDelay = 1.3f;
         }
 
         yield return new WaitForSeconds(attackDelay);
@@ -895,7 +958,7 @@ public class SuperPlayerController : MonoBehaviour
         animator.SetBool("isAttacked", isAttacked);
         while (Time.time < startTime + 0.8f)
         {
-
+            isAttackHit = false;
             //피격 무적시간
             if (Time.time >= startTime + 0.0f && Time.time <= startTime + 0.7f)
             {
