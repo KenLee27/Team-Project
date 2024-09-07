@@ -16,7 +16,7 @@ public class WeaponAttachment : MonoBehaviour
 
     void SetHandTransform()
     {
-        handTransform = GameObject.Find("Player/root/pelvis/spine_01/spine_02/spine_03/clavicle_r/upperarm_r/lowerarm_r/hand_r").transform;
+        handTransform = GameObject.Find("Player/root/pelvis/spine_01/spine_02/spine_03/clavicle_r/upperarm_r/lowerarm_r/hand_r").transform; //캐릭터 변경시 필수 확인
 
         if (handTransform == null)
         {

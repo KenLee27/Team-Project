@@ -4577,6 +4577,7 @@ GameObject:
   - component: {fileID: 883410296510588160}
   - component: {fileID: 7548388947304410119}
   - component: {fileID: 3917145575421593905}
+  - component: {fileID: 1755814077641104776}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -4686,11 +4687,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentWeaponName: 
   moveSpeed: 4
   jumpForce: 4
   resetPhaseDelay: 1.2
   DiveDelay: 1.1
   PlayerHP: 0
+  PlayerAtk: 3
   PlayerMaxHP: 100
   PlayerStamina: 0
   PlayerMaxStamina: 100
@@ -4730,9 +4733,29 @@ MonoBehaviour:
   falchionPrefab: {fileID: 141144, guid: 3494e1f192f8c5e46a5f22a304382462, type: 3}
   daggerPrefab: {fileID: 103932, guid: 01b164846b2079444ad9c45089717c7d, type: 3}
   weaponImage: {fileID: 0}
+  weaponImageLeft: {fileID: 0}
+  weaponImageRight: {fileID: 0}
+  weaponNameText: {fileID: 0}
   axeSprite: {fileID: 21300000, guid: f02ae1225a7da8f48a327e0b118c5298, type: 3}
   falchionSprite: {fileID: 21300000, guid: 4094e42d04b028e4ea3d6261cd91f090, type: 3}
   daggerSprite: {fileID: 21300000, guid: 4cee88a317906a04ba002da223cc69fd, type: 3}
+  currentWeapon: {fileID: 0}
+--- !u!114 &1755814077641104776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4798376655655639335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4128d8c4755e92b4993c08f342a2cfed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerSkillPrefab: {fileID: 5789597749145269782, guid: 3a9ca4f9ddc492e4783fcf59b8479e9d,
+    type: 3}
+  skillSpeed: 10
+  skillRange: 7
 --- !u!1 &4808382204472136953
 GameObject:
   m_ObjectHideFlags: 0

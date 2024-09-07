@@ -1110,11 +1110,23 @@ public class EnemyControllerClabKing : MonoBehaviour, Ienemy
             StartCoroutine(ResetHit()); // 일정 시간 후 플래그 초기화
 
         }
-    }
 
+        if ( other.CompareTag("magic"))
+        {
+            HP = HP - player_1.GetComponent<SuperPlayerController>().PlayerDamage;
+            stunGauge += 3f;
+            Debug.Log("아프다!");
+            isHit = true;
+
+            isAlreadyHit = true; // 타격되었음을 표시
+            StartCoroutine(ResetHit()); // 일정 시간 후 플래그 초기화
+
+        }
+
+    }
     IEnumerator ResetHit()
     {
-        yield return new WaitForSeconds(0.5f); // 0.3초 후 초기화, 필요에 따라 조정 가능
+        yield return new WaitForSeconds(0.3f); // 0.3초 후 초기화, 필요에 따라 조정 가능
         isAlreadyHit = false;
     }
 

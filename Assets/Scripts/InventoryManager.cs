@@ -22,11 +22,15 @@ public class InventoryManager : MonoBehaviour
     private int currentWeaponIndex = 0;
     public GameObject currentWeapon;
 
+    private SkillController skillController;    // SkillController 참조
+
+
     void Start()
     {
         weaponPrefabs = new GameObject[] { axePrefab, falchionPrefab, daggerPrefab };
         weaponSprites = new Sprite[] { axeSprite, falchionSprite, daggerSprite };
         weaponNames = new string[] { "옛 왕의 수호자", "칼리오스 병사의 곡검", "그림자 단검" };
+        skillController = GetComponent<SkillController>();
 
         EquipCurrentWeapon();
     }
@@ -67,6 +71,20 @@ public class InventoryManager : MonoBehaviour
         {
             Debug.LogWarning("WeaponAttachment script not found on " + currentWeapon.name);
         }
+
+        if(currentWeaponIndex == 2)
+        {
+            Transform firePoint = currentWeapon.transform.Find("skill_start_position");
+            if (firePoint != null)
+            {
+                skillController.SetFirePoint(firePoint);
+            }
+            else
+            {
+                Debug.LogWarning("skill_start_position을 찾을 수 없습니다!");
+            }
+        }
+
     }
 
     private void SwitchToNextWeapon()

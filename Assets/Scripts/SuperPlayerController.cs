@@ -23,7 +23,7 @@ public class SuperPlayerController : MonoBehaviour
     public float resetPhaseDelay = 1.2f;             // 공격 리셋 시간
     public float DiveDelay = 1.1f;                 // 다이브 쿨타임
     public float PlayerHP = 0f;
-    public float PlayerAtk = 3f;
+    public float PlayerAtk = 3f;    
     public float PlayerMaxHP = 100f;
     public float PlayerStamina = 0f;
     public float PlayerMaxStamina = 100f;
@@ -34,8 +34,6 @@ public class SuperPlayerController : MonoBehaviour
 
 
     private Vector2 velocity = Vector2.zero;
-
-
 
     public float PlayerDamage = 3f;                //플레이어 데미지
 
@@ -343,7 +341,6 @@ public class SuperPlayerController : MonoBehaviour
         PlayerStamina -= 20f;
         isStand = true;
         float startTime = Time.time;
-        bool invincibilityCheck = true;
         while (Time.time < startTime + 0.7f)                                //애니메이션 시간
         {
             transform.Translate(Vector3.back * 3f * Time.deltaTime);
@@ -421,7 +418,6 @@ public class SuperPlayerController : MonoBehaviour
     private IEnumerator DiveDirection()
     {
         PlayerStamina -= 30f;
-        bool invincibilityCheck = true;
         isStand = true;
         canAttack = false;
 
@@ -711,22 +707,22 @@ public class SuperPlayerController : MonoBehaviour
         // 애니메이션의 특정 시간 동안 컨트롤
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = 0f;
-
         while (startTime < attackAnimationDuration)
         {
             if (animator.GetCurrentAnimatorStateInfo(0).IsName(currentWeaponName + "SpecialAttack_1"))
             {
                 if (currentWeaponName == "Dagger")
                 {
-                    PlayerDamage = (PlayerAtk / 3) * 8;
+                    
+                    PlayerDamage = PlayerAtk*2;
                 }
                 else if (currentWeaponName == "Axe")
                 {
-                    PlayerDamage = PlayerAtk * 5;
+                    PlayerDamage = PlayerAtk * 4;
                 }
                 else if (currentWeaponName == "Falchion")
                 {
-                    PlayerDamage = (PlayerAtk / 3) * 9;
+                    PlayerDamage = (PlayerAtk / 3) * 8;
                 }
             }
             // 공격 애니메이션이 실행 중일 때 이동
@@ -734,11 +730,11 @@ public class SuperPlayerController : MonoBehaviour
             {
                 if (currentWeaponName == "Dagger")
                 {
-                    PlayerDamage = (PlayerAtk / 3) * 9;
+                    PlayerDamage = PlayerAtk*2;
                 }
                 else if (currentWeaponName == "Axe")
                 {
-                    PlayerDamage = PlayerAtk * 5;
+                    PlayerDamage = PlayerAtk * 4;
                 }
                 else if (currentWeaponName == "Falchion")
                 {

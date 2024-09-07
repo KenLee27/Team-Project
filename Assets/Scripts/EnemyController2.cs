@@ -692,6 +692,13 @@ public class EnemyController2 : MonoBehaviour, Ienemy
             Debug.Log("아프다!");
             isHit = true;
         }
+
+        if (other.CompareTag("magic") && !isinvincibility)
+        {
+            isinvincibility = true;
+            Debug.Log("아프다!");
+            isHit = true;
+        }
     }
     // 작성자 이겸
 
