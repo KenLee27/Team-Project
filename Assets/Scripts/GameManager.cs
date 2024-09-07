@@ -63,13 +63,27 @@ public class GameManager : MonoBehaviour
     private void FindAndSetSliders()
     {
         Canvas canvas = FindObjectOfType<Canvas>();
-
-        if (canvas != null)
+        if (canvas == null)
         {
-            hpBar = canvas.transform.Find("HPprogress").GetComponent<ImgsFillDynamic>();
-            stBar = canvas.transform.Find("STprogress").GetComponent<Slider>();
-            mnBar = canvas.transform.Find("MNprogress").GetComponent<Slider>();
+            Debug.LogWarning("Canvas not found!");
+            return;
         }
+
+        Transform playerUI = canvas.transform.Find("PlayerUI");
+        if (playerUI == null)
+        {
+            Debug.LogWarning("PlayerUI not found!");
+            return;
+        }
+
+        hpBar = playerUI.Find("HPprogress")?.GetComponent<ImgsFillDynamic>();
+        if (hpBar == null) Debug.LogWarning("HPprogress not found!");
+
+        stBar = playerUI.Find("STprogress")?.GetComponent<Slider>();
+        if (stBar == null) Debug.LogWarning("STprogress not found!");
+
+        mnBar = playerUI.Find("MNprogress")?.GetComponent<Slider>();
+        if (mnBar == null) Debug.LogWarning("MNprogress not found!");
     }
 
     private void DisplayMapName(string displayName)

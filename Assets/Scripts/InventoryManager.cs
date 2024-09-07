@@ -8,13 +8,17 @@ public class InventoryManager : MonoBehaviour
     public GameObject daggerPrefab;
 
     public Image weaponImage; // 현재 무기 아이콘을 표시할 UI 이미지
-    public Sprite axeSprite; // 각 무기의 스프라이트를 설정합니다
+    public Image weaponImageLeft; // 이전 무기를 표시할 UI 이미지
+    public Image weaponImageRight; // 다음 무기를 표시할 UI 이미지
+    public Text weaponNameText; // 현재 무기 이름을 표시할 UI 텍스트
+
+    public Sprite axeSprite;
     public Sprite falchionSprite;
     public Sprite daggerSprite;
-    public string weaponName = "";
 
     private GameObject[] weaponPrefabs;
-    private Sprite[] weaponSprites; // 각 무기의 스프라이트를 저장하는 배열
+    private Sprite[] weaponSprites;
+    private string[] weaponNames; // 한글 무기 이름 배열
     private int currentWeaponIndex = 0;
     public GameObject currentWeapon;
 
@@ -22,8 +26,9 @@ public class InventoryManager : MonoBehaviour
     {
         weaponPrefabs = new GameObject[] { axePrefab, falchionPrefab, daggerPrefab };
         weaponSprites = new Sprite[] { axeSprite, falchionSprite, daggerSprite };
+        weaponNames = new string[] { "옛 왕의 수호자", "칼리오스 병사의 곡검", "그림자 단검" };
+
         EquipCurrentWeapon();
-        weaponName = currentWeapon.name;
     }
 
     void Update()
@@ -31,7 +36,11 @@ public class InventoryManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             SwitchToNextWeapon();
-            weaponName = currentWeapon.name;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            SwitchToPreviousWeapon();
         }
     }
 
@@ -66,11 +75,34 @@ public class InventoryManager : MonoBehaviour
         EquipCurrentWeapon();
     }
 
+    private void SwitchToPreviousWeapon()
+    {
+        currentWeaponIndex = (currentWeaponIndex - 1 + weaponPrefabs.Length) % weaponPrefabs.Length;
+        EquipCurrentWeapon();
+    }
+
     private void UpdateWeaponUI()
     {
         if (weaponImage != null)
         {
             weaponImage.sprite = weaponSprites[currentWeaponIndex];
+        }
+
+        if (weaponImageLeft != null)
+        {
+            int leftIndex = (currentWeaponIndex - 1 + weaponSprites.Length) % weaponSprites.Length;
+            weaponImageLeft.sprite = weaponSprites[leftIndex];
+        }
+
+        if (weaponImageRight != null)
+        {
+            int rightIndex = (currentWeaponIndex + 1) % weaponSprites.Length;
+            weaponImageRight.sprite = weaponSprites[rightIndex];
+        }
+
+        if (weaponNameText != null)
+        {
+            weaponNameText.text = weaponNames[currentWeaponIndex]; // 이름 업데이트
         }
     }
 }
