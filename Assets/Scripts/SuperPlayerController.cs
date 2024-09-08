@@ -73,7 +73,7 @@ public class SuperPlayerController : MonoBehaviour
     private State currentState = State.IDLE;
     private Transform cameraTransform; // 카메라 Transform 변수 추가
 
-    private int attackPhase = 0;
+    private int attackPhase = -1;
     private int s_attackPhase = 0;
 
     public bool canAttack = true; // 공격 가능 여부
@@ -425,7 +425,7 @@ public class SuperPlayerController : MonoBehaviour
 
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
-        while (Time.time < startTime + 0.95f)        //다이브 시간
+        while (Time.time < startTime + 0.9f)        //다이브 시간
         {
             
             // 다이브 애니메이션이 실행 중일 때 이동
@@ -574,6 +574,18 @@ public class SuperPlayerController : MonoBehaviour
 
         switch (attackPhase)
         {
+            case 0:
+                if(currentWeaponName == "Axe")
+                {
+                    animator.CrossFade(currentWeaponName + "Attack_0", 0.1f);
+                    PlayerDamage = (PlayerAtk / 3) * 4;
+                    break;
+                }
+                else
+                {
+                    attackPhase++;
+                }
+                goto case 1;
             case 1:
                 animator.CrossFade(currentWeaponName+"Attack_1", 0.1f);
                 if (currentWeaponName == "Dagger")
@@ -754,7 +766,7 @@ public class SuperPlayerController : MonoBehaviour
 
         if (attackPhase >= 3) // 공격이 완료된 경우
         {
-            attackPhase = 0; // 공격 단계 초기화
+            attackPhase = -1; // 공격 단계 초기화
         }
     }
     private IEnumerator EnableNextS_AttackAfterDelay()
@@ -774,7 +786,7 @@ public class SuperPlayerController : MonoBehaviour
         }
         else if (currentWeaponName == "Axe")
         {
-            attackDelay = 4;
+            attackDelay = 3.3f;
         }
         else if (currentWeaponName == "Dageer")
         {
@@ -802,21 +814,37 @@ public class SuperPlayerController : MonoBehaviour
         }
         else if (currentWeaponName == "Axe")
         {
-
             resetPhaseDelay = 2f;
-
+        }
+        else if (currentWeaponName == "Dageer")
+        {
+            resetPhaseDelay = 0.7f;
         }
 
         yield return new WaitForSeconds(resetPhaseDelay); // 공격하지 않은 동안 대기
-        if (attackPhase > 0) // 공격 단계가 0이 아니면
+        if (attackPhase > -1) // 공격 단계가 0이 아니면
         {
-            attackPhase = 0; // 공격 단계 초기화
+            attackPhase = -1; // 공격 단계 초기화
             Debug.Log("공격초기화!");
         }
     }
     private IEnumerator ResetS_AttackPhaseAfterDelay()
     {
-        yield return new WaitForSeconds(2.2f); // 공격하지 않은 동안 대기
+
+        if (currentWeaponName == "Falchion")
+        {
+            resetPhaseDelay = 2.2f;
+        }
+        else if (currentWeaponName == "Axe")
+        {
+            resetPhaseDelay = 2.2f;
+        }
+        else if (currentWeaponName == "Dageer")
+        {
+            resetPhaseDelay = 1.1f;
+        }
+
+        yield return new WaitForSeconds(resetPhaseDelay); // 공격하지 않은 동안 대기
         if (s_attackPhase > 0) // 공격 단계가 0이 아니면
         {
             s_attackPhase = 0; // 공격 단계 초기화

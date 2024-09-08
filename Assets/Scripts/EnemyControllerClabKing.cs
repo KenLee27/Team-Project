@@ -450,7 +450,7 @@ public class EnemyControllerClabKing : MonoBehaviour, Ienemy
         anim.CrossFade("Take_Damage_Large", 0.1f, 0, 0);
 
         float elapsedTime = 0f;
-        while (elapsedTime < 1.8f)                                            //스턴 지속 시간
+        while (elapsedTime < 2.2f)                                            //스턴 지속 시간
         {
             //사망판정
             if (HP < 0)
