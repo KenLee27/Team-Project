@@ -8,6 +8,7 @@ public class PlayerSkill : MonoBehaviour
     private float speed;
     private float maxDistance;
     private Vector3 startPosition;
+    public GameObject explosionEffect; // 폭발 이펙트 프리팹
 
     // 스킬 초기화 함수
     public void Initialize(Vector3 targetDirection, float moveSpeed, float range)
@@ -29,4 +30,17 @@ public class PlayerSkill : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // 적 태그에 닿았을 때만 실행
+        if (other.CompareTag("Enemy"))
+        {
+            // 폭발 이펙트 생성
+            Instantiate(explosionEffect, transform.position, Quaternion.identity);
+            // 스킬 오브젝트 파괴
+            Destroy(gameObject);
+        }
+    }
+
 }

@@ -5,9 +5,11 @@ using UnityEngine;
 public class SkillController : MonoBehaviour
 {
     public GameObject playerSkillPrefab;  // 플레이어 스킬 프리팹
+    public SuperCameraController cameraController;
     private Transform firePoint;           // 스킬이 발사될 위치
     public float skillSpeed = 20f;        // 스킬 속도
     public float skillRange = 9f;         // 스킬 사거리
+    private Vector3 targetDirection;
 
     void Start()
     {
@@ -21,7 +23,14 @@ public class SkillController : MonoBehaviour
         GameObject skillInstance = Instantiate(playerSkillPrefab, firePoint.position, Quaternion.identity);
 
         // 스킬이 날아갈 방향 설정
-        Vector3 targetDirection = transform.forward;
+        if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
+        {
+            targetDirection = (cameraController.LockedTarget.position - transform.position).normalized;
+        }
+        else
+        {
+            targetDirection = transform.forward;
+        }
 
         // 스킬의 회전값 설정
         skillInstance.transform.rotation = Quaternion.LookRotation(targetDirection);
