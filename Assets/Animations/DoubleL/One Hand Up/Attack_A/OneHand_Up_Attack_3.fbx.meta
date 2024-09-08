@@ -37,7 +37,7 @@ ModelImporter:
       takeName: OneHand_Up_Attack_3
       internalID: -3891449819406770849
       firstFrame: 0
-      lastFrame: 40
+      lastFrame: 50
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -59,6 +59,14 @@ ModelImporter:
       events:
       - time: 0.49754906
         functionName: FireSkill
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 4128d8c4755e92b4993c08f342a2cfed,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.9710784
+        functionName: CanMove
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: 4128d8c4755e92b4993c08f342a2cfed,
           type: 3}

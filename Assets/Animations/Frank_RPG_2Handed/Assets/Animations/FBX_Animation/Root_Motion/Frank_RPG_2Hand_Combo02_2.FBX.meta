@@ -550,7 +550,9 @@ ModelImporter:
       animation that will be discarded.\n\t'upperarm_r' has translation animation
       that will be discarded.\n\t'lowerarm_r' has translation animation that will
       be discarded.\n\t'hand_r' has translation animation that will be discarded.\n\t'head'
-      has translation animation that will be discarded.\n"
+      has translation animation that will be discarded.\nEvent CanMove has a time
+      (2.345915) outside the clip's valid range (0.000000..2.333333). It will never
+      be fired"
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -568,7 +570,7 @@ ModelImporter:
       takeName: Take 001
       internalID: 7400000
       firstFrame: 0
-      lastFrame: 135
+      lastFrame: 140
       wrapMode: 0
       orientationOffsetY: 240
       level: 0
@@ -604,7 +606,7 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.33970594
+      - time: 0.41537052
         functionName: TriggerAttack
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
@@ -612,8 +614,16 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.4289216
+      - time: 0.49436128
         functionName: EndAttack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.9215476
+        functionName: CanMove
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
           type: 3}

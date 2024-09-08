@@ -754,7 +754,7 @@ ModelImporter:
       name: 2Hand-Sword-Attack4
       takeName: Take 001
       internalID: 7400000
-      firstFrame: 0
+      firstFrame: 5
       lastFrame: 36
       wrapMode: 0
       orientationOffsetY: 0
@@ -785,6 +785,14 @@ ModelImporter:
         messageOptions: 0
       - time: 0.55016345
         functionName: EndAttack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.8601297
+        functionName: CanMove
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
           type: 3}

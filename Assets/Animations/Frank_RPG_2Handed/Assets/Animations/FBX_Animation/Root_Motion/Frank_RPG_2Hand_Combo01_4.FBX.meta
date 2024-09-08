@@ -570,7 +570,7 @@ ModelImporter:
       firstFrame: 0
       lastFrame: 134
       wrapMode: 0
-      orientationOffsetY: 65
+      orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
@@ -580,7 +580,7 @@ ModelImporter:
       loopBlendOrientation: 1
       loopBlendPositionY: 1
       loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
+      keepOriginalOrientation: 1
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
       heightFromFeet: 0
@@ -598,6 +598,14 @@ ModelImporter:
         messageOptions: 0
       - time: 0.44493464
         functionName: EndAttack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.7903595
+        functionName: CanMove
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
           type: 3}
