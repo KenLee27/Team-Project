@@ -46,6 +46,18 @@ public class GameManager : MonoBehaviour
 
         string displayName = GetDisplayNameForScene(scene.name);
         DisplayMapName(displayName);
+
+        InitializePlayerController();                                           //고은서가 추가함 : 플레이어컨트롤러 missing 방지
+
+    }
+
+    private void InitializePlayerController()
+    {
+        playerController = FindObjectOfType<SuperPlayerController>();
+        if (playerController == null)
+        {
+            Debug.LogError("PlayerController not found in the scene.");
+        }
     }
 
     private string GetDisplayNameForScene(string sceneName)
@@ -153,7 +165,6 @@ public class GameManager : MonoBehaviour
     }
     public void UpdatePlayerMana(float currentMana)
     {
-        if (mnBar != null)
         {
             float mnRatio = currentMana / playerController.PlayerMaxMana;
             mnBar.value = mnRatio;

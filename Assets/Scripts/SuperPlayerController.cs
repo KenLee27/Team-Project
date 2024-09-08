@@ -27,7 +27,7 @@ public class SuperPlayerController : MonoBehaviour
     public float PlayerMaxHP = 100f;
     public float PlayerStamina = 0f;
     public float PlayerMaxStamina = 100f;
-    public float StaminaRegenTime = 1f;          //스테미나 회복을 위해 스테미나 소모를 멈추고 기다려야 하는 시간
+    public float StaminaRegenTime = 0.1f;          //스테미나 회복을 위해 스테미나 소모를 멈추고 기다려야 하는 시간
     public float StaminaRegenSpeed = 20f;          //스테미나 초당 회복 수치
     public float PlayerMana = 0f; // 현재 마나
     public float PlayerMaxMana = 100f; // 최대 마나
@@ -94,12 +94,15 @@ public class SuperPlayerController : MonoBehaviour
         isinvincibility = false;
         firstDropDie = true;
 
+        PlayerMana = PlayerMaxMana;
         PlayerHP = PlayerMaxHP;
         PlayerStamina = PlayerMaxStamina;
-        PlayerMana = PlayerMaxMana;
+
         GameManager.Instance.UpdatePlayerHP(PlayerHP);
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
         GameManager.Instance.UpdatePlayerMana(PlayerMana);
+        
+
         timeSinceLastDive = StaminaRegenTime;
     }
 
@@ -107,7 +110,6 @@ public class SuperPlayerController : MonoBehaviour
     {
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
 
-        
         //무기 스위칭 확인
         if (currentWeaponName == "Falchion")
         {
