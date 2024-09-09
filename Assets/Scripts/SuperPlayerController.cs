@@ -441,7 +441,7 @@ public class SuperPlayerController : MonoBehaviour
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ForwardDive"))
             {
-                transform.Translate(Vector3.forward * 5f * Time.deltaTime);
+                
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("BackDive"))
             {

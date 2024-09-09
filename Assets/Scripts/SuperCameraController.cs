@@ -9,8 +9,8 @@ public class SuperCameraController : MonoBehaviour
 
     private float rotationSensitive = 3f;          // 카메라 회전 감도
     private float distance = 5f;                   // 카메라-플레이어 거리
-    private float minDistance = 1f;                // 최소 거리
-    private float rotationMin = -20f;                // 카메라 X축 회전 하한
+    private float minDistance = 0.8f;                // 최소 거리
+    private float rotationMin = -45f;                // 카메라 X축 회전 하한
     private float rotationMax = 80f;               // 카메라 X축 회전 상한
     private float smoothTime = 0.12f;              // 카메라 회전 지연 계수
     private float smoothMove = 0.2f;
@@ -107,18 +107,19 @@ public class SuperCameraController : MonoBehaviour
         Quaternion targetRotation;
 
         // Raycast를 이용하여 Ground와 충돌 검사
-        if (Physics.Raycast(player.position, -transform.forward, out hit, distance)) // 플레이어 위치에서 아래로 Raycast
+        if (Physics.Raycast(player.position, -transform.forward, out hit, 5f)) // 플레이어 위치에서 아래로 Raycast
         {
             if (hit.collider.CompareTag("Ground"))
             {
                 // 충돌 시 distance 값을 2f로 점진적으로 줄여나감
-                distance = Mathf.Lerp(distance, minDistance, Time.deltaTime * 5f); // 거리 감소
+                distance = Mathf.Lerp(distance, Mathf.Max(Vector3.Distance(player.position, hit.point), minDistance), Time.deltaTime * 5f); // 거리 감소
             }
         }
         else
         {
-            distance = Mathf.Lerp(distance, 7f, Time.deltaTime * 5f); // 거리 복원
+            distance = Mathf.Lerp(distance, 5f, Time.deltaTime * 5f); // 거리 복원
         }
+
 
         if (lockedTarget != null && isLockedOn) // Lock On 상태에서 카메라 조정
         {
