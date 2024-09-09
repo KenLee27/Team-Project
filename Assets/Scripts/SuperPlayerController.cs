@@ -198,11 +198,13 @@ public class SuperPlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && canAttack && (currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE)&&!isDive && isGround)
         {
             HandleAttack();
+            Debug.Log(currentWeaponName + "발동");
         }
 
-        if (Input.GetMouseButtonDown(1) && canAttack && (currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE) && !isDive && isGround)
+        if (Input.GetMouseButtonDown(1) && canAttack && (currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE) && !isDive && isGround&&PlayerMana >= 10)
         {
             HandleSpecialAttack();
+            Debug.Log(currentWeaponName + "발동");
         }
         //앉기
         if (canCrouched && Input.GetKeyDown(KeyCode.LeftControl) && isGround && !isAttacking && !isDive)
@@ -570,6 +572,12 @@ public class SuperPlayerController : MonoBehaviour
         currentState = State.ATTACK;
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
+
+
+        isStand = true;
+        animator.SetBool("isCrouching", !isStand); //공격 후 서있는 자세
+
+
         attackPhase++; // 공격 단계 증가
 
         switch (attackPhase)
@@ -645,73 +653,71 @@ public class SuperPlayerController : MonoBehaviour
     }
     private void HandleSpecialAttack()
     {
-        if (PlayerMana >= 10) // 기본 마나 체크
+        currentState = State.ATTACK;
+        isAttacking = true;
+        canAttack = false; // 공격 가능 플래그를 false로 설정
+
+        isStand = true;
+        animator.SetBool("isCrouching", !isStand); //공격 후 서있는 자세
+
+
+        s_attackPhase++; // 공격 단계 증가
+
+        switch (s_attackPhase)
         {
-            currentState = State.ATTACK;
-            isAttacking = true;
-            canAttack = false; // 공격 가능 플래그를 false로 설정
-            s_attackPhase++; // 공격 단계 증가
+            case 1:
+                animator.CrossFade(currentWeaponName + "SpecialAttack_1", 0.1f);
+                PlayerMana -= 10; // 1타 마나 소모
+                GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
+                if (currentWeaponName == "Dagger")
+                {
+                    PlayerDamage = PlayerAtk * 2;
+                }
+                else if (currentWeaponName == "Axe")
+                {
+                    PlayerDamage = PlayerAtk * 4;
+                }
+                else if (currentWeaponName == "Falchion")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 8;
+                }
 
-            switch (s_attackPhase)
-            {
-                case 1:
-                    if (PlayerMana >= 10) // 1타에 필요한 마나 체크
-                    {
-                        animator.CrossFade(currentWeaponName +"SpecialAttack_1", 0.1f);
-                        PlayerMana -= 10; // 1타 마나 소모
-                        GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
-                        if (currentWeaponName == "Dagger")
-                        {
-                            PlayerDamage = PlayerAtk * 2;
-                        }
-                        else if (currentWeaponName == "Axe")
-                        {
-                            PlayerDamage = PlayerAtk * 4;
-                        }
-                        else if (currentWeaponName == "Falchion")
-                        {
-                            PlayerDamage = (PlayerAtk / 3) * 8;
-                        }
-                    }
-                    break;
-                case 2:
-                    if (PlayerMana >= 15) // 2타에 필요한 마나 체크
-                    {
-                        animator.CrossFade(currentWeaponName + "SpecialAttack_2", 0.1f);
-                        PlayerMana -= 15; // 2타 마나 소모
-                        GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
-                        if (currentWeaponName == "Dagger")
-                        {
-                            PlayerDamage = PlayerAtk * 2;
+                break;
+            case 2:
+                animator.CrossFade(currentWeaponName + "SpecialAttack_2", 0.1f);
+                PlayerMana -= 15; // 2타 마나 소모
+                GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
+                if (currentWeaponName == "Dagger")
+                {
+                    PlayerDamage = PlayerAtk * 2;
 
-                            Debug.Log(PlayerDamage + " 데미지!");
-                        }
-                        else if (currentWeaponName == "Axe")
-                        {
-                            PlayerDamage = PlayerAtk * 4;
+                    Debug.Log(PlayerDamage + " 데미지!");
+                }
+                else if (currentWeaponName == "Axe")
+                {
+                    PlayerDamage = PlayerAtk * 4;
 
-                            Debug.Log(PlayerDamage + " 데미지!");
-                        }
-                        else if (currentWeaponName == "Falchion")
-                        {
-                            PlayerDamage = (PlayerAtk / 3) * 11;
+                    Debug.Log(PlayerDamage + " 데미지!");
+                }
+                else if (currentWeaponName == "Falchion")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 11;
 
-                            Debug.Log(PlayerDamage + " 데미지!");
-                        }
-                    }
-                    break;
-                default:
-                    return;
-            }
-            StartCoroutine(EnableNextS_AttackAfterDelay()); // 공격 가능 대기
+                    Debug.Log(PlayerDamage + " 데미지!");
+                }
 
-            if (resetS_PhaseCoroutine != null)
-            {
-                StopCoroutine(resetS_PhaseCoroutine);
-            }
-
-            resetS_PhaseCoroutine = StartCoroutine(ResetS_AttackPhaseAfterDelay());
+                break;
+            default:
+                return;
         }
+        StartCoroutine(EnableNextS_AttackAfterDelay()); // 공격 가능 대기
+
+        if (resetS_PhaseCoroutine != null)
+        {
+            StopCoroutine(resetS_PhaseCoroutine);
+        }
+
+        resetS_PhaseCoroutine = StartCoroutine(ResetS_AttackPhaseAfterDelay());
     }
 
     private IEnumerator EnableNextAttackAfterDelay()
@@ -722,7 +728,7 @@ public class SuperPlayerController : MonoBehaviour
             //공격 단수 별 딜레이 조정
             if (attackPhase == 3)
             {
-                attackDelay = 1.6f;
+                attackDelay = 1.8f;
             }
             else
             {
@@ -756,11 +762,17 @@ public class SuperPlayerController : MonoBehaviour
                 attackDelay = 0.7f;
             }
         }
+        float startTime = Time.time;
+        while (Time.time < startTime + attackDelay)     //공격(콤보 딜레이)
+        {
+            if(currentState ==State.HIT)
+            {
+                yield break;                            //맞을 경우 코루틴 종료
+            }
+            yield return null;
+        }
 
-
-        yield return new WaitForSeconds(attackDelay);
-        isStand = true;
-        animator.SetBool("isCrouching", !isStand);
+        Debug.Log("Can Attack!");
         canAttack = true; // 다시 공격 가능해짐
         isAttacking = false;
 
@@ -788,12 +800,22 @@ public class SuperPlayerController : MonoBehaviour
         {
             attackDelay = 3.3f;
         }
-        else if (currentWeaponName == "Dageer")
+        else if (currentWeaponName == "Dagger")
         {
             attackDelay = 1.3f;
         }
+        float startTime = Time.time;
+        while (Time.time < startTime + attackDelay)     //공격(콤보 딜레이)
+        {
+            if (currentState == State.HIT)
+            {
+                yield break;                            //맞을 경우 코루틴 종료
+            }
+            yield return null;
+        }
 
-        yield return new WaitForSeconds(attackDelay);
+
+        Debug.Log("you can attack!");
         isStand = true;
         animator.SetBool("isCrouching", !isStand);
         isAttacking = false;
@@ -816,12 +838,21 @@ public class SuperPlayerController : MonoBehaviour
         {
             resetPhaseDelay = 2f;
         }
-        else if (currentWeaponName == "Dageer")
+        else if (currentWeaponName == "Dagger")
         {
-            resetPhaseDelay = 0.7f;
+            resetPhaseDelay = 0.9f;
+        }
+        float startTime = Time.time;
+        while (Time.time < startTime + resetPhaseDelay)     //공격(콤보 딜레이)
+        {
+            if (currentState == State.HIT)
+            {
+                yield break;                            //맞을 경우 코루틴 종료
+            }
+            yield return null;
         }
 
-        yield return new WaitForSeconds(resetPhaseDelay); // 공격하지 않은 동안 대기
+
         if (attackPhase > -1) // 공격 단계가 0이 아니면
         {
             attackPhase = -1; // 공격 단계 초기화
@@ -839,12 +870,21 @@ public class SuperPlayerController : MonoBehaviour
         {
             resetPhaseDelay = 2.2f;
         }
-        else if (currentWeaponName == "Dageer")
+        else if (currentWeaponName == "Dagger")
         {
-            resetPhaseDelay = 1.1f;
+            resetPhaseDelay = 1.7f;
+        }
+        float startTime = Time.time;
+        while (Time.time < startTime + resetPhaseDelay)     //공격(콤보 딜레이)
+        {
+            if (currentState == State.HIT)
+            {
+                yield break;                            //맞을 경우 코루틴 종료
+            }
+            yield return null;
         }
 
-        yield return new WaitForSeconds(resetPhaseDelay); // 공격하지 않은 동안 대기
+
         if (s_attackPhase > 0) // 공격 단계가 0이 아니면
         {
             s_attackPhase = 0; // 공격 단계 초기화
@@ -899,30 +939,31 @@ public class SuperPlayerController : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("EnemyAttack"))
+        if (other.CompareTag("EnemyAttack") && !isinvincibility)
         {
-            if (!isinvincibility)
-            {
-                isinvincibility = true;
-                currentState = State.HIT;
-                Debug.Log("맞았다!");
-                isAttacked = true;
-                HandleHit(other);
-            }
+            isinvincibility = true;                    //피격 무적 활성화
+            canAttack = false;
+            currentState = State.HIT;
+            Debug.Log("맞았다!");
+            isAttacked = true;
+            HandleHit(other);
+
         }
     }
 
     private void HandleHit(Collider other)
     {
         Ienemy enemy = other.GetComponentInParent<Ienemy>();
-        float GetDamage = enemy.Damage;
-        Debug.Log("데미지!");
-        PlayerHP = PlayerHP - GetDamage;
-        GameManager.Instance.UpdatePlayerHP(PlayerHP);
-        isAttackHit = false;
-        animator.CrossFade("Hit", 0.1f,0,0);
-        attackPhase = 0;
+        float GetDamage = enemy.Damage;                     //데미지 계산
 
+        PlayerHP = PlayerHP - GetDamage;
+        GameManager.Instance.UpdatePlayerHP(PlayerHP);      //UI 업데이트
+
+        isAttackHit = false;                                //공격판정 취소
+
+        animator.CrossFade("Hit", 0.1f,0,0);
+        attackPhase = -1;                                   //공격페이즈 초기화
+        s_attackPhase = 0;
 
         StartCoroutine(AttackedMotionDelay());
         
