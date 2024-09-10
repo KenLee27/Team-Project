@@ -88,6 +88,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+
         hpBar = playerUI.Find("HPprogress")?.GetComponent<ImgsFillDynamic>();
         if (hpBar == null) Debug.LogWarning("HPprogress not found!");
 
@@ -96,6 +97,7 @@ public class GameManager : MonoBehaviour
 
         mnBar = playerUI.Find("MNprogress")?.GetComponent<Slider>();
         if (mnBar == null) Debug.LogWarning("MNprogress not found!");
+
     }
 
     private void DisplayMapName(string displayName)
