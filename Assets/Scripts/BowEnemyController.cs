@@ -354,6 +354,8 @@ public class BowEnemyController : MonoBehaviour, Ienemy
 
     IEnumerator HIT()
     {
+        AttackEnd();
+
         //작성자 이겸
         if (isAttacked != true)
         {
@@ -366,6 +368,7 @@ public class BowEnemyController : MonoBehaviour, Ienemy
 
         nmAgent.speed = 0f;
         HP = HP - player_1.GetComponent<SuperPlayerController>().PlayerDamage;
+        Debug.Log(HP + "남았습니다");
 
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
         if (HP > 0)
@@ -726,7 +729,7 @@ public class BowEnemyController : MonoBehaviour, Ienemy
     {
         if (hpSliderObject != null)
         {
-            Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2f); // 머리 위로 위치 조정
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 3f); // 머리 위로 위치 조정
             hpSliderObject.transform.position = screenPosition; // UI 슬라이더 위치 설정
         }
     }
