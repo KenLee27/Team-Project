@@ -573,11 +573,6 @@ public class SuperPlayerController : MonoBehaviour
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
 
-
-        isStand = true;
-        animator.SetBool("isCrouching", !isStand); //공격 후 서있는 자세
-
-
         attackPhase++; // 공격 단계 증가
 
         switch (attackPhase)
@@ -771,6 +766,11 @@ public class SuperPlayerController : MonoBehaviour
             }
             yield return null;
         }
+
+
+        isStand = true;
+        animator.SetBool("isCrouching", !isStand); //공격 후 서있는 자세
+
 
         Debug.Log("Can Attack!");
         canAttack = true; // 다시 공격 가능해짐
