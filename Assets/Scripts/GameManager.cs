@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public ImgsFillDynamic hpBar;
     public Slider stBar;
     public Slider mnBar;
+    public Text soulText;
 
     public GameObject hpSliderPrefab;     // HP 슬라이더 프리팹
     public GameObject stSliderPrefab;     // ST 슬라이더 프리팹
@@ -48,7 +49,6 @@ public class GameManager : MonoBehaviour
         DisplayMapName(displayName);
 
         InitializePlayerController();                                           //고은서가 추가함 : 플레이어컨트롤러 missing 방지
-
     }
 
     private void InitializePlayerController()
@@ -58,7 +58,30 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("PlayerController not found in the scene.");
         }
+
+        if (soulText != null)
+        {
+            soulText.text = playerController.playerSoul.ToString();
+        }
     }
+
+    public void UpdatePlayerSOUL(float soulGain)
+    //해당 메서드 호출시 몬스터의 소울이 플레이어의 소울로 전환
+    {
+        if (playerController == null)
+        {
+            Debug.LogWarning("PlayerController not assigned!");
+            return;
+        }
+
+        playerController.playerSoul += soulGain;
+
+        if (soulText != null)
+        {
+            soulText.text = playerController.playerSoul.ToString();
+        }
+    }
+
 
     private string GetDisplayNameForScene(string sceneName)
     {
@@ -98,6 +121,8 @@ public class GameManager : MonoBehaviour
         mnBar = playerUI.Find("MNprogress")?.GetComponent<Slider>();
         if (mnBar == null) Debug.LogWarning("MNprogress not found!");
 
+        soulText = playerUI.Find("SOULprogress")?.GetComponent<Text>();
+        if (soulText == null) Debug.LogWarning("SOULprogress not found!");
     }
 
     private void DisplayMapName(string displayName)
