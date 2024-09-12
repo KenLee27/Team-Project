@@ -59,6 +59,8 @@ public class EnemyControllerClabKing : MonoBehaviour, Ienemy
     private bool directionInitialized = false;  // 방향이 초기화되었는지 여부를 확인하는 변수
     private float timeSinceLastCheck = 0f;
     private float checkInterval = 2f; // 2초마다 체크
+    public float enemySoul = 120f;
+    public bool isDead = false;
 
     Vector3 initialPoint; //적 배치 위치 변수 선언
 
@@ -871,6 +873,12 @@ public class EnemyControllerClabKing : MonoBehaviour, Ienemy
 
     IEnumerator DIE()
     {
+        if (isDead)
+        {
+            yield break;
+        }
+        isDead = true;
+
         // 애니메이터의 현재 애니메이션 상태 정보 가져오기
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
@@ -897,6 +905,8 @@ public class EnemyControllerClabKing : MonoBehaviour, Ienemy
 
             yield return null; // 한 프레임 대기
         }
+
+        GameManager.Instance.UpdatePlayerSOUL(enemySoul);
 
         // 애니메이션이 끝난 후 오브젝트를 제거
         Destroy(gameObject);

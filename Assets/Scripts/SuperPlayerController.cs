@@ -31,6 +31,7 @@ public class SuperPlayerController : MonoBehaviour
     public float StaminaRegenSpeed = 20f;          //스테미나 초당 회복 수치
     public float PlayerMana = 0f; // 현재 마나
     public float PlayerMaxMana = 100f; // 최대 마나
+    public float playerSoul = 0f;
 
 
     private Vector2 velocity = Vector2.zero;

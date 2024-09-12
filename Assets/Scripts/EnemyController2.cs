@@ -36,6 +36,7 @@ public class EnemyController2 : MonoBehaviour, Ienemy
     public bool isHit = false;                  //맞은 상태
     public bool isinvincibility = false;      //무적상태
     public bool isAttack = false;
+    public bool isDead = false;
 
     Vector3 directionToPlayer;
     Vector3 directionToBase;
@@ -57,6 +58,7 @@ public class EnemyController2 : MonoBehaviour, Ienemy
     private bool isAttacked = false;
     private Slider hpSlider;                     // 몬스터 HP 슬라이더
     private GameObject hpSliderObject;          // 슬라이더 UI 오브젝트
+    public float enemySoul = 30f;
 
     enum State
     {
@@ -472,6 +474,12 @@ public class EnemyController2 : MonoBehaviour, Ienemy
 
     IEnumerator DIE()
     {
+        if (isDead)
+        {
+            yield break;
+        }
+        isDead = true;
+
         // 애니메이터의 현재 애니메이션 상태 정보 가져오기
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
@@ -498,6 +506,8 @@ public class EnemyController2 : MonoBehaviour, Ienemy
 
             yield return null; // 한 프레임 대기
         }
+
+        GameManager.Instance.UpdatePlayerSOUL(enemySoul);
 
         // 애니메이션이 끝난 후 오브젝트를 제거
         Destroy(gameObject);

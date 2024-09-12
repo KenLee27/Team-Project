@@ -13,7 +13,7 @@ public class SuperCameraController : MonoBehaviour
     private float rotationMin = -45f;                // 카메라 X축 회전 하한
     private float rotationMax = 80f;               // 카메라 X축 회전 상한
     private float smoothTime = 0.12f;              // 카메라 회전 지연 계수
-    private float smoothMove = 0.2f;
+    //private float smoothMove = 0.2f;
 
     private float Xaxis = 0f;                      // 카메라 X축 회전 각도
     private float Yaxis = 0f;                      // 카메라 Y축 회전 각도
@@ -30,7 +30,7 @@ public class SuperCameraController : MonoBehaviour
     private float lockOnCooldown = 1f;              // Lock On 재변경 쿨타임
     private float lastLockOnChangeTime = 0f;       // 마지막 Lock On 변경 요청 시간
 
-    private float timeSinceHit = 0f;
+    //private float timeSinceHit = 0f;
 
     public bool IsLockedOn => isLockedOn;
     public Transform LockedTarget => lockedTarget;
@@ -103,7 +103,7 @@ public class SuperCameraController : MonoBehaviour
     {
         Vector3 desiredPosition = player.position - transform.forward * distance; // 기본 카메라 위치 설정
         RaycastHit hit;
-        Vector3 targetPosition;
+        //Vector3 targetPosition;
         Quaternion targetRotation;
 
         // Raycast를 이용하여 Ground와 충돌 검사
