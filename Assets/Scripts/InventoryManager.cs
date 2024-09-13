@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,9 +17,10 @@ public class InventoryManager : MonoBehaviour
     public Sprite falchionSprite;
     public Sprite daggerSprite;
 
-    private GameObject[] weaponPrefabs;
-    private Sprite[] weaponSprites;
-    private string[] weaponNames; // 한글 무기 이름 배열
+    private List<GameObject> weaponPrefabs; // List로 변경하여 유연하게 관리
+    private List<Sprite> weaponSprites;
+    private List<string> weaponNames;
+
     private int currentWeaponIndex = 0;
     public GameObject currentWeapon;
 
@@ -27,11 +29,11 @@ public class InventoryManager : MonoBehaviour
 
     void Start()
     {
-        weaponPrefabs = new GameObject[] { axePrefab, falchionPrefab, daggerPrefab };
-        weaponSprites = new Sprite[] { axeSprite, falchionSprite, daggerSprite };
-        weaponNames = new string[] { "옛 왕의 수호자", "칼리오스 병사의 곡검", "그림자 단검" };
-        skillController = GetComponent<SkillController>();
+        weaponPrefabs = new List<GameObject> { falchionPrefab }; // 처음에는 Falchion만 포함
+        weaponSprites = new List<Sprite> { falchionSprite };
+        weaponNames = new List<string> { "칼리오스 병사의 곡검" };
 
+        skillController = GetComponent<SkillController>();
         EquipCurrentWeapon();
     }
 
@@ -48,13 +50,15 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    
+
     private void EquipCurrentWeapon()
     {
         if (currentWeapon != null)
         {
             Destroy(currentWeapon);
         }
-
+        
         currentWeapon = Instantiate(weaponPrefabs[currentWeaponIndex].transform.GetChild(0).gameObject);
         currentWeapon.name = weaponPrefabs[currentWeaponIndex].name + "_Instance";
 
@@ -89,13 +93,13 @@ public class InventoryManager : MonoBehaviour
 
     private void SwitchToNextWeapon()
     {
-        currentWeaponIndex = (currentWeaponIndex + 1) % weaponPrefabs.Length;
+        currentWeaponIndex = (currentWeaponIndex + 1) % weaponPrefabs.Count;
         EquipCurrentWeapon();
     }
 
     private void SwitchToPreviousWeapon()
     {
-        currentWeaponIndex = (currentWeaponIndex - 1 + weaponPrefabs.Length) % weaponPrefabs.Length;
+        currentWeaponIndex = (currentWeaponIndex - 1 + weaponPrefabs.Count) % weaponPrefabs.Count;
         EquipCurrentWeapon();
     }
 
@@ -108,13 +112,13 @@ public class InventoryManager : MonoBehaviour
 
         if (weaponImageLeft != null)
         {
-            int leftIndex = (currentWeaponIndex - 1 + weaponSprites.Length) % weaponSprites.Length;
+            int leftIndex = (currentWeaponIndex - 1 + weaponSprites.Count) % weaponSprites.Count;
             weaponImageLeft.sprite = weaponSprites[leftIndex];
         }
 
         if (weaponImageRight != null)
         {
-            int rightIndex = (currentWeaponIndex + 1) % weaponSprites.Length;
+            int rightIndex = (currentWeaponIndex + 1) % weaponSprites.Count;
             weaponImageRight.sprite = weaponSprites[rightIndex];
         }
 
@@ -122,5 +126,24 @@ public class InventoryManager : MonoBehaviour
         {
             weaponNameText.text = weaponNames[currentWeaponIndex]; // 이름 업데이트
         }
+    }
+
+    public void AddWeaponToInventory(string weaponName)
+    {
+        if (weaponName == "Axe" && !weaponPrefabs.Contains(axePrefab))
+        {
+            weaponPrefabs.Add(axePrefab);
+            weaponSprites.Add(axeSprite);
+            weaponNames.Add("옛 왕의 수호자");
+        }
+        else if (weaponName == "Dagger" && !weaponPrefabs.Contains(daggerPrefab))
+        {
+            weaponPrefabs.Add(daggerPrefab);
+            weaponSprites.Add(daggerSprite);
+            weaponNames.Add("그림자 단검");
+        }
+
+        UpdateWeaponUI();
+        EquipCurrentWeapon();
     }
 }
