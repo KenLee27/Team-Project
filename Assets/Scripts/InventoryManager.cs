@@ -76,18 +76,16 @@ public class InventoryManager : MonoBehaviour
             Debug.LogWarning("WeaponAttachment script not found on " + currentWeapon.name);
         }
 
-        if(currentWeaponIndex == 2)
+        Transform firePoint = currentWeapon.transform.Find("skill_start_position");
+        if (firePoint != null)
         {
-            Transform firePoint = currentWeapon.transform.Find("skill_start_position");
-            if (firePoint != null)
-            {
-                skillController.SetFirePoint(firePoint);
-            }
-            else
-            {
-                Debug.LogWarning("skill_start_position을 찾을 수 없습니다!");
-            }
+            skillController.SetFirePoint(firePoint);
         }
+        else
+        {
+            Debug.Log("skill_start_position을 찾을 수 없습니다!");
+        }
+
 
     }
 
