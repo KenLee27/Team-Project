@@ -35,6 +35,7 @@ public class BowEnemyController : MonoBehaviour, Ienemy
     public bool isHit = false;                  //맞은 상태
     public bool isinvincibility = false;      //무적상태
     public bool isAttack = false;
+    public bool isDead = false;
 
     public GameObject bowattackRange;           //근접 활 공격 판정
     public GameObject kickattackRange;           //근접 발차기 공격 판정
@@ -53,6 +54,7 @@ public class BowEnemyController : MonoBehaviour, Ienemy
     private bool directionInitialized = false;  // 방향이 초기화되었는지 여부를 확인하는 변수
     private float timeSinceLastCheck = 0f;
     private float checkInterval = 2f; // 2초마다 체크
+    public float enemySoul = 50f;
 
     Vector3 initialPoint; //적 배치 위치 변수 선언
 
@@ -493,6 +495,12 @@ public class BowEnemyController : MonoBehaviour, Ienemy
 
     IEnumerator DIE()
     {
+        if (isDead)
+        {
+            yield break;
+        }
+        isDead = true;
+
         // 애니메이터의 현재 애니메이션 상태 정보 가져오기
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
@@ -519,6 +527,8 @@ public class BowEnemyController : MonoBehaviour, Ienemy
 
             yield return null; // 한 프레임 대기
         }
+
+        GameManager.Instance.UpdatePlayerSOUL(enemySoul);
 
         // 애니메이션이 끝난 후 오브젝트를 제거
         Destroy(gameObject);
