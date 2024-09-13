@@ -428,27 +428,8 @@ public class SuperPlayerController : MonoBehaviour
 
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
-        while (Time.time < startTime + 0.9f)        //다이브 시간
+        while (Time.time < startTime + 0.7f)        //다이브 시간
         {
-            
-            // 다이브 애니메이션이 실행 중일 때 이동
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("LeftDive"))
-            {
-                transform.Translate(lastMovement.normalized * 5f * Time.deltaTime);
-            }
-            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightDive"))
-            {
-                transform.Translate(lastMovement.normalized * 5f * Time.deltaTime);
-            }
-            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ForwardDive"))
-            {
-                
-            }
-            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("BackDive"))
-            {
-                transform.Translate(Vector3.back * 5f * Time.deltaTime);
-            }
-
             //다이브 애니메이션이 실행 중일 때 스테미나 회복 대기 시간 0초 고정
             timeSinceLastDive = 0f;
             yield return null;
