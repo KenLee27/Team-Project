@@ -104,8 +104,8 @@ public class BossAController : MonoBehaviour, Ienemy
         nmAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         state = State.IDLE;
         StartCoroutine(StateMachine());
-        maxMelee = 3;
-        maxRanged = 3;
+        maxMelee = 2;
+        maxRanged = 2;
     }
 
 
@@ -742,7 +742,7 @@ public class BossAController : MonoBehaviour, Ienemy
         Melee = 0;
         attackRange = 3f;
         checkRange = 3f;
-        maxMelee = UnityEngine.Random.Range(1f, 4f);
+        maxMelee = UnityEngine.Random.Range(1f, 2f);
 
         anim.CrossFade("Attack_1", 0.04f, 0, 0);
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
@@ -801,7 +801,7 @@ public class BossAController : MonoBehaviour, Ienemy
         is2Phase = true;
         anim.SetBool("Phase_2", is2Phase);      //2페이즈 애니메이션 시작!
 
-        float attackDuration = 5.2f;  // 공격 애니메이션의 지속 시간
+        float attackDuration = 6f;  // 공격 애니메이션의 지속 시간
         float elapsedTime = 0f;
         while (elapsedTime < attackDuration)
         {
@@ -845,7 +845,7 @@ public class BossAController : MonoBehaviour, Ienemy
         Debug.Log("적의 백스탭!");
         attackRange = 20f;
         checkRange = 20f;
-        maxRanged = UnityEngine.Random.Range(2f, 5f);
+        maxRanged = UnityEngine.Random.Range(1f, 3f);
 
         anim.CrossFade("Step_L", 0.1f, 0, 0);
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
