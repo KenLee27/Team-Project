@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BossAController : MonoBehaviour, Ienemy
 {
@@ -31,6 +32,8 @@ public class BossAController : MonoBehaviour, Ienemy
 
     private float maxMelee = 0;
     private float maxRanged = 0;
+    private Slider hpSlider;                     // 몬스터 HP 슬라이더
+    private GameObject hpSliderObject;          // 슬라이더 UI 오브젝트
 
     float Ienemy.Damage => Damage;
 
@@ -61,7 +64,7 @@ public class BossAController : MonoBehaviour, Ienemy
     private bool directionInitialized = false;  // 방향이 초기화되었는지 여부를 확인하는 변수
     private float timeSinceLastCheck = 0f;
     private float checkInterval = 2f; // 2초마다 체크
-    public float enemySoul = 120f;
+    public float enemySoul = 150f;
     public bool isDead = false;
 
     Vector3 initialPoint; //적 배치 위치 변수 선언
@@ -129,12 +132,14 @@ public class BossAController : MonoBehaviour, Ienemy
 
         if (distanceToPlayer <= detectingRange && player_1.GetComponent<SuperPlayerController>().isStand) //탐지 범위 안에 플레이어가 들어오면
         {
+            hpSliderObject.SetActive(true);
             // StateMachine 을 대시로 변경
             ChangeState(State.ATTACK_JUMP_MAGIC);
         }
 
         if (isHit)  //기습 대경직
         {
+            hpSliderObject.SetActive(true);
             ChangeState(State.BIG_STUN);
         }
         yield return null;
@@ -1119,7 +1124,7 @@ public class BossAController : MonoBehaviour, Ienemy
 
         // 애니메이션이 끝난 후 오브젝트를 제거
         Destroy(gameObject);
-
+        Destroy(hpSliderObject);
     }
 
 
@@ -1130,6 +1135,7 @@ public class BossAController : MonoBehaviour, Ienemy
     void Update()
     {
         StunCheck();
+        UpdateHPBar();
 
         directionToPlayer = new Vector3(player.position.x - transform.position.x,
             0f, player.position.z - transform.position.z);    //플레이어와의 위치관계
@@ -1182,6 +1188,22 @@ public class BossAController : MonoBehaviour, Ienemy
         }
 
 
+    }
+
+
+    public void InitializeHPBar(GameObject hpSliderPrefab)
+    {
+        hpSliderObject = Instantiate(hpSliderPrefab, GameObject.Find("Canvas").transform); // 슬라이더 생성 및 부모를 Canvas로 설정
+        hpSlider = hpSliderObject.GetComponent<Slider>();
+        UpdateHPBar();
+    }
+
+    private void UpdateHPBar()
+    {
+        if (hpSlider != null)
+        {
+            hpSlider.value = HP / MaxHP; // 슬라이더 값 업데이트
+        }
     }
 
     void ChangeState(State newState)
