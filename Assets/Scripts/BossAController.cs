@@ -346,7 +346,9 @@ public class BossAController : MonoBehaviour, Ienemy
 
         if (distanceToBase >= 50f) //집 거리 50f 멀어지면 복귀
         {
+            hpSliderObject.SetActive(false);
             ChangeState(State.BACK);
+            yield break;
         }
 
         yield return null;
@@ -917,7 +919,8 @@ public class BossAController : MonoBehaviour, Ienemy
     IEnumerator BACK()
     {
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
-
+        
+        
         if (curAnimStateInfo.IsName("Walk") == false)
         {
             anim.CrossFade("Walk", 0.1f, 0, 0);
