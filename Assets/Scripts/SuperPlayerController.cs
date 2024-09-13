@@ -21,7 +21,7 @@ public class SuperPlayerController : MonoBehaviour
     public float moveSpeed = 4f;                   // 이동 속도
     public float jumpForce = 5f;                   // 점프 힘
     public float resetPhaseDelay = 1.2f;             // 공격 리셋 시간
-    public float DiveDelay = 1.1f;                 // 다이브 쿨타임
+    public float DiveDelay = 0.8f;                 // 다이브 쿨타임
     public float PlayerHP = 0f;
     public float PlayerAtk = 3f;    
     public float PlayerMaxHP = 100f;
@@ -126,12 +126,12 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //플레이어 스테미나 컨트롤러
-        if ( PlayerStamina < 30f )
+        if ( PlayerStamina < 15f )
         {
             canDive = false;
             FirstStaminaCheck = true;
         }
-        else if( PlayerStamina >=30 && FirstStaminaCheck)
+        else if( PlayerStamina >=15 && FirstStaminaCheck)
         {
             canDive = true;
             FirstStaminaCheck = false;
@@ -343,7 +343,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator BackStepDirection()
     {
-        PlayerStamina -= 20f;
+        PlayerStamina -= 15f;
         isStand = true;
         float startTime = Time.time;
         while (Time.time < startTime + 0.7f)                                //애니메이션 시간
@@ -422,7 +422,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private IEnumerator DiveDirection()
     {
-        PlayerStamina -= 30f;
+        PlayerStamina -= 15f;
         isStand = true;
         canAttack = false;
 
@@ -976,6 +976,7 @@ public class SuperPlayerController : MonoBehaviour
 
             yield return null;
         }
+        isAttacking = false;
         canDive = true;
         isGround = true;
         canAttack = true;

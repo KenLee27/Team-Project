@@ -13426,6 +13426,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 883410296510588160, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 883410296510588160, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
+        type: 3}
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
@@ -13528,6 +13533,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
+        type: 3}
+      propertyPath: DiveDelay
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
@@ -50283,6 +50293,18 @@ PrefabInstance:
       propertyPath: Player
       value: 
       objectReference: {fileID: 543557089}
+    - target: {fileID: 8912109513165317866, guid: 9c884e3eb194cbe4d9c33327c868c5db,
+        type: 3}
+      propertyPath: SkillPrefab
+      value: 
+      objectReference: {fileID: 9159898695378457397, guid: 02b0c89418eb08b47af49fee0cc13548,
+        type: 3}
+    - target: {fileID: 8912109513165317866, guid: 9c884e3eb194cbe4d9c33327c868c5db,
+        type: 3}
+      propertyPath: S_quakeSkillPrefab
+      value: 
+      objectReference: {fileID: 1259387175079350960, guid: a7294bb68adc0e349b172bb1ebceac60,
+        type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
