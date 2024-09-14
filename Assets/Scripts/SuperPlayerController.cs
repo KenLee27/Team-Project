@@ -103,7 +103,7 @@ public class SuperPlayerController : MonoBehaviour
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
         GameManager.Instance.UpdatePlayerMana(PlayerMana);
         
-
+        isAttackHit = false;
         timeSinceLastDive = StaminaRegenTime;
     }
 
@@ -563,7 +563,7 @@ public class SuperPlayerController : MonoBehaviour
                 if(currentWeaponName == "Axe")
                 {
                     animator.CrossFade(currentWeaponName + "Attack_0", 0.1f);
-                    PlayerDamage = (PlayerAtk / 3) * 4;
+                    PlayerDamage = (PlayerAtk / 3) * 5;
                     break;
                 }
                 else
@@ -579,7 +579,7 @@ public class SuperPlayerController : MonoBehaviour
                 }
                 else if (currentWeaponName == "Axe")
                 {
-                    PlayerDamage = (PlayerAtk / 3) * 4;
+                    PlayerDamage = (PlayerAtk / 3) * 5;
                 }
                 else if (currentWeaponName == "Falchion")
                 {
@@ -964,10 +964,10 @@ public class SuperPlayerController : MonoBehaviour
         while (Time.time < startTime + 0.8f)
         {
             isAttackHit = false;
-            //피격 무적시간
+            //피격 못움직임
             if (Time.time >= startTime + 0.0f && Time.time <= startTime + 0.7f)
             {
-                
+                currentState = State.HIT;
             }
             else
             {
