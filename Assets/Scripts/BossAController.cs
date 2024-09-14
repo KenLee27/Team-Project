@@ -88,6 +88,8 @@ public class BossAController : MonoBehaviour, Ienemy
         BIG_STUN,  //강스턴
         DIE,  //사망
         REBORN,  //2페 시작
+        COMBO,  //2페 원거리 패턴
+        SSCRATCH,   //2페 근접 패턴
         BACKSTEP //원거리 전환
     }
 
@@ -146,7 +148,7 @@ public class BossAController : MonoBehaviour, Ienemy
 
 
 
-        if (HP < 50 && !is2Phase)
+        if (HP < 75 && !is2Phase)
         {
             isAttack = false;
             ChangeState(State.REBORN);
@@ -194,7 +196,7 @@ public class BossAController : MonoBehaviour, Ienemy
         }
 
 
-        if (HP < 50 && !is2Phase)
+        if (HP < 75 && !is2Phase)
         {
             isAttack = false;
             ChangeState(State.REBORN);
@@ -258,7 +260,7 @@ public class BossAController : MonoBehaviour, Ienemy
             yield break;
         }
 
-        if (HP < 50 && !is2Phase)
+        if (HP < 75 && !is2Phase)
         {
             isAttack = false;
             ChangeState(State.REBORN);
@@ -286,15 +288,22 @@ public class BossAController : MonoBehaviour, Ienemy
 
             if (attackRange == 3f)  //공격 거리가 근접이면
             {
-                if (Melee == maxMelee) //그런데 근접 공격을 다했다면
+                if (Melee >= maxMelee) //그런데 근접 공격을 다했다면
                 {
                     ChangeState(State.BACKSTEP);    //백스탭 후 원거리 전환
                     yield break;  // 코루틴 종료
                 }
 
                 float randomValue = UnityEngine.Random.Range(0f, 10f);
+
+                if (is2Phase && randomValue > 7f && randomValue <= 9f)
+                {
+                    ChangeState(State.SSCRATCH); //근접 바닥 찍기 기술
+                    yield break;  // 코루틴 종료
+                }
+
                 // 확률 패턴
-                if (randomValue <= 4.5f)
+                else if (randomValue <= 4.5f)
                 {
                     ChangeState(State.SCRATCH); //근접 긁기 기술
                     yield break;  // 코루틴 종료
@@ -314,15 +323,22 @@ public class BossAController : MonoBehaviour, Ienemy
             }
             else if (attackRange == 20f)
             {
-                if (Ranged == maxRanged)
+                if (Ranged >= maxRanged)
                 {
                     ChangeState(State.ATTACK);        //어택 후 대쉬로 붙고 근접 전환
                     yield break;  // 코루틴 종료
                 }
                 //공격 패턴 랜덤 실행
                 float randomValue = UnityEngine.Random.Range(0f, 10f);
+
+                if (is2Phase && randomValue > 7f && randomValue <= 9f)
+                {
+                    ChangeState(State.COMBO); //근접 바닥 찍기 기술
+                    yield break;  // 코루틴 종료
+                }
+
                 // StateMachine 을 공격으로 변경
-                if (randomValue <= 5f)
+                else if (randomValue <= 5f)
                 {
                     ChangeState(State.LITTLE_SKILL_ATTACK);    //원거리 견제
                     yield break;  // 코루틴 종료
@@ -372,7 +388,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -404,7 +420,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -441,7 +457,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -486,7 +502,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -534,7 +550,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -579,7 +595,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -623,7 +639,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -671,7 +687,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -716,7 +732,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -735,6 +751,114 @@ public class BossAController : MonoBehaviour, Ienemy
                 ChangeState(State.BIG_STUN);
                 yield break;  // 코루틴 종료
             }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        // StateMachine을 경계으로 변경
+        ChangeState(State.CHECK);
+        yield return null;
+    }
+
+
+    IEnumerator COMBO()
+    {
+        attackRange = 3f;
+        checkRange = 3f;
+        Ranged = 0;
+        Melee = 0;
+
+        anim.CrossFade("Combo_1", 0.04f, 0, 0);
+        
+
+        var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+
+        float attackDuration = 4.1333f;  // 공격 애니메이션의 지속 시간
+        float elapsedTime = 0f;
+        while (elapsedTime < attackDuration)
+        {
+            //사망판정
+            if (HP < 0)
+            {
+                ChangeState(State.DIE);
+                yield break;
+            }
+
+            if (HP < 75 && !is2Phase)
+            {
+                isAttack = false;
+                ChangeState(State.REBORN);
+                yield break;
+            }
+            if (isHit && isLittleStun)                                                   //스턴치
+            {
+                isAttack = false;
+                ChangeState(State.STUN);
+                yield break;  // 코루틴 종료
+            }
+
+            if (isHit && isBigStun)                                                      //스턴치
+            {
+                isAttack = false;
+                ChangeState(State.BIG_STUN);
+                yield break;  // 코루틴 종료
+            }
+
+            if(elapsedTime > 2.188f && elapsedTime < 3.094f)
+            {
+                nmAgent.speed = 25f;
+                nmAgent.SetDestination(player.position);
+            }
+            else
+            {
+                nmAgent.SetDestination(transform.position);
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        // StateMachine을 경계으로 변경
+        ChangeState(State.CHECK);
+        yield return null;
+    }
+
+    
+    IEnumerator SSCRATCH()
+    {
+        anim.CrossFade("SScratch", 0.04f, 0, 0);
+        
+
+        var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+
+        float attackDuration = 2.66f;  // 공격 애니메이션의 지속 시간
+        float elapsedTime = 0f;
+        while (elapsedTime < attackDuration)
+        {
+            //사망판정
+            if (HP < 0)
+            {
+                ChangeState(State.DIE);
+                yield break;
+            }
+
+            if (HP < 75 && !is2Phase)
+            {
+                isAttack = false;
+                ChangeState(State.REBORN);
+                yield break;
+            }
+            if (isHit && isLittleStun)                                                   //스턴치
+            {
+                isAttack = false;
+                ChangeState(State.STUN);
+                yield break;  // 코루틴 종료
+            }
+
+            if (isHit && isBigStun)                                                      //스턴치
+            {
+                isAttack = false;
+                ChangeState(State.BIG_STUN);
+                yield break;  // 코루틴 종료
+            }
+
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -769,7 +893,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -812,25 +936,8 @@ public class BossAController : MonoBehaviour, Ienemy
         float elapsedTime = 0f;
         while (elapsedTime < attackDuration)
         {
-            //사망판정
-            if (HP < 0)
-            {
-                ChangeState(State.DIE);
-                yield break;
-            }
-            if (isHit && isLittleStun)                                                      //스턴치
-            {
-                isAttack = false;
-                ChangeState(State.STUN);
-                yield break;  // 코루틴 종료
-            }
+            isAlreadyHit = true;
 
-            if (isHit && isBigStun)                                                      //스턴치
-            {
-                isAttack = false;
-                ChangeState(State.BIG_STUN);
-                yield break;  // 코루틴 종료
-            }
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -868,7 +975,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -944,7 +1051,7 @@ public class BossAController : MonoBehaviour, Ienemy
             yield break;
         }
 
-        if (HP < 50 && !is2Phase)
+        if (HP < 75 && !is2Phase)
         {
             isAttack = false;
             ChangeState(State.REBORN);
@@ -987,7 +1094,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 yield break;
             }
 
-            if (HP < 50 && !is2Phase)
+            if (HP < 75 && !is2Phase)
             {
                 isAttack = false;
                 ChangeState(State.REBORN);
@@ -1031,13 +1138,20 @@ public class BossAController : MonoBehaviour, Ienemy
 
                 float randomValue = UnityEngine.Random.Range(0f, 10f);
                 // 확률 패턴
-                if (randomValue <= 4.5f)
+
+                if (is2Phase && randomValue > 7f && randomValue <= 9f)
+                {
+                    ChangeState(State.SSCRATCH); //근접 바닥 찍기 기술
+                    yield break;  // 코루틴 종료
+                }
+
+                else if (randomValue <= 4.5f)
                 {
                     ChangeState(State.SCRATCH); //근접 긁기 기술
                     yield break;  // 코루틴 종료
                 }
 
-                else if (randomValue > 4.5f && randomValue <= 9f)
+                else if (randomValue > 4.5f && randomValue <= 8f)
                 {
                     ChangeState(State.QUAKE); //근접 바닥 찍기 기술
                     yield break;  // 코루틴 종료
@@ -1059,7 +1173,15 @@ public class BossAController : MonoBehaviour, Ienemy
                 //공격 패턴 랜덤 실행
                 float randomValue = UnityEngine.Random.Range(0f, 10f);
                 // StateMachine 을 공격으로 변경
-                if (randomValue <= 5f)
+
+
+                if (is2Phase && randomValue > 7f && randomValue <= 9f)
+                {
+                    ChangeState(State.COMBO); //근접 바닥 찍기 기술
+                    yield break;  // 코루틴 종료
+                }
+
+                else if (randomValue <= 5f)
                 {
                     ChangeState(State.LITTLE_SKILL_ATTACK);    //원거리 견제
                     yield break;  // 코루틴 종료
@@ -1159,7 +1281,7 @@ public class BossAController : MonoBehaviour, Ienemy
         }
 
         if(state == State.REBORN || state == State.DIE || state == State.QUAKE || state == State.CHARGE_QUAKE || state == State.SCRATCH || state == State.ATTACK_JUMP_MAGIC || state == State.ATTACK_JUMP_QUAKE 
-            || state == State.LITTLE_SKILL_ATTACK || state == State.BIG_SKILL_ATTACK || state == State.ATTACK || state == State.STUN || state == State.BIG_STUN)
+            || state == State.LITTLE_SKILL_ATTACK || state == State.BIG_SKILL_ATTACK || state == State.ATTACK || state == State.STUN || state == State.BIG_STUN || state == State.SSCRATCH)
         {
             Stopnow();
         }
