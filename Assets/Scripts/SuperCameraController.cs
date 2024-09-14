@@ -98,6 +98,9 @@ public class SuperCameraController : MonoBehaviour
         // 충돌 검사 및 카메라 위치 조정
         //HandleCameraCollision(); // 장애물 감지 및 거리 조정
     }
+    private float lockedTargetInitialY; // 락온 시 몬스터의 초기 Y 좌표 저장
+    private float initialXaxis; // 락온 시 카메라의 초기 Xaxis 값 저장
+    private float initialHeightDifference; // 락온 시 플레이어와 몬스터의 초기 높이 차 저장
 
     void LateUpdate()
     {
@@ -123,39 +126,68 @@ public class SuperCameraController : MonoBehaviour
 
         if (lockedTarget != null && isLockedOn) // Lock On 상태에서 카메라 조정
         {
-            Vector3 direction = lockedTarget.position - player.position; // Lock On 타겟과의 방향벡터
-            Quaternion rotationToFaceEnemy = Quaternion.LookRotation(direction); // Lock On 타겟으로 회전 계수 생성
-            targetRotation = Quaternion.Euler(Xaxis, rotationToFaceEnemy.eulerAngles.y, 0); // Lock On 타겟으로 위치 계수 생성
+            if (!wasLockedOn) // 락온이 처음 시작될 때
+            {
+                initialHeightDifference = lockedTarget.position.y - player.position.y; // 플레이어와 몬스터의 초기 높이 차 저장
+                initialXaxis = Xaxis; // 카메라의 초기 Xaxis 값 저장
+                wasLockedOn = true; // 락온 상태 기록
+            }
 
+            // 플레이어와 몬스터의 현재 높이 차이 계산
+            float currentHeightDifference = lockedTarget.position.y - player.position.y;
 
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothTime); // Lock On 타겟으로 부드럽게 회전
-            //targetPosition = player.position - transform.forward * distance + Vector3.up * 1.3f;
-            //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime); //부드러운 카메라 이동
-            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f; //즉각적인 카메라 이동
+            // 높이 차이의 변화 계산
+            float heightDifferenceChange = currentHeightDifference - initialHeightDifference;
 
+            // 카메라와 몬스터 사이의 수평 거리 계산 (XZ 평면상 거리)
+            float horizontalDistanceToTarget = Vector3.Distance(
+                new Vector3(player.position.x, 0, player.position.z),
+                new Vector3(lockedTarget.position.x, 0, lockedTarget.position.z)
+            );
+
+            // 각도 변화 계산
+            float angleAdjustment = Mathf.Atan2(heightDifferenceChange, horizontalDistanceToTarget) * Mathf.Rad2Deg;
+
+            // 카메라의 Xaxis에 각도 변화 적용
+            float adjustedXaxis = initialXaxis - angleAdjustment; // 높이 차이가 증가하면 카메라를 아래로 회전
+
+            // Xaxis 값을 제한하여 카메라가 과도하게 회전하지 않도록 조정
+            adjustedXaxis = Mathf.Clamp(adjustedXaxis, rotationMin, rotationMax);
+
+            // 몬스터 방향으로의 Y축 회전 계산
+            Vector3 direction = lockedTarget.position - player.position; // 플레이어에서 몬스터까지의 방향벡터
+            Quaternion rotationToFaceEnemy = Quaternion.LookRotation(direction);
+
+            // 최종 카메라 회전 계산
+            targetRotation = Quaternion.Euler(adjustedXaxis, rotationToFaceEnemy.eulerAngles.y, 0);
+
+            // 카메라 회전 부드럽게 적용
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 5f * Time.deltaTime);
+
+            // 카메라 위치 설정 (고정된 높이 유지)
+            transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f;
+
+            // 필요한 경우 이전 상태 값 업데이트
             previousYaxis = rotationToFaceEnemy.eulerAngles.y;
-            previousXaxis = Xaxis;
-
-            wasLockedOn = true; // 락온 상태임을 기록
-
+            previousXaxis = adjustedXaxis;
         }
         else // Lock On 미실시 상태에서 카메라 조정
         {
             if (wasLockedOn) // 락온 상태에서 해제되었을 때
             {
-                // 저장된 Yaxis와 Xaxis 값을 사용하여 부드럽게 전환
                 Yaxis = previousYaxis;
                 Xaxis = previousXaxis;
-                wasLockedOn = false; // 상태 전환 기록
-            }
-            else // 기본 상태에서 정상적인 마우스 이동에 따른 조정
-            {
-                Yaxis += Input.GetAxis("Mouse X") * rotationSensitive;
-                Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive;
-                Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);
+                wasLockedOn = false; // 상태 변경 기록
+                                     // 필요 시 초기화 또는 상태 복원 작업 수행
             }
 
-            targetRotation = Quaternion.Euler(new Vector3(Xaxis, Yaxis));
+            // 일반적인 카메라 이동 로직
+            Yaxis += Input.GetAxis("Mouse X") * rotationSensitive;
+            Xaxis -= Input.GetAxis("Mouse Y") * rotationSensitive;
+            Xaxis = Mathf.Clamp(Xaxis, rotationMin, rotationMax);
+
+            // 카메라 회전 및 위치 적용
+            targetRotation = Quaternion.Euler(Xaxis, Yaxis, 0);
             transform.rotation = targetRotation;
             transform.position = player.position - transform.forward * distance + Vector3.up * 1.3f;
         }

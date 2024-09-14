@@ -19,7 +19,7 @@ public class BossAController : MonoBehaviour, Ienemy
 
     private float HP = 0; //적 체력 선언 및 초기화
     private float MaxHP = 150;
-    private float detectingRange = 35f;         //적 탐지 거리
+    private float detectingRange = 29f;         //적 탐지 거리
     private float checkRange = 20f;             //경계유지거리
     private float attackRange = 20f;           //적 공격 사거리
     private float smoothRotationSpeed = 15f;     //적 최적화 회전 속도

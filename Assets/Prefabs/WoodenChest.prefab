@@ -49,6 +49,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   chestTop: {fileID: 0}
+  pickup: {fileID: 0}
+  weaponInChest: {fileID: 0}
+  inventoryManager: {fileID: 0}
   openDistance: 5
   openingSpeed: 2
 --- !u!1 &170426
@@ -145,6 +148,7 @@ GameObject:
   - component: {fileID: 483686}
   - component: {fileID: 3323276}
   - component: {fileID: 2328350}
+  - component: {fileID: 541065588756233548}
   m_Layer: 0
   m_Name: reinforced_wooden_chest_base
   m_TagString: Untagged
@@ -217,6 +221,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &541065588756233548
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179850}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 91c3957c4b881574baaba5d4e6815d8e, type: 3}
 --- !u!1 &8316289692295162611
 GameObject:
   m_ObjectHideFlags: 0
