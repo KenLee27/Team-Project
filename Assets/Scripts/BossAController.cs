@@ -675,7 +675,7 @@ public class BossAController : MonoBehaviour, Ienemy
         float attackDuration = 3.5f;  // 공격 애니메이션의 지속 시간
         if(is2Phase)
         {
-            attackDuration = 5.1f;
+            attackDuration = 4.8f;
         }
         float elapsedTime = 0f;
         while (elapsedTime < attackDuration)
@@ -805,7 +805,7 @@ public class BossAController : MonoBehaviour, Ienemy
 
             if(elapsedTime > 2.188f && elapsedTime < 3.094f)
             {
-                nmAgent.speed = 25f;
+                nmAgent.speed = 50f;
                 nmAgent.SetDestination(player.position);
             }
             else
@@ -828,7 +828,7 @@ public class BossAController : MonoBehaviour, Ienemy
 
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
-        float attackDuration = 2.66f;  // 공격 애니메이션의 지속 시간
+        float attackDuration = 2.36f;  // 공격 애니메이션의 지속 시간
         float elapsedTime = 0f;
         while (elapsedTime < attackDuration)
         {
@@ -1083,7 +1083,7 @@ public class BossAController : MonoBehaviour, Ienemy
 
         anim.CrossFade("Walk", 0.1f, 0, 0);
 
-        float checkTime = UnityEngine.Random.Range(2f, 4f);                            //패턴 쉬는 시간
+        float checkTime = UnityEngine.Random.Range(1f, 2f);                            //패턴 쉬는 시간
         float elapsedTime = 0f;
         while (elapsedTime < checkTime)
         {
