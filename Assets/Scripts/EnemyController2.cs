@@ -203,7 +203,7 @@ public class EnemyController2 : MonoBehaviour, Ienemy
                     yield break;  // 코루틴 종료
                 }
 
-                if (elapsedTime > 1.1f && elapsedTime < 1.5f)                   //공격 판정 시간
+                if (elapsedTime > 1f && elapsedTime < 1.24f)                   //공격 판정 시간
                 {
                     
                     isAttack = true;
