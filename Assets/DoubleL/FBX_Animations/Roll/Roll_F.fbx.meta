@@ -37,7 +37,7 @@ ModelImporter:
       takeName: Roll_F
       internalID: -1557256498244075718
       firstFrame: 0
-      lastFrame: 52
+      lastFrame: 30
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -46,8 +46,8 @@ ModelImporter:
       hasAdditiveReferencePose: 0
       loopTime: 0
       loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 1
       keepOriginalPositionY: 1
@@ -56,7 +56,23 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0
+        functionName: TriggerDive
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.7119565
+        functionName: EndDive
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}

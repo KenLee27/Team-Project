@@ -5,8 +5,8 @@ using UnityEngine;
 public class WeaponAttachment : MonoBehaviour
 {
     private Transform handTransform;
-    private Vector3 positionOffset = new Vector3(0.144f, -0.043f, 0.044f);
-    private Vector3 rotationOffset = new Vector3(90f, -50f, -105);
+    private Vector3 positionOffset = new Vector3(0.0213f, 0.0227f, -0.0396f);
+    private Vector3 rotationOffset = new Vector3(-35.123f, 172.116f, 52.211f);
 
     void Start()
     {
@@ -16,7 +16,7 @@ public class WeaponAttachment : MonoBehaviour
 
     void SetHandTransform()
     {
-        handTransform = GameObject.Find("Player/root/pelvis/spine_01/spine_02/spine_03/clavicle_r/upperarm_r/lowerarm_r/hand_r").transform; //캐릭터 변경시 필수 확인
+        handTransform = GameObject.Find("Player/Knight_Errant_B/root/root.x/spine_01.x/spine_02.x/spine_03.x/shoulder.r/arm_stretch.r/forearm_stretch.r/hand.r/c_index1.r").transform; //캐릭터 변경시 필수 확인
 
         if (handTransform == null)
         {

@@ -13467,31 +13467,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 883410296510588160, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 883410296510588160, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1755814077641104776, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: firePoint
-      value: 
-      objectReference: {fileID: 936007071}
-    - target: {fileID: 1755814077641104776, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: skillRange
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1755814077641104776, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: skillSpeed
-      value: 15
-      objectReference: {fileID: 0}
     - target: {fileID: 1755814077641104776, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
       propertyPath: cameraController
@@ -13502,11 +13477,6 @@ PrefabInstance:
       propertyPath: weaponImage
       value: 
       objectReference: {fileID: 62673294}
-    - target: {fileID: 3917145575421593905, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: currentWeapon
-      value: 
-      objectReference: {fileID: 141144, guid: 3494e1f192f8c5e46a5f22a304382462, type: 3}
     - target: {fileID: 3917145575421593905, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
       propertyPath: weaponNameText
@@ -13530,7 +13500,7 @@ PrefabInstance:
     - target: {fileID: 6131092186730876919, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -14.28
+      value: -2.99
       objectReference: {fileID: 0}
     - target: {fileID: 6131092186730876919, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
@@ -13540,7 +13510,7 @@ PrefabInstance:
     - target: {fileID: 6131092186730876919, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 46.69
+      value: 4.57
       objectReference: {fileID: 0}
     - target: {fileID: 6131092186730876919, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
@@ -13576,31 +13546,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: DiveDelay
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: jumpForce
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: isAttacked
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: isAttackHit
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-        type: 3}
-      propertyPath: StaminaRegenTime
-      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 7548388947304410119, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
         type: 3}
@@ -21471,12 +21416,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 431894, guid: cc1d1788a682d5048af84a0fc6178911,
     type: 3}
   m_PrefabInstance: {fileID: 905780597}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &936007071 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2962807305538731162, guid: 74cba210f6b556b4ab4f3b4d458e8a57,
-    type: 3}
-  m_PrefabInstance: {fileID: 543557088}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &938502846
 GameObject:
@@ -50883,24 +50822,6 @@ PrefabInstance:
       propertyPath: Player
       value: 
       objectReference: {fileID: 543557089}
-    - target: {fileID: 8912109513165317866, guid: 9c884e3eb194cbe4d9c33327c868c5db,
-        type: 3}
-      propertyPath: SkillPrefab
-      value: 
-      objectReference: {fileID: 9159898695378457397, guid: 02b0c89418eb08b47af49fee0cc13548,
-        type: 3}
-    - target: {fileID: 8912109513165317866, guid: 9c884e3eb194cbe4d9c33327c868c5db,
-        type: 3}
-      propertyPath: smallSkillPrefab
-      value: 
-      objectReference: {fileID: 9159898695378457397, guid: 0ea3388d5c875634cabc137d85983f01,
-        type: 3}
-    - target: {fileID: 8912109513165317866, guid: 9c884e3eb194cbe4d9c33327c868c5db,
-        type: 3}
-      propertyPath: S_quakeSkillPrefab
-      value: 
-      objectReference: {fileID: 1259387175079350960, guid: a7294bb68adc0e349b172bb1ebceac60,
-        type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
