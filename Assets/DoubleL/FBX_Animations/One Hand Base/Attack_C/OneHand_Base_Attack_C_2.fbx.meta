@@ -37,7 +37,7 @@ ModelImporter:
       takeName: OneHand_Base_Attack_C_2
       internalID: 5718691865380323751
       firstFrame: 0
-      lastFrame: 55
+      lastFrame: 36
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -46,8 +46,8 @@ ModelImporter:
       hasAdditiveReferencePose: 0
       loopTime: 0
       loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 1
       keepOriginalPositionY: 1
@@ -56,7 +56,15 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.8977375
+        functionName: CanMove
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}

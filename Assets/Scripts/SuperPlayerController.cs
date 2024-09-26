@@ -728,15 +728,15 @@ public class SuperPlayerController : MonoBehaviour
             //공격 단수 별 딜레이 조정
             if (attackPhase == 3)
             {
-                attackDelay = 1.3f;
+                attackDelay = 1f;
             }
             else if (attackPhase == 2)
             {
-                attackDelay = 0.6f;
+                attackDelay = 0.4f;
             }
             else if (attackPhase == 1)
             {
-                attackDelay = 0.7f;
+                attackDelay = 0.6f;
             }
         }
         float startTime = Time.time;
@@ -771,7 +771,7 @@ public class SuperPlayerController : MonoBehaviour
         {
             if (s_attackPhase == 2)
             {
-                attackDelay = 2f;
+                attackDelay = 1.8f;
             }
             else
             {
@@ -780,7 +780,7 @@ public class SuperPlayerController : MonoBehaviour
         }
         else if (currentWeaponName == "Axe")
         {
-            attackDelay = 3.3f;
+            attackDelay = 2.7f;
         }
         else if (currentWeaponName == "Dagger")
         {
