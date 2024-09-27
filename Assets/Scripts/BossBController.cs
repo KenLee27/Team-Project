@@ -899,7 +899,7 @@ public class BossBController : MonoBehaviour, Ienemy
         anim.CrossFade("buff01", 0.04f, 0, 0);
         var curAnimStateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
-        float attackDuration = 8.88f;  // 공격 애니메이션의 지속 시간
+        float attackDuration = 9.88f;  // 공격 애니메이션의 지속 시간
 
         float elapsedTime = 0f;
         while (elapsedTime < attackDuration)
