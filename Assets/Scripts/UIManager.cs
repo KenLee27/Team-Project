@@ -12,9 +12,12 @@ public class UIManager : MonoBehaviour
     private enum UIState { Game, Menu, Status, Equipment }
     private UIState currentState = UIState.Game;
 
+    private EquipmentManager equipmentManager; // EquipmentManager를 참조할 변수
+
     void Start()
     {
         SetInitialUIState();
+        equipmentManager = FindObjectOfType<EquipmentManager>(); // EquipmentManager 찾기
     }
 
     void Update()
@@ -78,6 +81,12 @@ public class UIManager : MonoBehaviour
         stateUI.SetActive(false);
         equipmentUI.SetActive(true);
         currentState = UIState.Equipment;
+
+        // EquipmentManager의 EquipmentMenu를 활성화
+        if (equipmentManager != null)
+        {
+            equipmentManager.ToggleEquipmentMenu();
+        }
     }
 
     private void GoBack() // Q버튼 : 뒤로가기

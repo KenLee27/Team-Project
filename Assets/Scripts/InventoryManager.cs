@@ -128,6 +128,16 @@ public class InventoryManager : MonoBehaviour
 
     public void AddWeaponToInventory(string weaponName)
     {
+        // 한글 이름을 영어 이름으로 매핑
+        if (weaponName == "옛 왕의 수호자")
+        {
+            weaponName = "Axe";
+        }
+        else if (weaponName == "그림자 단검")
+        {
+            weaponName = "Dagger";
+        }
+
         if (weaponName == "Axe" && !weaponPrefabs.Contains(axePrefab))
         {
             weaponPrefabs.Add(axePrefab);

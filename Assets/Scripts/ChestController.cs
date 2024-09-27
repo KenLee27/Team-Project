@@ -9,6 +9,8 @@ public class ChestController : MonoBehaviour
     public GameObject weaponInChest; // 상자 안에 있는 무기 프리팹
     public InventoryManager inventoryManager; // 플레이어의 인벤토리 매니저
 
+    public EquipmentManager equipmentManager; // 장비 메뉴 매니저
+
     public float openDistance = 2f;  // 상자를 열 수 있는 최대 거리
     public float openingSpeed = 2f;  // 회전 속도
 
@@ -28,6 +30,10 @@ public class ChestController : MonoBehaviour
         if (inventoryManager == null)
         {
             inventoryManager = FindObjectOfType<InventoryManager>();
+        }
+        if (equipmentManager == null)
+        {
+            equipmentManager = FindObjectOfType<EquipmentManager>();
         }
     }
 
@@ -51,7 +57,9 @@ public class ChestController : MonoBehaviour
                 {
                     pickupLight.enabled = false;
                     lightOff = true;
-                    ActivateWeaponInInventory(); // 무기 활성화
+                    // ActivateWeaponInInventory(); // 무기 활성화
+
+                    DisplayWeaponInSlot(); // 무기 장비창에 표시
                 }
             }
         }
@@ -63,12 +71,34 @@ public class ChestController : MonoBehaviour
         }
     }
 
-    private void ActivateWeaponInInventory()
+    //private void ActivateWeaponInInventory()
+    //{
+    //    if (inventoryManager != null && weaponInChest != null)
+    //    {
+    //        string weaponName = weaponInChest.name;
+    //        inventoryManager.AddWeaponToInventory(weaponName);
+    //    }
+    //}
+
+    public void DisplayWeaponInSlot()
     {
-        if (inventoryManager != null && weaponInChest != null)
+        if (weaponInChest != null && equipmentManager != null)
         {
-            string weaponName = weaponInChest.name;
-            inventoryManager.AddWeaponToInventory(weaponName);
+            Sprite itemSprite = weaponInChest.GetComponent<SpriteRenderer>().sprite; // weaponInChest에서 아이템의 스프라이트를 가져옴
+            string itemName = weaponInChest.name;
+
+            if (equipmentManager.itemDatabase.TryGetValue(itemName, out ItemData itemData)) // itemDatabase에서 무기 이름에 해당하는 ItemData를 찾음
+            {
+                equipmentManager.ShowWeaponInSlot(itemData.itemName, itemSprite, itemData.itemDescription); // 아이템 데이터가 있으면, 장비 슬롯에 무기를 표시
+            }
+            else
+            {
+                Debug.LogWarning("Weapon data not found for: " + itemName);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Weapon in chest or EquipmentManager is not assigned.");
         }
     }
 }
