@@ -41,11 +41,5 @@ public class EnemySkill : MonoBehaviour, Ienemy
             // 스킬 오브젝트 파괴
             Destroy(gameObject);
         }
-
-        if (other.CompareTag("Player"))
-        {
-            // 스킬 오브젝트 파괴
-            Destroy(gameObject);
-        }
     }
 }

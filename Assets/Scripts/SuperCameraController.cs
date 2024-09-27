@@ -15,7 +15,7 @@ public class SuperCameraController : MonoBehaviour
     private float smoothTime = 0.12f;              // 카메라 회전 지연 계수
     //private float smoothMove = 0.2f;
 
-    private float Xaxis = 0f;                      // 카메라 X축 회전 각도
+    public float Xaxis = 0f;                      // 카메라 X축 회전 각도
     private float Yaxis = 0f;                      // 카메라 Y축 회전 각도
 
     private float previousYaxis;
@@ -129,6 +129,10 @@ public class SuperCameraController : MonoBehaviour
             if (!wasLockedOn) // 락온이 처음 시작될 때
             {
                 initialHeightDifference = lockedTarget.position.y - player.position.y; // 플레이어와 몬스터의 초기 높이 차 저장
+
+                float firstAngleAdjustment = Mathf.Atan2(initialHeightDifference, 30f) * Mathf.Rad2Deg;
+
+                Xaxis = 26f - firstAngleAdjustment;
                 initialXaxis = Xaxis; // 카메라의 초기 Xaxis 값 저장
                 wasLockedOn = true; // 락온 상태 기록
             }
