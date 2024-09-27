@@ -49855,34 +49855,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f3c3ab00c3f84a4a8cbb49de494c427, type: 3}
---- !u!1 &3518108861268612297 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7217013882209596869, guid: 5ad10cf50f708444d88f21cb7c0dd644,
-    type: 3}
-  m_PrefabInstance: {fileID: 7622042723273718073}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &4294470256742731380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3518108861268612297}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1ed7b64547d43649ab72b2090dd9a3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SkillPrefab: {fileID: 0}
-  smallSkillPrefab: {fileID: 0}
-  quakeSkillPrefab: {fileID: 0}
-  S_quakeSkillPrefab: {fileID: 1259387175079350960, guid: a7294bb68adc0e349b172bb1ebceac60,
-    type: 3}
-  Scratch_skill: {fileID: 0}
-  enemy: {fileID: 3518108861268612297}
-  Player: {fileID: 543557089}
-  skillSpeed: 20
-  skillRange: 14
 --- !u!1001 &5602462725903068651
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50256,6 +50228,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 598137397695161491, guid: 5ad10cf50f708444d88f21cb7c0dd644,
+        type: 3}
+      propertyPath: Player
+      value: 
+      objectReference: {fileID: 543557089}
     - target: {fileID: 3083242941964535823, guid: 5ad10cf50f708444d88f21cb7c0dd644,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -50324,11 +50301,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7217013882209596869, guid: 5ad10cf50f708444d88f21cb7c0dd644,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4294470256742731380}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5ad10cf50f708444d88f21cb7c0dd644, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

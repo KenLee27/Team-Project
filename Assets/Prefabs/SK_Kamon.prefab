@@ -2831,6 +2831,7 @@ GameObject:
   - component: {fileID: 7071240448645208839}
   - component: {fileID: 2414308842910936029}
   - component: {fileID: 3289651116120084946}
+  - component: {fileID: 598137397695161491}
   m_Layer: 0
   m_Name: SK_Kamon
   m_TagString: Untagged
@@ -2976,6 +2977,28 @@ MonoBehaviour:
   is3Phase: 0
   enemySoul: 100
   isDead: 0
+--- !u!114 &598137397695161491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7217013882209596869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1ed7b64547d43649ab72b2090dd9a3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SkillPrefab: {fileID: 0}
+  smallSkillPrefab: {fileID: 0}
+  quakeSkillPrefab: {fileID: 0}
+  S_quakeSkillPrefab: {fileID: 1259387175079350960, guid: a7294bb68adc0e349b172bb1ebceac60,
+    type: 3}
+  Scratch_skill: {fileID: 0}
+  enemy: {fileID: 7217013882209596869}
+  Player: {fileID: 0}
+  skillSpeed: 20
+  skillRange: 14
 --- !u!1 &7428360753370738707
 GameObject:
   m_ObjectHideFlags: 0
