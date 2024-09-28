@@ -18,8 +18,9 @@ public class EquipmentManager : MonoBehaviour
         EquipmentMenu.SetActive(false); // 시작 시 메뉴를 비활성화
         Time.timeScale = 1; // 게임이 정상 속도로 실행되도록 설정
 
-        itemDatabase.Add("Axe", new ItemData("옛 왕의 수호자", "옛 왕의 수호자 무기 설명 추가"));
-        itemDatabase.Add("Dagger", new ItemData("그림자 단검", "그림자 단검 무기 설명 추가"));
+        itemDatabase.Add("Axe_Exe", new ItemData("옛 왕의 수호자", "옛 왕의 수호자 무기 설명 추가"));
+        itemDatabase.Add("Dagger_Red", new ItemData("그림자 단검", "그림자 단검 무기 설명 추가"));
+        itemDatabase.Add("Axe_Rot", new ItemData("파괴자", "파괴자 무기 설명 추가"));
         // itemDatabase.Add("Falchion", new WeaponData("칼리오스 병사의 곡검", "칼리오스 병사의 곡검 무기 설명 추가"));
 
     }

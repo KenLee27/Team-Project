@@ -5,8 +5,8 @@ using UnityEngine;
 public class WeaponAttachment : MonoBehaviour
 {
     private Transform handTransform;
-    private Vector3 positionOffset = new Vector3(0.0213f, 0.0227f, -0.0396f);
-    private Vector3 rotationOffset = new Vector3(-35.123f, 172.116f, 52.211f);
+    public Vector3 positionOffset = new Vector3(0.0213f, 0.0227f, -0.0396f);
+    public Vector3 rotationOffset = new Vector3(-35.123f, 172.116f, 52.211f);
 
     void Start()
     {

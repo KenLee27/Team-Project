@@ -7,6 +7,7 @@ public class InventoryManager : MonoBehaviour
     public GameObject axePrefab;
     public GameObject falchionPrefab;
     public GameObject daggerPrefab;
+    public GameObject hammerPrefab;
 
     public Image weaponImage; // 현재 무기 아이콘을 표시할 UI 이미지
     public Image weaponImageLeft; // 이전 무기를 표시할 UI 이미지
@@ -16,6 +17,7 @@ public class InventoryManager : MonoBehaviour
     public Sprite axeSprite;
     public Sprite falchionSprite;
     public Sprite daggerSprite;
+    public Sprite hammerSprite;
 
     private List<GameObject> weaponPrefabs; // List로 변경하여 유연하게 관리
     private List<Sprite> weaponSprites;
@@ -137,6 +139,11 @@ public class InventoryManager : MonoBehaviour
         {
             weaponName = "Dagger";
         }
+        else if (weaponName == "파괴자")
+        {
+            weaponName = "Hammer";
+        }
+
 
         if (weaponName == "Axe" && !weaponPrefabs.Contains(axePrefab))
         {
@@ -149,6 +156,12 @@ public class InventoryManager : MonoBehaviour
             weaponPrefabs.Add(daggerPrefab);
             weaponSprites.Add(daggerSprite);
             weaponNames.Add("그림자 단검");
+        }
+        else if (weaponName == "Hammer" && !weaponPrefabs.Contains(hammerPrefab))
+        {
+            weaponPrefabs.Add(hammerPrefab);
+            weaponSprites.Add(hammerSprite);
+            weaponNames.Add("파괴자");
         }
 
         UpdateWeaponUI();

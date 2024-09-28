@@ -11,11 +11,29 @@ public class SuperPlayerController : MonoBehaviour
     private float smoothRotationTime = 0.15f;
     private Vector3 lastMovement;                  //최근 이동 방향
     private float timeSinceLastDive;
-        
+
+    public string currentWeapon;                  //무기를 받음
     public string currentWeaponName;              //무기의 이름을 받음
+    public string currentWeaponSkill;             //무기의 스킬을 받음
     public void SetCurrentWeaponType(string weaponType)
     {
-        currentWeaponName = weaponType;
+        currentWeapon = weaponType;
+
+        // 언더바로 구분하여 무기 이름과 무기 스킬 저장
+        string[] parts = currentWeapon.Split('_'); // 언더바로 문자열 분리
+
+        if (parts.Length == 2) // 두 부분이 있는지 확인
+        {
+            currentWeaponName = parts[0];        // 첫 번째 부분은 무기 이름
+            currentWeaponSkill = parts[1];       // 두 번째 부분은 무기 스킬
+        }
+        else
+        {
+            // 예외 처리: 유효하지 않은 형식
+            currentWeaponName = string.Empty;
+            currentWeaponSkill = string.Empty;
+            Debug.Log("Invalid weapon type format.");
+        }
     }
 
     public float moveSpeed = 4f;                   // 이동 속도
@@ -156,29 +174,11 @@ public class SuperPlayerController : MonoBehaviour
         //서있을 때와 앉아 있을 때의 속도 컨트롤러
         if(isStand)
         {
-            //무기 스위칭 확인
-            if (currentWeaponName == "Falchion")
-            {
-                moveSpeed = 4f;
-            }
-            else if (currentWeaponName == "Axe")
-            {
-                moveSpeed = 3.5f;
-            }
-            else if (currentWeaponName == "Dagger")
-            {
-                moveSpeed = 3f;                      //이동 애니매이션에 자체 속도가 있어서 조절ㅠㅠ 추후 수정예정
-            }
+
         }
         else if(!isStand)
         {
             moveSpeed = 2.5f;
-        }
-
-        //다이브 전까지 방향을 저장
-        if (!isDive)
-        {
-            lastMovement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         }
 
         //락온 상태일때 적 바라보기 기능
@@ -190,7 +190,7 @@ public class SuperPlayerController : MonoBehaviour
         HandleState();
 
         //점프 컨트롤러
-        if (Input.GetButtonDown("Jump") && isGround &&!isAttacking&&!isDive)
+        if (Input.GetButtonDown("Jump") && isGround &&!isAttacking&&!isDive&& currentState != State.HIT)
         {
             currentState = State.JUMP;
         }
@@ -453,6 +453,8 @@ public class SuperPlayerController : MonoBehaviour
                 break;
             case State.JUMP:
                 HandleJump();
+
+                HandleMove();
                 break;
             case State.ATTACK:
                 break;
@@ -464,7 +466,7 @@ public class SuperPlayerController : MonoBehaviour
     private void HandleMove()
     {
         //움직이지 못하는 상태 구현
-        if (currentState == State.JUMP || currentState == State.DIVE || currentState ==State.ATTACK || currentState == State.HIT || currentState == State.DIE)
+        if (currentState == State.DIVE || currentState ==State.ATTACK || currentState == State.HIT || currentState == State.DIE)
         {
             return;
         }
@@ -542,8 +544,8 @@ public class SuperPlayerController : MonoBehaviour
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGround = false;
-            animator.SetBool("isJumping", true);
-            currentState = State.IDLE;
+            animator.SetBool("isJumping", !isGround);
+            animator.CrossFade("Jump", 0.1f, 0, 0);
         }
         
     }
@@ -643,46 +645,52 @@ public class SuperPlayerController : MonoBehaviour
         switch (s_attackPhase)
         {
             case 1:
-                animator.CrossFade(currentWeaponName + "SpecialAttack_1", 0.1f);
-                PlayerMana -= 10; // 1타 마나 소모
-                GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
-                if (currentWeaponName == "Dagger")
+                animator.CrossFade(currentWeaponSkill + "SpecialAttack_1", 0.1f,0,0);
+                
+                if (currentWeaponSkill == "Red")
                 {
                     PlayerDamage = PlayerAtk * 2;
+                    PlayerMana -= 10; // 1타 마나 소모
                 }
-                else if (currentWeaponName == "Axe")
+                else if (currentWeaponSkill == "Exe")
                 {
                     PlayerDamage = PlayerAtk * 4;
+                    PlayerMana -= 10; // 1타 마나 소모
                 }
-                else if (currentWeaponName == "Falchion")
+                else if (currentWeaponSkill == "Cross")
                 {
                     PlayerDamage = (PlayerAtk / 3) * 8;
+                    PlayerMana -= 25; // 1타 마나 소모
                 }
-
+                else if (currentWeaponSkill == "Rot")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 3;
+                    PlayerMana -= 30; // 1타 마나 소모
+                }
+                GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
                 break;
             case 2:
-                animator.CrossFade(currentWeaponName + "SpecialAttack_2", 0.1f);
-                PlayerMana -= 15; // 2타 마나 소모
-                GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
-                if (currentWeaponName == "Dagger")
+                animator.CrossFade(currentWeaponSkill + "SpecialAttack_2", 0.1f,0,0);
+                
+                if (currentWeaponSkill == "Red")
                 {
                     PlayerDamage = PlayerAtk * 2;
-
+                    PlayerMana -= 10; // 2타 마나 소모
                     Debug.Log(PlayerDamage + " 데미지!");
                 }
-                else if (currentWeaponName == "Axe")
+                else if (currentWeaponSkill == "Exe")
                 {
                     PlayerDamage = PlayerAtk * 4;
-
+                    PlayerMana -= 15; // 2타 마나 소모
                     Debug.Log(PlayerDamage + " 데미지!");
                 }
-                else if (currentWeaponName == "Falchion")
+                else if (currentWeaponSkill == "Cross")
                 {
                     PlayerDamage = (PlayerAtk / 3) * 11;
-
+                    PlayerMana -= 15; // 2타 마나 소모
                     Debug.Log(PlayerDamage + " 데미지!");
                 }
-
+                GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
                 break;
             default:
                 return;
@@ -767,7 +775,7 @@ public class SuperPlayerController : MonoBehaviour
     {
         //공격 단수 별 딜레이 조정
 
-        if (currentWeaponName == "Falchion")
+        if (currentWeaponSkill == "Cross")
         {
             if (s_attackPhase == 2)
             {
@@ -778,17 +786,25 @@ public class SuperPlayerController : MonoBehaviour
                 attackDelay = 1.2f;
             }
         }
-        else if (currentWeaponName == "Axe")
+        else if (currentWeaponSkill == "Exe")
         {
             attackDelay = 2.7f;
         }
-        else if (currentWeaponName == "Dagger")
+        else if (currentWeaponSkill == "Red")
         {
             attackDelay = 1.3f;
+        }
+        else if (currentWeaponSkill == "Rot")
+        {
+            attackDelay = 3.1f;
         }
         float startTime = Time.time;
         while (Time.time < startTime + attackDelay)     //공격(콤보 딜레이)
         {
+            if(currentWeaponSkill == "Rot")
+            {
+                transform.Translate(Vector3.forward * 2f * Time.deltaTime);
+            }
             if (currentState == State.HIT)
             {
                 yield break;                            //맞을 경우 코루틴 종료
@@ -844,15 +860,19 @@ public class SuperPlayerController : MonoBehaviour
     private IEnumerator ResetS_AttackPhaseAfterDelay()
     {
 
-        if (currentWeaponName == "Falchion")
+        if (currentWeaponSkill == "Cross")
         {
             resetPhaseDelay = 2.2f;
         }
-        else if (currentWeaponName == "Axe")
+        else if (currentWeaponSkill == "Exe")
         {
             resetPhaseDelay = 2.2f;
         }
-        else if (currentWeaponName == "Dagger")
+        else if (currentWeaponSkill == "Red")
+        {
+            resetPhaseDelay = 1.7f;
+        }
+        else if (currentWeaponSkill == "Rot")
         {
             resetPhaseDelay = 1.7f;
         }
@@ -907,7 +927,10 @@ public class SuperPlayerController : MonoBehaviour
         {
             isGround = true;
             animator.SetBool("isJumping", false);
-
+            if(currentState == State.JUMP)
+            {
+                currentState = State.IDLE;
+            }
         }
 
         if (firstDropDie&&collision.gameObject.CompareTag("DeathZone"))
@@ -924,7 +947,8 @@ public class SuperPlayerController : MonoBehaviour
         if (other.CompareTag("EnemyAttack") && !isinvincibility)
         {
             isinvincibility = true;                    //피격 무적 활성화
-            canAttack = false;
+
+            isAttacking = false;
             currentState = State.HIT;
             Debug.Log("맞았다!");
             isAttacked = true;
@@ -935,6 +959,8 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleHit(Collider other)
     {
+        currentState = State.HIT;
+
         Ienemy enemy = other.GetComponentInParent<Ienemy>();
         float GetDamage = enemy.Damage;                     //데미지 계산
 
@@ -954,29 +980,35 @@ public class SuperPlayerController : MonoBehaviour
     private IEnumerator AttackedMotionDelay()
     {
         isAttacked = false;
-        isStand = true;
-        canDive = false;
-        canCrouched = false;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
 
         animator.SetBool("isAttacked", isAttacked);
         while (Time.time < startTime + 0.8f)
         {
+            if (isAttacked)
+            {
+                yield break;
+            }
             isAttackHit = false;
             //피격 못움직임
-            if (Time.time >= startTime + 0.0f && Time.time <= startTime + 0.7f)
+            if (Time.time <= startTime + 0.7f)
             {
+                isinvincibility = true;
                 currentState = State.HIT;
+                isStand = true;
+                canAttack = false;
+                canDive = false;
+                canCrouched = false;
             }
             else
             {
                 isinvincibility = false;
             }
-
+            
             yield return null;
         }
-        isAttacking = false;
+        
         canDive = true;
         isGround = true;
         canAttack = true;
