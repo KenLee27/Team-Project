@@ -12,7 +12,9 @@ public class GameManager : MonoBehaviour
     public ImgsFillDynamic hpBar;
     public Slider stBar;
     public Slider mnBar;
+    public Slider loadingBar;
     public Text soulText;
+    public Text loadingTip; // 로딩 팁 텍스트
 
     public GameObject hpSliderPrefab;     // HP 슬라이더 프리팹
     public GameObject stSliderPrefab;     // ST 슬라이더 프리팹
@@ -30,6 +32,7 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);  // 게임 오브젝트가 씬 로드 시 파괴되지 않도록 설정
+
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
@@ -41,16 +44,42 @@ public class GameManager : MonoBehaviour
     }
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        FindAndSetSliders();
+        string displayName = GetDisplayNameForScene(scene.name);
 
+        if (scene.name == "LoadingScene")
+        {
+            return;
+        }
+
+        if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
+        }
+
+        UIManager uiManager = FindObjectOfType<UIManager>();
+        if (uiManager != null)
+        {
+            uiManager.FindUIElements();
+            uiManager.SetInitialUIState();
+            uiManager.AccessController();
+            uiManager.InitializeButtonClickEvents();
+        }
+
+        FindAndSetSliders();
         InitializePlayerHP();
         InitializePlayerST();
         InitializePlayerMana();
-
-        string displayName = GetDisplayNameForScene(scene.name);
         DisplayMapName(displayName);
+        InitializePlayerController();
+        InitializeCursor();
+    }
 
-        InitializePlayerController();                                           //고은서가 추가함 : 플레이어컨트롤러 missing 방지
+    private void InitializeCursor()
+    {
+        // 마우스 cursor 설정
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false; // 기본적으로는 비활성화
     }
 
     private void InitializePlayerController()
@@ -257,7 +286,10 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        Destroy(canvasGroup.gameObject); // 텍스트 오브젝트 삭제
+        if (canvasGroup != null)
+        {
+            Destroy(canvasGroup.gameObject); // CanvasGroup 삭제
+        }
     }
 
 
@@ -275,7 +307,25 @@ public class GameManager : MonoBehaviour
         }
 
         // 5초 후 씬 로드
-        yield return new WaitForSeconds(5f);
-        SceneManager.LoadScene("Old_Dock");
+        yield return new WaitForSeconds(3f);
+        StartCoroutine(LoadSceneAsync("Old_Dock"));
     }
+
+    public IEnumerator LoadSceneAsync(string nextSceneName)
+    {
+        LoadingManager.tips = tips; // 로딩 씬 실행 전 부가적인 데이터 설정
+        LoadingManager.nextSceneName = nextSceneName;
+
+        SceneManager.LoadScene("LoadingScene");
+        yield return null; // 로딩 씬 로드 후 다음 프레임 대기
+    }
+
+    private string[] tips = new string[]
+    {
+        "정확한 타이밍에 맞춰 구르면 공격에 맞지 않습니다",
+        "때로는 한 발자국 물러나서 적의 움직임을 살펴보는게 좋을 수도 있습니다",
+        "메이지는 진짜로 칼을 거꾸로 들고 있습니다",
+        "정확한 공격 타이밍을 알면 게임이 쉬워집니다",
+        "무작정 구르기만 하면 스테미너 관리가 안되서 무너지기 쉽상입니다"
+    };
 }
