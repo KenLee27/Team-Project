@@ -170,7 +170,7 @@ public class BossBController : MonoBehaviour, Ienemy
         }
 
         //평타 공격패턴
-        if(attackCount == attackMaxCount)
+        if (attackCount >= attackMaxCount)
         {
             float randomValue = UnityEngine.Random.Range(0f, 6f);
 
@@ -352,7 +352,7 @@ public class BossBController : MonoBehaviour, Ienemy
 
         //붙으면 공격 패턴
 
-        if (attackCount == attackMaxCount)
+        if (attackCount >= attackMaxCount)
         {
             float randomValue = UnityEngine.Random.Range(0f, 6f);
 

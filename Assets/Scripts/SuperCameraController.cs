@@ -132,7 +132,7 @@ public class SuperCameraController : MonoBehaviour
 
                 float firstAngleAdjustment = Mathf.Atan2(initialHeightDifference, 30f) * Mathf.Rad2Deg;
 
-                Xaxis = 26f - firstAngleAdjustment;
+                Xaxis = 20f - firstAngleAdjustment;
                 initialXaxis = Xaxis; // 카메라의 초기 Xaxis 값 저장
                 wasLockedOn = true; // 락온 상태 기록
             }
