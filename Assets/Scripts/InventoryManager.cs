@@ -31,11 +31,24 @@ public class InventoryManager : MonoBehaviour
 
     void Start()
     {
-        weaponPrefabs = new List<GameObject> { falchionPrefab }; // 처음에는 Falchion만 포함
-        weaponSprites = new List<Sprite> { falchionSprite };
-        weaponNames = new List<string> { "칼리오스 병사의 곡검" };
+        weaponPrefabs = new List<GameObject>();
+        weaponSprites = new List<Sprite>();
+        weaponNames = new List<string>();
 
         skillController = GetComponent<SkillController>();
+
+        // 게임 처음 실행 시만 초기 무기 추가
+        if (!PlayerPrefs.HasKey("IsInitialWeaponAdded"))
+        {
+            AddInitialWeapon(); // 초기 무기 추가
+            PlayerPrefs.SetInt("IsInitialWeaponAdded", 1); // 1을 저장하여 초기 무기가 추가되었음을 표시
+            PlayerPrefs.Save();
+            SaveInventory();
+        }
+
+        // 저장된 인벤토리 데이터 불러오기
+        LoadInventory();
+
         EquipCurrentWeapon();
     }
 
@@ -52,7 +65,52 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    
+    private void AddInitialWeapon()
+    {
+        // 초기 무기를 인벤토리에 추가 (곡검)
+        weaponPrefabs.Add(falchionPrefab);
+        weaponSprites.Add(falchionSprite);
+        weaponNames.Add("칼리오스 병사의 곡검");
+
+        Debug.Log("Initial weapon '칼리오스 병사의 곡검' has been added to the inventory.");
+    }
+
+
+    private void SaveInventory()
+    {
+        // 무기 이름 목록을 문자열로 저장 (쉼표로 구분)
+        string weaponList = string.Join(",", weaponNames);
+        PlayerPrefs.SetString("WeaponList", weaponList);
+
+        // 현재 선택된 무기 인덱스 저장
+        PlayerPrefs.SetInt("CurrentWeaponIndex", currentWeaponIndex);
+
+        PlayerPrefs.Save();
+    }
+
+    private void LoadInventory()
+    {
+        // 무기 이름 목록을 불러옵니다.
+        if (PlayerPrefs.HasKey("WeaponList"))
+        {
+            string weaponList = PlayerPrefs.GetString("WeaponList");
+            string[] loadedWeaponNames = weaponList.Split(',');
+
+            // 불러온 무기 이름을 기준으로 무기 추가
+            foreach (string weaponName in loadedWeaponNames)
+            {
+                AddWeaponToInventory(weaponName);
+            }
+        }
+
+        // 현재 무기 인덱스를 불러옵니다.
+        if (PlayerPrefs.HasKey("CurrentWeaponIndex"))
+        {
+            currentWeaponIndex = PlayerPrefs.GetInt("CurrentWeaponIndex");
+        }
+
+        EquipCurrentWeapon();
+    }
 
     private void EquipCurrentWeapon()
     {
@@ -83,12 +141,6 @@ public class InventoryManager : MonoBehaviour
         {
             skillController.SetFirePoint(firePoint);
         }
-        else
-        {
-            Debug.Log("skill_start_position을 찾을 수 없습니다!");
-        }
-
-
     }
 
     private void SwitchToNextWeapon()
@@ -143,6 +195,10 @@ public class InventoryManager : MonoBehaviour
         {
             weaponName = "Hammer";
         }
+        else if(weaponName == "칼리오스 병사의 곡검")
+        {
+            weaponName = "Falchion";
+        }
 
 
         if (weaponName == "Axe" && !weaponPrefabs.Contains(axePrefab))
@@ -163,8 +219,46 @@ public class InventoryManager : MonoBehaviour
             weaponSprites.Add(hammerSprite);
             weaponNames.Add("파괴자");
         }
+        else if(weaponName == "Falchion" && !weaponPrefabs.Contains(falchionPrefab))
+        {
+            weaponPrefabs.Add(falchionPrefab); // 처음에는 Falchion만 포함
+            weaponSprites.Add(falchionSprite);
+            weaponNames.Add("칼리오스 병사의 곡검");
+        }
 
+        SaveInventory();
         UpdateWeaponUI();
         EquipCurrentWeapon();
     }
+
+    public void RemoveWeaponFromInventory(string weaponName)
+    {
+        if (weaponNames.Count <= 1)
+        {
+            Debug.LogWarning("Cannot remove weapon. At least one weapon must remain in the inventory.");
+            return; // 무기 해제 방지
+        }
+
+        int index = weaponNames.IndexOf(weaponName);
+
+        if (index >= 0)
+        {
+            weaponPrefabs.RemoveAt(index);
+            weaponSprites.RemoveAt(index);
+            weaponNames.RemoveAt(index);
+
+            // 무기 인덱스를 조정하고 UI 업데이트
+            currentWeaponIndex = Mathf.Clamp(currentWeaponIndex, 0, weaponPrefabs.Count - 1);
+
+            SaveInventory();
+            UpdateWeaponUI();
+            EquipCurrentWeapon();
+        }
+    }
+
+    public bool IsWeaponInInventory(string weaponName)
+    {
+        return weaponNames.Contains(weaponName);
+    }
+
 }

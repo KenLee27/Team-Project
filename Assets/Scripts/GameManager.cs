@@ -26,8 +26,16 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverTextPrefab;
     public GameObject mapNameTextPrefab;
 
+    public Vector3 spawnPosition;          //플레이어 스폰 위치
+
+    public void SavePosition(Vector3 position)      //플레이어 스폰 위치 저장
+    {
+        spawnPosition = position;
+    }
+
     void Awake()
     {
+
         if (Instance == null)
         {
             Instance = this;

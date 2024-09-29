@@ -69,8 +69,32 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
         // 선택된 아이템이 있을 때 A키를 누르면 인벤토리에 추가
         if (thisItemSelected && Input.GetKeyDown(KeyCode.A))
         {
-            Debug.Log("A key pressed, trying to activate weapon in inventory.");
-            ActivateWeaponInInventory(); // 선택된 무기 인벤토리에 추가
+            Debug.Log("A key pressed, toggling weapon in inventory.");
+            ToggleWeaponInInventory(); // 무기를 인벤토리에 추가하거나 해제
+        }
+    }
+
+    private void ToggleWeaponInInventory()
+    {
+        if (inventoryManager != null && !string.IsNullOrEmpty(itemName))
+        {
+            // 무기가 이미 인벤토리에 있는지 확인
+            if (inventoryManager.IsWeaponInInventory(itemName))
+            {
+                Debug.Log(itemName + " is already in the inventory. Removing it...");
+                inventoryManager.RemoveWeaponFromInventory(itemName); // 인벤토리에서 해제
+                Debug.Log(itemName + " has been removed from the inventory.");
+            }
+            else
+            {
+                Debug.Log("Trying to add: " + itemName);
+                inventoryManager.AddWeaponToInventory(itemName); // 인벤토리에 추가
+                Debug.Log(itemName + " has been added to the inventory.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No item selected or InventoryManager is not assigned.");
         }
     }
 
@@ -146,4 +170,16 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
             Debug.LogWarning("No item selected or InventoryManager is not assigned.");
         }
     }
+
+    public ItemData GetItemData()
+    {
+        return new ItemData(itemName, itemDescription, itemSprite);
+    }
+
+    // 아이템을 추가할 때 호출하는 메서드 (PlayerPrefs에서 로드 시 사용)
+    public void LoadItem(ItemData itemData)
+    {
+        AddItem(itemData.itemName, itemData.Base64ToSprite(), itemData.itemDescription);
+    }
+
 }

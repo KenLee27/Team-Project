@@ -18,36 +18,19 @@ public class EquipmentManager : MonoBehaviour
         EquipmentMenu.SetActive(false); // 시작 시 메뉴를 비활성화
         Time.timeScale = 1; // 게임이 정상 속도로 실행되도록 설정
 
-        itemDatabase.Add("Axe_Exe", new ItemData("옛 왕의 수호자", "옛 왕의 수호자 무기 설명 추가"));
-        itemDatabase.Add("Dagger_Red", new ItemData("그림자 단검", "그림자 단검 무기 설명 추가"));
-        itemDatabase.Add("Axe_Rot", new ItemData("파괴자", "파괴자 무기 설명 추가"));
-        // itemDatabase.Add("Falchion", new WeaponData("칼리오스 병사의 곡검", "칼리오스 병사의 곡검 무기 설명 추가"));
+        Sprite axeSprite = Resources.Load<Sprite>("Assets/Images/Axe");
+        Sprite daggerSprite = Resources.Load<Sprite>("Assets/Images/Dagger");
+        Sprite axeRotSprite = Resources.Load<Sprite>("Assets/Images/hammer");
+        Sprite falchionSprite = Resources.Load<Sprite>("Assets/Images/Falchion");
+
+        itemDatabase.Add("Axe_Exe", new ItemData("옛 왕의 수호자", "옛 왕의 수호자 무기 설명 추가", axeSprite));
+        itemDatabase.Add("Dagger_Red", new ItemData("그림자 단검", "그림자 단검 무기 설명 추가", daggerSprite));
+        itemDatabase.Add("Axe_Rot", new ItemData("파괴자", "파괴자 무기 설명 추가", axeRotSprite));
+        itemDatabase.Add("Falchion", new ItemData("칼리오스 병사의 곡검", "칼리오스 병사의 곡검 무기 설명 추가", falchionSprite));
+
+        LoadItems(); // 아이템 로드
 
     }
-
-    //// Update is called once per frame
-    //void Update()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.E))
-    //    {
-    //        Debug.Log("E key pressed");
-    //        Cursor.visible = true;  // 버튼 클릭 시 커서 보이기
-    //        Cursor.lockState = CursorLockMode.None; // 커서 잠금 해제
-
-
-    //        menuActivated = !menuActivated; 
-    //        EquipmentMenu.SetActive(menuActivated); 
-
-    //        if (menuActivated)
-    //        {
-    //            Time.timeScale = 0; // 메뉴가 활성화되면 게임 일시 정지
-    //        }
-    //        else
-    //        {
-    //            Time.timeScale = 1; // 메뉴가 비활성화되면 게임 재개
-    //        }
-    //    }
-    //}
 
     void Update()
     {
@@ -72,6 +55,36 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
+    public void SaveItems()
+    {
+        for (int i = 0; i < itemSlot.Length; i++)
+        {
+            if (itemSlot[i].isFull)
+            {
+                ItemData itemData = itemSlot[i].GetItemData();
+                PlayerPrefs.SetString("Item_" + i, JsonUtility.ToJson(itemData));
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey("Item_" + i);
+            }
+        }
+        PlayerPrefs.Save();
+    }
+
+    public void LoadItems()
+    {
+        for (int i = 0; i < itemSlot.Length; i++)
+        {
+            string jsonData = PlayerPrefs.GetString("Item_" + i, null);
+            if (!string.IsNullOrEmpty(jsonData))
+            {
+                ItemData itemData = JsonUtility.FromJson<ItemData>(jsonData);
+                itemSlot[i].LoadItem(itemData); // 슬롯에 아이템 로드
+            }
+        }
+    }
+
     public void AddItem(string itemName, Sprite itemSprite, string itemDescription)
     {
         // 모든 슬롯을 순회하면서 비어 있는 슬롯에 아이템을 추가
@@ -80,6 +93,7 @@ public class EquipmentManager : MonoBehaviour
             if (!itemSlot[i].isFull)
             {
                 itemSlot[i].AddItem(itemName, itemSprite, itemDescription);
+                SaveItems();
                 return;
             }
         }
@@ -96,6 +110,7 @@ public class EquipmentManager : MonoBehaviour
             if (!itemSlot[i].isFull)
             {
                 itemSlot[i].AddItem(itemName, itemSprite, itemDescription);
+                SaveItems();
                 return;
             }
         }

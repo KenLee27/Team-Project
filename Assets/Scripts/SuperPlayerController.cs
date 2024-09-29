@@ -70,6 +70,7 @@ public class SuperPlayerController : MonoBehaviour
     public bool isDie = false;
     public bool isAttackHit = false;
     public bool FirstStaminaCheck = false;
+    private bool CanSave = false;
 
     private bool firstDropDie = true;
 
@@ -86,7 +87,8 @@ public class SuperPlayerController : MonoBehaviour
         ATTACK,
         DIVE,
         HIT,
-        DIE
+        DIE,
+        SAVE
     }
 
     private State currentState = State.IDLE;
@@ -104,6 +106,8 @@ public class SuperPlayerController : MonoBehaviour
 
     void Start()
     {
+        transform.position = GameManager.Instance.spawnPosition;        //게임매니저에 저장된 스폰 위치로 부활
+
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         cameraTransform = Camera.main.transform;
@@ -128,6 +132,25 @@ public class SuperPlayerController : MonoBehaviour
     void Update()
     {
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
+
+        if (Input.GetKeyDown(KeyCode.P))                                //P키 입력시 게임진도 초기화 테스트 전용 스크립트
+        {
+            PlayerPrefs.DeleteAll(); // 모든 PlayerPrefs 데이터 삭제
+            PlayerPrefs.Save(); // 즉시 저장
+        }
+
+        if (Input.GetKeyDown(KeyCode.F) && CanSave)                                //F키 입력시 게임매니저 SavePosition을 실행
+        {
+            Vector3 directionToSavePoint = (collider.transform.position - transform.position).normalized; // 세이브 포인트 방향
+            directionToSavePoint.y = 0; // Y축 회전 유지
+            Quaternion targetRotation = Quaternion.LookRotation(directionToSavePoint);
+            transform.rotation = targetRotation; // 플레이어 회전
+
+            GameManager.Instance.SavePosition(transform.position);
+            Debug.Log("save!");
+
+            HandleSave();
+        }
 
         //무기 스위칭 확인
         if (currentWeaponName == "Falchion")
@@ -268,6 +291,33 @@ public class SuperPlayerController : MonoBehaviour
             }
         }
     }
+
+    private void HandleSave()
+    {
+        isinvincibility = true;
+        canAttack = false;
+        canDive = false;
+        canCrouched = false;
+        CanSave = false;
+        //GameManager.Instance.UpdatePlayerHP(PlayerHP);
+        animator.Play("Save",0,0);
+
+
+        currentState = State.SAVE;
+        StartCoroutine(SaveDelay());
+    }
+
+    private IEnumerator SaveDelay()
+    {
+        yield return new WaitForSeconds(4f);
+        isinvincibility = false;
+        canAttack = true;
+        canDive = true;
+        canCrouched = true;
+        CanSave = true;
+        currentState = State.IDLE;
+    }
+
 
     void RecoverStamina()
     {
@@ -466,7 +516,7 @@ public class SuperPlayerController : MonoBehaviour
     private void HandleMove()
     {
         //움직이지 못하는 상태 구현
-        if (currentState == State.DIVE || currentState ==State.ATTACK || currentState == State.HIT || currentState == State.DIE)
+        if (currentState == State.SAVE ||currentState == State.DIVE || currentState ==State.ATTACK || currentState == State.HIT || currentState == State.DIE)
         {
             return;
         }
@@ -941,9 +991,10 @@ public class SuperPlayerController : MonoBehaviour
         }
 
     }
-
+    private Collider collider;
     void OnTriggerEnter(Collider other)
     {
+        collider = other;   
         if (other.CompareTag("EnemyAttack") && !isinvincibility)
         {
             isinvincibility = true;                    //피격 무적 활성화
@@ -955,13 +1006,30 @@ public class SuperPlayerController : MonoBehaviour
             HandleHit(other);
 
         }
+
+        if (other.CompareTag("SavePoint")) // 플레이어와의 충돌 여부 확인
+        {
+            CanSave = true;
+        }
+
     }
 
-    private void HandleHit(Collider other)
+    private void OnTriggerExit(Collider other)
+    {
+        collider = other;
+
+        if (other.CompareTag("SavePoint")) // 플레이어가 콜라이더를 나갔을 때
+        {
+            CanSave = false;
+        }
+    }
+
+
+    private void HandleHit(Collider other_hit)
     {
         currentState = State.HIT;
 
-        Ienemy enemy = other.GetComponentInParent<Ienemy>();
+        Ienemy enemy = other_hit.GetComponentInParent<Ienemy>();
         float GetDamage = enemy.Damage;                     //데미지 계산
 
         PlayerHP = PlayerHP - GetDamage;
