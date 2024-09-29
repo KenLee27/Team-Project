@@ -139,7 +139,7 @@ public class SuperPlayerController : MonoBehaviour
             PlayerPrefs.Save(); // 즉시 저장
         }
 
-        if (Input.GetKeyDown(KeyCode.F) && CanSave)                                //F키 입력시 게임매니저 SavePosition을 실행
+        if (Input.GetKeyDown(KeyCode.F) && CanSave && (currentState == State.IDLE || currentState == State.MOVE))                                //F키 입력시 게임매니저 SavePosition을 실행
         {
             Vector3 directionToSavePoint = (collider.transform.position - transform.position).normalized; // 세이브 포인트 방향
             directionToSavePoint.y = 0; // Y축 회전 유지
@@ -507,8 +507,13 @@ public class SuperPlayerController : MonoBehaviour
                 HandleMove();
                 break;
             case State.ATTACK:
+                currentSpeed = 0;
                 break;
             case State.DIVE:
+                currentSpeed = 0;
+                break;
+            case State.SAVE:
+                currentSpeed = 0;
                 break;
         }
     }
