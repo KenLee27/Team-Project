@@ -178,6 +178,7 @@ public class GameManager : MonoBehaviour
     public void InitializeMonsters()
     {
         EnemyController2[] monsters = FindObjectsOfType<EnemyController2>(); // 모든 몬스터 탐색
+        EnemyEliteController[] elites = FindObjectsOfType<EnemyEliteController>();
         EnemyControllerClabKing[] crabKing = FindObjectsOfType<EnemyControllerClabKing>();
         BowEnemyController[] bow_monsters = FindObjectsOfType<BowEnemyController>();
         BossAController[] aBoss = FindObjectsOfType<BossAController>();
@@ -190,6 +191,10 @@ public class GameManager : MonoBehaviour
         foreach (var bow_monster in bow_monsters)
         {
             bow_monster.InitializeHPBar(hpSliderPrefab); // 각 몬스터에 슬라이더 초기
+        }
+        foreach (var elite in elites)
+        {
+            elite.InitializeHPBar(hpSliderPrefab); // 각 몬스터에 슬라이더 초기
         }
         foreach (var king in crabKing)
         {

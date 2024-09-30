@@ -1178,7 +1178,7 @@ public class BossBController : MonoBehaviour, Ienemy
 
     IEnumerator ResetHit()
     {
-        yield return new WaitForSeconds(0.05f); // 0.3초 후 초기화, 필요에 따라 조정 가능
+        yield return new WaitForSeconds(0.3f); // 0.3초 후 초기화, 필요에 따라 조정 가능
         isAlreadyHit = false;
     }
 }

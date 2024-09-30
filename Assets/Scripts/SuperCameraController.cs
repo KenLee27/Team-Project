@@ -128,11 +128,6 @@ public class SuperCameraController : MonoBehaviour
         {
             if (!wasLockedOn) // 락온이 처음 시작될 때
             {
-                initialHeightDifference = lockedTarget.position.y - player.position.y; // 플레이어와 몬스터의 초기 높이 차 저장
-
-                float firstAngleAdjustment = Mathf.Atan2(initialHeightDifference, 30f) * Mathf.Rad2Deg;
-
-                Xaxis = 20f - firstAngleAdjustment;
                 initialXaxis = Xaxis; // 카메라의 초기 Xaxis 값 저장
                 wasLockedOn = true; // 락온 상태 기록
             }
@@ -155,8 +150,6 @@ public class SuperCameraController : MonoBehaviour
             // 카메라의 Xaxis에 각도 변화 적용
             float adjustedXaxis = initialXaxis - angleAdjustment; // 높이 차이가 증가하면 카메라를 아래로 회전
 
-            // Xaxis 값을 제한하여 카메라가 과도하게 회전하지 않도록 조정
-            adjustedXaxis = Mathf.Clamp(adjustedXaxis, rotationMin, rotationMax);
 
             // 몬스터 방향으로의 Y축 회전 계산
             Vector3 direction = lockedTarget.position - player.position; // 플레이어에서 몬스터까지의 방향벡터
