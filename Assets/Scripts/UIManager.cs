@@ -16,6 +16,8 @@ public class UIManager : MonoBehaviour
     private enum UIState { Game, Menu, Status, Equipment, Teleport }
     private UIState currentState = UIState.Game;
 
+    private Vector3 burn = new Vector3(-38.60238f, 9.509007f, 45.06f);     //다른 세이브 포인트 위치 변경시 같이 변경.
+
     private void Start()
     {
         AccessController();
@@ -23,10 +25,31 @@ public class UIManager : MonoBehaviour
         SetInitialUIState();
     }
 
+    private void teleportBurn()
+    {
+        GameManager.Instance.SavePosition(burn);
+        GameManager.Instance.StartScene();
+    }
+
     public void InitializeButtonClickEvents()
     {
         Transform statusMenuTransform = stateUI.transform.Find("StatusMenu");
         Transform equipmentMenuTransform = stateUI.transform.Find("EquipmentMenu");
+
+        Transform teleportburn = teleportUI.transform.Find("BurningGround");
+
+        if (teleportburn != null)
+        {
+            Button[] statusButtons = teleportburn.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
+            foreach (Button button in statusButtons)
+            {
+                button.onClick.AddListener(teleportBurn); // ShowStatusUI 메서드 연결
+            }
+        }
+        else
+        {
+            Debug.LogWarning("StatusMenu not found in StateUI!");
+        }
 
         if (statusMenuTransform != null)
         {

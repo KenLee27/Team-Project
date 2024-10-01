@@ -333,6 +333,11 @@ public class GameManager : MonoBehaviour
         yield return null; // 로딩 씬 로드 후 다음 프레임 대기
     }
 
+    public void StartScene()
+    {
+        StartCoroutine(LoadSceneAsync("Old_Dock"));
+    }
+
     private string[] tips = new string[]
     {
         "정확한 타이밍에 맞춰 구르면 공격에 맞지 않습니다",
