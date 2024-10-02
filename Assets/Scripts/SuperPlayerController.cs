@@ -107,8 +107,7 @@ public class SuperPlayerController : MonoBehaviour
 
     void Start()
     {
-        transform.position = GameManager.Instance.spawnPosition;        //게임매니저에 저장된 스폰 위치로 부활
-
+        transform.position = GameManager.Instance.LoadPosition();        //게임매니저에 저장된 스폰 위치로 부활
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         cameraTransform = Camera.main.transform;
@@ -128,7 +127,10 @@ public class SuperPlayerController : MonoBehaviour
         
         isAttackHit = false;
         timeSinceLastDive = StaminaRegenTime;
+
+        StandUpTime();
     }
+
 
     void Update()
     {
@@ -156,7 +158,17 @@ public class SuperPlayerController : MonoBehaviour
             GameManager.Instance.SavePosition(transform.position);
             Debug.Log("save!");
 
+            string savePointName = collider.name; // 세이브 포인트 이름 가져오기
+            UIManager.Instance.ActivateSaveButton(savePointName);
+
+
             HandleSave();
+            // 버튼 활성화 상태 저장
+            if(PlayerPrefs.GetInt(collider.name, 0) == 0)
+            {
+                PlayerPrefs.SetInt(savePointName, 1);  // 1은 버튼이 활성화되었음을 의미
+                PlayerPrefs.Save();
+            }
         }
 
         //무기 스위칭 확인
@@ -204,7 +216,7 @@ public class SuperPlayerController : MonoBehaviour
         //서있을 때와 앉아 있을 때의 속도 컨트롤러
         if(isStand)
         {
-
+            moveSpeed = 4f;
         }
         else if(!isStand)
         {
@@ -226,9 +238,9 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //버튼 클릭 & 공격 컨트롤러
-        if ((currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE) && !isDive && isGround )
+        if ((currentState == State.DIVE || currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE)&& isGround )
         {
-            if (canAttack && inputBuffer.GetBufferedInput(out bufferedInput) && PlayerStamina >= 5f)
+            if (canDive && canAttack && inputBuffer.GetBufferedInput(out bufferedInput) && PlayerStamina >= 5f)
             {
                 if (bufferedInput == KeyCode.Mouse0)
                 {
@@ -241,7 +253,7 @@ public class SuperPlayerController : MonoBehaviour
                     Debug.Log(currentWeaponName + " 발동");
                 }
 
-                if (canDive && cameraController.IsLockedOn && cameraController.LockedTarget != null && PlayerStamina >= 15f)
+                else if (cameraController.IsLockedOn && cameraController.LockedTarget != null && PlayerStamina >= 15f)
                 {
                     if (Input.GetAxisRaw("Horizontal") < 0 && !isAttacking && isGround)
                     {
@@ -288,7 +300,7 @@ public class SuperPlayerController : MonoBehaviour
                         }
                     }
                 }
-                else if(canDive && PlayerStamina >= 15f)
+                else if(PlayerStamina >= 15f)
                 {
                     if (Input.GetAxisRaw("Horizontal") != 0 && !isAttacking && isGround)
                     {
@@ -355,16 +367,58 @@ public class SuperPlayerController : MonoBehaviour
         canCrouched = false;
         CanSave = false;
         //GameManager.Instance.UpdatePlayerHP(PlayerHP);
-        animator.Play("Save",0,0);
+        if(PlayerPrefs.GetInt(collider.name, 0) == 0)
+        {
+            animator.Play("Save", 0, 0);
 
+            currentState = State.SAVE;
+            StartCoroutine(SaveDelay());
+        }
+        else
+        {
+            animator.Play("rest", 0, 0);
 
-        currentState = State.SAVE;
-        StartCoroutine(SaveDelay());
+            currentState = State.SAVE;
+            StartCoroutine(RestDelay());
+        }
     }
 
     private IEnumerator SaveDelay()
     {
         yield return new WaitForSeconds(4f);
+        isinvincibility = false;
+        canAttack = true;
+        canDive = true;
+        canCrouched = true;
+        CanSave = true;
+        currentState = State.IDLE;
+    }
+
+    private IEnumerator RestDelay()
+    {
+        yield return new WaitForSeconds(2f);
+
+        UIManager.Instance.OpenTeleport();
+        UIManager.Instance.LoadSaveButtonState();
+
+        while (true)
+        {
+            if (UIManager.Instance.currentState == UIManager.UIState.Game)        //이 부분은 차후 수정가능.
+            {
+                animator.Play("rest_end", 0, 0);
+                StartCoroutine(StandUpTime());
+                break;
+            }
+
+            yield return null;
+        }
+        yield return null;
+    }
+
+    private IEnumerator StandUpTime()
+    {
+        currentState = State.SAVE;
+        yield return new WaitForSeconds(2.1f);
         isinvincibility = false;
         canAttack = true;
         canDive = true;

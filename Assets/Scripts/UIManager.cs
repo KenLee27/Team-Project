@@ -10,25 +10,95 @@ public class UIManager : MonoBehaviour
     public GameObject equipmentUI;
     public GameObject teleportUI;
 
+    private static UIManager _instance;
+
+    public static UIManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = FindObjectOfType<UIManager>();
+            return _instance;
+        }
+    }
+
     private SuperPlayerController playerController;
     private EquipmentManager equipmentManager;
 
-    private enum UIState { Game, Menu, Status, Equipment, Teleport }
-    private UIState currentState = UIState.Game;
+    public enum UIState { Game, Menu, Status, Equipment, Teleport }
+    public UIState currentState = UIState.Game;
 
-    private Vector3 burn = new Vector3(-38.60238f, 9.509007f, 45.06f);     //다른 세이브 포인트 위치 변경시 같이 변경.
+    private Vector3 burn = new Vector3(-2.83f, 4.548f, 25.77f);     //다른 세이브 포인트 위치 변경시 같이 변경.
+    private Vector3 cal_b = new Vector3(-38.515f, 9.509007f, 44.15f);     //다른 세이브 포인트 위치 변경시 같이 변경.
+    private Vector3 outer = new Vector3(43.73f, 4.548f, 20.12f);     //다른 세이브 포인트 위치 변경시 같이 변경.
 
     private void Start()
     {
         AccessController();
         InitializeButtonClickEvents();
         SetInitialUIState();
+        LoadSaveButtonState();
     }
 
     private void teleportBurn()
     {
         GameManager.Instance.SavePosition(burn);
+        GoBack();
         GameManager.Instance.StartScene();
+    }
+    private void teleportCal_b()
+    {
+        GameManager.Instance.SavePosition(cal_b);
+        GoBack();
+        GameManager.Instance.StartScene();
+    }
+    private void teleportOuter()
+    {
+        GameManager.Instance.SavePosition(outer);
+        GoBack();
+        GameManager.Instance.StartScene();
+    }
+
+    public void ActivateSaveButton(string savePointName)
+    {
+        Transform buttonTransform = teleportUI.transform.Find(savePointName);
+
+        if (buttonTransform != null)
+        {
+            Button button = buttonTransform.GetComponent<Button>();
+            if (button != null)
+            {
+                button.gameObject.SetActive(true); // 버튼 활성화
+            }
+            else
+            {
+                Debug.LogWarning($"Button component not found on {savePointName}!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Button for save point {savePointName} not found in teleportUI!");
+        }
+    }
+
+    // 게임 시작 시 버튼 활성화 상태 복원 함수
+    public void LoadSaveButtonState()
+    {
+        foreach (Transform buttonTransform in teleportUI.transform)
+        {
+            if (buttonTransform.TryGetComponent(out Button button))
+            {
+                string savePointName = buttonTransform.name;
+                if (PlayerPrefs.GetInt(savePointName, 0) == 1)  // 1이면 활성화된 상태
+                {
+                    button.gameObject.SetActive(true);
+                }
+                else
+                {
+                    button.gameObject.SetActive(false);
+                }
+            }
+        }
     }
 
     public void InitializeButtonClickEvents()
@@ -37,6 +107,8 @@ public class UIManager : MonoBehaviour
         Transform equipmentMenuTransform = stateUI.transform.Find("EquipmentMenu");
 
         Transform teleportburn = teleportUI.transform.Find("BurningGround");
+        Transform teleportcal_b = teleportUI.transform.Find("CaliosBridge");
+        Transform teleportouter = teleportUI.transform.Find("OuterBattleField");
 
         if (teleportburn != null)
         {
@@ -44,6 +116,32 @@ public class UIManager : MonoBehaviour
             foreach (Button button in statusButtons)
             {
                 button.onClick.AddListener(teleportBurn); // ShowStatusUI 메서드 연결
+            }
+        }
+        else
+        {
+            Debug.LogWarning("StatusMenu not found in StateUI!");
+        }
+
+        if (teleportcal_b != null)
+        {
+            Button[] statusButtons = teleportcal_b.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
+            foreach (Button button in statusButtons)
+            {
+                button.onClick.AddListener(teleportCal_b); // ShowStatusUI 메서드 연결
+            }
+        }
+        else
+        {
+            Debug.LogWarning("StatusMenu not found in StateUI!");
+        }
+
+        if (teleportouter != null)
+        {
+            Button[] statusButtons = teleportouter.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
+            foreach (Button button in statusButtons)
+            {
+                button.onClick.AddListener(teleportOuter); // ShowStatusUI 메서드 연결
             }
         }
         else
@@ -106,6 +204,7 @@ public class UIManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.T))
         {
             OpenTeleport();
+            LoadSaveButtonState();
         }
     }
 
@@ -152,7 +251,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void OpenTeleport()
+    public void OpenTeleport()
     {
         currentState = UIState.Teleport;
 

@@ -31,10 +31,12 @@ public class GameManager : MonoBehaviour
     public void SavePosition(Vector3 position)      //플레이어 스폰 위치 저장
     {
         spawnPosition = position;
+        SaveSpawnPosition(position);
     }
 
     void Awake()
     {
+        spawnPosition = LoadPosition();
 
         if (Instance == null)
         {
@@ -50,6 +52,24 @@ public class GameManager : MonoBehaviour
 
         InitializeMonsters();
     }
+
+    public void SaveSpawnPosition(Vector3 position)
+    {
+        PlayerPrefs.SetFloat("PlayerPosX", position.x);
+        PlayerPrefs.SetFloat("PlayerPosY", position.y);
+        PlayerPrefs.SetFloat("PlayerPosZ", position.z);
+        PlayerPrefs.Save();  // PlayerPrefs 값을 영구 저장
+    }
+
+    // 플레이어 위치 불러오기 메서드
+    public Vector3 LoadPosition()
+    {
+        float x = PlayerPrefs.GetFloat("PlayerPosX", -3.47f);  // 저장된 값이 없을 때는 첫 시작 위치
+        float y = PlayerPrefs.GetFloat("PlayerPosY", 4.548f);
+        float z = PlayerPrefs.GetFloat("PlayerPosZ", 12.23f);
+        return new Vector3(x, y, z);
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         string displayName = GetDisplayNameForScene(scene.name);
