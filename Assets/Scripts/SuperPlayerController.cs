@@ -69,6 +69,7 @@ public class SuperPlayerController : MonoBehaviour
     public bool isAttacked = false;
     public bool isinvincibility = false;
     public bool isDie = false;
+    private bool isRunning = false;  // 플레이어가 현재 달리는 중인지 체크하는 변수
     public bool isAttackHit = false;
     public bool FirstStaminaCheck = false;
     private bool CanSave = false;
@@ -78,6 +79,9 @@ public class SuperPlayerController : MonoBehaviour
 
     private Coroutine resetPhaseCoroutine;
     private Coroutine resetS_PhaseCoroutine;
+
+    private float keyHoldTime = 0.0f;  // LeftControl 키가 눌린 시간을 측정할 변수
+    public float crouchHoldThreshold = 1.0f;  // 달리기와 웅크리기의 기준 시간 (1초)
 
 
     private enum State
@@ -214,9 +218,13 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //서있을 때와 앉아 있을 때의 속도 컨트롤러
-        if(isStand)
+        if(isStand && !isRunning)
         {
             moveSpeed = 4f;
+        }
+        else if(isStand && isRunning)
+        {
+            moveSpeed = 5.6f;
         }
         else if(!isStand)
         {
@@ -331,16 +339,66 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //앉기
-        if (canCrouched && Input.GetKeyDown(KeyCode.LeftControl) && isGround && !isAttacking && !isDive)
+        if (!isMoving)
         {
-            HandleCrouched();
-        }
-
-        if (canDive)
-        {
-            //카메라가 락온일때와 아닐때의 구르기 차이
+            keyHoldTime = 0.0f;
             
         }
+
+        // LeftControl 키가 눌렸을 때 시간 증가
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            keyHoldTime += Time.deltaTime;  // 눌린 시간 증가
+        }
+
+        // LeftControl 키를 뗐을 때 조건 처리
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            // 달리기를 중지하고 isRunning 변수를 false로 설정
+            if (isRunning)
+            {
+                animator.SetBool("isRunning", false);
+                isRunning = false;
+            }
+            else if (keyHoldTime < crouchHoldThreshold && canCrouched && isGround && !isAttacking && !isDive)
+            {
+                // 1초 미만으로 눌렸을 때 웅크리기 동작
+                HandleCrouched();
+            }
+
+            // 키를 뗀 후 시간 초기화
+            keyHoldTime = 0.0f;
+        }
+
+        // 1초 이상 누르고 있고, isMoving이 true이며 아직 달리고 있지 않을 때
+        if (keyHoldTime >= crouchHoldThreshold && isMoving && !isRunning && isGround)
+        {
+            // 달리기 동작 시작
+            animator.SetBool("isRunning", true);
+            isRunning = true;
+        }
+
+        // 달리는 중일 때, 키를 계속 누르고 있는지 확인하여 유지
+        if (isRunning && !Input.GetKey(KeyCode.LeftControl))
+        {
+            // 키를 놓았을 경우 달리기 멈추기
+            animator.SetBool("isRunning", false);
+            isRunning = false;
+        }
+        
+        /*
+        if (isRunning &&!IsCurrentAnimation("Run"))
+        {
+            animator.SetBool("isRunning", false);  // 애니메이터의 isRunning을 false로 설정
+            isRunning = false;  // 달리기 상태도 false로 초기화
+        }*/
+    }
+
+    bool IsCurrentAnimation(string animationName)
+    {
+        // 애니메이터의 현재 애니메이션 상태 가져오기
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);  // 레이어 0 사용
+        return currentState.IsName(animationName);
     }
 
     private void HandleBuffer()
@@ -617,12 +675,19 @@ public class SuperPlayerController : MonoBehaviour
                 break;
             case State.ATTACK:
                 currentSpeed = 0;
+                isMoving = false;
                 break;
             case State.DIVE:
                 currentSpeed = 0;
+                isMoving = false;
                 break;
             case State.SAVE:
                 currentSpeed = 0;
+                isMoving = false;
+                break;
+            case State.HIT:
+                currentSpeed = 0;
+                isMoving = false;
                 break;
         }
     }
@@ -644,25 +709,40 @@ public class SuperPlayerController : MonoBehaviour
 
         if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
         {
-
             animator.SetBool("isLockOn", true);
 
-            Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
-            float targetRotation = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
-            float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
-            transform.eulerAngles = Vector3.up * newRotation;
+            if(!isRunning)
+            {
+                Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
+                float targetRotation = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
+                float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
+                transform.eulerAngles = Vector3.up * newRotation;
 
-            Vector3 moveDir = transform.forward * inputDir.y + transform.right * inputDir.x;
-            targetSpeed = moveSpeed * moveDir.magnitude;
-            currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
-            transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
+                Vector3 moveDir = transform.forward * inputDir.y + transform.right * inputDir.x;
+                targetSpeed = moveSpeed * moveDir.magnitude;
+                currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
+                transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
 
-            Vector3 localMoveDir = transform.InverseTransformDirection(moveDir);
-            float smoothX = Mathf.SmoothDamp(animator.GetFloat("Xaxis"), localMoveDir.x, ref velocity.x, 0.1f);
-            float smoothY = Mathf.SmoothDamp(animator.GetFloat("Yaxis"), localMoveDir.z, ref velocity.y, 0.1f);
+                Vector3 localMoveDir = transform.InverseTransformDirection(moveDir);
+                float smoothX = Mathf.SmoothDamp(animator.GetFloat("Xaxis"), localMoveDir.x, ref velocity.x, 0.1f);
+                float smoothY = Mathf.SmoothDamp(animator.GetFloat("Yaxis"), localMoveDir.z, ref velocity.y, 0.1f);
 
-            animator.SetFloat("Xaxis", smoothX);
-            animator.SetFloat("Yaxis", smoothY);
+                animator.SetFloat("Xaxis", smoothX);
+                animator.SetFloat("Yaxis", smoothY);
+            }
+            if (isRunning)
+            {
+                if (isMoving)
+                {
+                    float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
+                    float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
+                    transform.eulerAngles = Vector3.up * newRotation;
+                }
+
+                targetSpeed = moveSpeed * inputDir.magnitude;
+                currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
+                transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
+            }
         }
         else
         {
