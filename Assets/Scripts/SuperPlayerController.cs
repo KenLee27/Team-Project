@@ -255,7 +255,6 @@ public class SuperPlayerController : MonoBehaviour
 
     void Update()
     {
-
         if (!isGround)
         {
             timeSinceLastDive = 0;
@@ -494,7 +493,7 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //앉기
-        if (!isMoving)
+        if (!isMoving || cameraController.IsLockedOn)
         {
             keyHoldTime = 0.0f;
             
@@ -541,6 +540,25 @@ public class SuperPlayerController : MonoBehaviour
             isRunning = false;
         }
 
+        if( isRunning && cameraController.IsLockedOn)
+        {
+            // 키를 놓았을 경우 달리기 멈추기
+            animator.SetBool("isRunning", false);
+            isRunning = false;
+        }
+
+        if ( isRunning )
+        {
+            timeSinceLastDive = 0;
+            PlayerStamina -= 5f * Time.deltaTime;
+            if(PlayerStamina <= 0 )
+            {
+                PlayerStamina = 0f;
+                animator.SetBool("isRunning", false);
+                isRunning = false;
+            }
+        }
+
         /*
         if (isRunning &&!IsCurrentAnimation("Run"))
         {
@@ -549,6 +567,7 @@ public class SuperPlayerController : MonoBehaviour
         }*/
         HideWeapon();
     }
+
 
     bool IsCurrentAnimation(string animationName)
     {
@@ -886,38 +905,24 @@ public class SuperPlayerController : MonoBehaviour
         {
             animator.SetBool("isLockOn", true);
 
-            if(!isRunning)
-            {
-                Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
-                float targetRotation = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
-                float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
-                transform.eulerAngles = Vector3.up * newRotation;
+            Vector3 toTarget = (cameraController.LockedTarget.position - transform.position).normalized;
+            float targetRotation = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
+            float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
+            transform.eulerAngles = Vector3.up * newRotation;
 
-                Vector3 moveDir = transform.forward * inputDir.y + transform.right * inputDir.x;
-                targetSpeed = moveSpeed * moveDir.magnitude;
-                currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
-                transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
+            Vector3 moveDir = transform.forward * inputDir.y + transform.right * inputDir.x;
+            targetSpeed = moveSpeed * moveDir.magnitude;
+            currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
+            transform.Translate(moveDir.normalized * currentSpeed * Time.deltaTime, Space.World);
 
-                Vector3 localMoveDir = transform.InverseTransformDirection(moveDir);
-                float smoothX = Mathf.SmoothDamp(animator.GetFloat("Xaxis"), localMoveDir.x, ref velocity.x, 0.1f);
-                float smoothY = Mathf.SmoothDamp(animator.GetFloat("Yaxis"), localMoveDir.z, ref velocity.y, 0.1f);
+            Vector3 localMoveDir = transform.InverseTransformDirection(moveDir);
+            float smoothX = Mathf.SmoothDamp(animator.GetFloat("Xaxis"), localMoveDir.x, ref velocity.x, 0.1f);
+            float smoothY = Mathf.SmoothDamp(animator.GetFloat("Yaxis"), localMoveDir.z, ref velocity.y, 0.1f);
 
-                animator.SetFloat("Xaxis", smoothX);
-                animator.SetFloat("Yaxis", smoothY);
-            }
-            if (isRunning)
-            {
-                if (isMoving)
-                {
-                    float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
-                    float newRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, smoothRotationTime);
-                    transform.eulerAngles = Vector3.up * newRotation;
-                }
+            animator.SetFloat("Xaxis", smoothX);
+            animator.SetFloat("Yaxis", smoothY);
 
-                targetSpeed = moveSpeed * inputDir.magnitude;
-                currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, smoothMoveTime);
-                transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
-            }
+
         }
         else
         {
@@ -1333,6 +1338,17 @@ public class SuperPlayerController : MonoBehaviour
     public void CanMove()
     {
         currentState = State.IDLE;
+    }
+
+    public void StartCanMove()
+    {
+        isinvincibility = false;
+        currentState = State.IDLE;
+    }
+    public void StartCantMove()
+    {
+        isinvincibility = true;
+        currentState = State.SAVE;
     }
 
 
