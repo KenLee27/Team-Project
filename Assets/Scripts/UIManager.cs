@@ -32,8 +32,18 @@ public class UIManager : MonoBehaviour
     private Vector3 cal_b = new Vector3(-38.515f, 9.509007f, 44.15f);     //다른 세이브 포인트 위치 변경시 같이 변경.
     private Vector3 outer = new Vector3(43.73f, 4.548f, 20.12f);     //다른 세이브 포인트 위치 변경시 같이 변경.
 
+
     private void Start()
     {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // 싱글톤 인스턴스 설정
+        _instance = this;
+
         AccessController();
         InitializeButtonClickEvents();
         SetInitialUIState();
@@ -115,6 +125,7 @@ public class UIManager : MonoBehaviour
             Button[] statusButtons = teleportburn.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
             foreach (Button button in statusButtons)
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(teleportBurn); // ShowStatusUI 메서드 연결
             }
         }
@@ -128,6 +139,7 @@ public class UIManager : MonoBehaviour
             Button[] statusButtons = teleportcal_b.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
             foreach (Button button in statusButtons)
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(teleportCal_b); // ShowStatusUI 메서드 연결
             }
         }
@@ -141,6 +153,7 @@ public class UIManager : MonoBehaviour
             Button[] statusButtons = teleportouter.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
             foreach (Button button in statusButtons)
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(teleportOuter); // ShowStatusUI 메서드 연결
             }
         }
@@ -154,6 +167,7 @@ public class UIManager : MonoBehaviour
             Button[] statusButtons = statusMenuTransform.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
             foreach (Button button in statusButtons)
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(ShowStatusUI); // ShowStatusUI 메서드 연결
             }
         }
@@ -167,7 +181,9 @@ public class UIManager : MonoBehaviour
             Button[] equipmentButtons = equipmentMenuTransform.GetComponentsInChildren<Button>(); // EquipmentMenu의 모든 버튼 가져오기
             foreach (Button button in equipmentButtons)
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(ShowEquipmentUI); // ShowEquipmentUI 메서드 연결
+                Debug.Log($"Button {button.name} 이벤트 등록됨.");
             }
         }
         else
