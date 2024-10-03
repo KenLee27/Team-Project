@@ -611,6 +611,15 @@ public class SuperPlayerController : MonoBehaviour
         {
             animator.Play("rest", 0, 0);
 
+            nowPosion = maxPosion;
+            nowMpPosion = maxMpPosion;
+            PlayerHP = PlayerMaxHP;
+            PlayerMana = PlayerMaxMana;
+            PlayerStamina = PlayerMaxStamina;
+
+            GameManager.Instance.UpdatePlayerHP(PlayerHP);
+            GameManager.Instance.UpdatePlayerMana(PlayerMana);
+
             currentState = State.SAVE;
             StartCoroutine(RestDelay());
         }
@@ -1427,32 +1436,75 @@ public class SuperPlayerController : MonoBehaviour
         PlayerHP = PlayerHP - GetDamage;
         GameManager.Instance.UpdatePlayerHP(PlayerHP);      //데미지 UI표시
 
-        isAttackHit = false;                                //공격판정 취소
+        if(GetDamage < 29)
+        {
+            isAttackHit = false;                                //공격판정 취소
 
-        animator.CrossFade("Hit", 0.1f,0,0);
-        attackPhase = -1;                                   //공격페이즈 초기화
-        s_attackPhase = 0;
+            animator.CrossFade("Hit", 0.1f, 0, 0);
+            attackPhase = -1;                                   //공격페이즈 초기화
+            s_attackPhase = 0;
 
-        StartCoroutine(AttackedMotionDelay());
+            StartCoroutine(AttackedMotionDelay(0.8f,0.7f));
+        }
+
+        else if (other_hit.gameObject.name == "SquakeSkill(Clone)")
+        {
+            isAttackHit = false;                                //공격판정 취소
+
+            animator.CrossFade("Hit_Up", 0.1f, 0, 0);
+            attackPhase = -1;                                   //공격페이즈 초기화
+            s_attackPhase = 0;
+
+            StartCoroutine(AttackedMotionDelay(3.5f, 2f));
+        }
+
+        else
+        {
+            Vector3 hitDirection = other_hit.transform.position - transform.position;
+
+            if (hitDirection.z > 0) // 앞에서 맞은 경우
+            {
+                isAttackHit = false;                                //공격판정 취소
+
+                animator.CrossFade("Hit_F", 0.1f, 0, 0);
+                attackPhase = -1;                                   //공격페이즈 초기화
+                s_attackPhase = 0;
+
+                StartCoroutine(AttackedMotionDelay(3f, 1.4f));
+            }
+            else
+            {
+                isAttackHit = false;                                //공격판정 취소
+
+                animator.CrossFade("Hit_B", 0.1f, 0, 0);
+                attackPhase = -1;                                   //공격페이즈 초기화
+                s_attackPhase = 0;
+
+                StartCoroutine(AttackedMotionDelay(3f, 1.4f));
+            }
+        }
         
     }
 
-    private IEnumerator AttackedMotionDelay()
+    private IEnumerator AttackedMotionDelay(float stunTime, float stunTime_)
     {
         isAttacked = false;
         float attackAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
         float startTime = Time.time;
+        bool firstcheck = false;
 
         animator.SetBool("isAttacked", isAttacked);
-        while (Time.time < startTime + 0.8f)
+        while (Time.time < startTime + stunTime)
         {
-            if (isAttacked)
+            currentSpeed = 0f;
+
+            if (isAttacked || currentState == State.DIVE || currentState ==  State.ATTACK || currentState == State.JUMP)
             {
                 yield break;
             }
             isAttackHit = false;
             //피격 못움직임
-            if (Time.time <= startTime + 0.7f)
+            if (Time.time <= startTime + stunTime_)
             {
                 isinvincibility = true;
                 currentState = State.HIT;
@@ -1463,21 +1515,29 @@ public class SuperPlayerController : MonoBehaviour
             }
             else
             {
-                isinvincibility = false;
+                if(!firstcheck)
+                {
+                    firstcheck = true;
+
+                    isinvincibility = false;
+                    currentState = State.IDLE;
+
+                    canAttack = true;
+                    canDive = true;
+                }
             }
             
             yield return null;
         }
         
-        canDive = true;
+        
         isGround = true;
-        canAttack = true;
         canCrouched = true;
 
 
         animator.SetBool("isCrouching", !isStand);
 
-        currentState = State.IDLE;
+        
     }
 
 }

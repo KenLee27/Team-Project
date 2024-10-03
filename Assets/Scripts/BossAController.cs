@@ -303,7 +303,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 }
 
                 // 확률 패턴
-                else if (randomValue <= 4.5f)
+                /*else if (randomValue <= 4.5f)
                 {
                     ChangeState(State.SCRATCH); //근접 긁기 기술
                     yield break;  // 코루틴 종료
@@ -313,7 +313,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 {
                     ChangeState(State.QUAKE); //근접 바닥 찍기 기술
                     yield break;  // 코루틴 종료
-                }
+                }*/
 
                 else
                 {
@@ -1145,7 +1145,7 @@ public class BossAController : MonoBehaviour, Ienemy
                     yield break;  // 코루틴 종료
                 }
 
-                else if (randomValue <= 4.5f)
+                /*else if (randomValue <= 4.5f)
                 {
                     ChangeState(State.SCRATCH); //근접 긁기 기술
                     yield break;  // 코루틴 종료
@@ -1155,7 +1155,7 @@ public class BossAController : MonoBehaviour, Ienemy
                 {
                     ChangeState(State.QUAKE); //근접 바닥 찍기 기술
                     yield break;  // 코루틴 종료
-                }
+                }*/
 
                 else
                 {

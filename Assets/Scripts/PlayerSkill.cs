@@ -22,8 +22,12 @@ public class PlayerSkill : MonoBehaviour
     void Update()
     {
         // 스킬 이동 처리
-        transform.position += direction * speed * Time.deltaTime;
-
+        transform.position = new Vector3
+        (
+            transform.position.x + direction.x * speed * Time.deltaTime,
+            transform.position.y,  // Y값 유지
+            transform.position.z + direction.z * speed * Time.deltaTime
+        );
         // 일정 거리 이동 후 스킬 파괴
         if (Vector3.Distance(startPosition, transform.position) >= maxDistance)
         {

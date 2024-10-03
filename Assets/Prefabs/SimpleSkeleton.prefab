@@ -30,7 +30,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5491747745054819486}
-  - {fileID: 3142090949361508025}
   m_Father: {fileID: 4467742889897125808}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &289792445807367383
@@ -228,6 +227,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4467742889897125808}
+  - {fileID: 3142090949361508025}
   m_Father: {fileID: 4422505827259238258}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &853130717252614754
@@ -1314,12 +1314,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5539071966372834174}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.002, y: 0.002, z: 0.002}
+  m_LocalRotation: {x: 0.74931765, y: -0, z: -0, w: 0.6622107}
+  m_LocalPosition: {x: 0, y: 0.00106, z: 0.0023}
+  m_LocalScale: {x: 0.0019999999, y: 0.0020000003, z: 0.0019999999}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3328701362739035089}
+  m_Father: {fileID: 1706769403534194282}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1273046808934137283
 MeshFilter:
@@ -1745,8 +1745,10 @@ MonoBehaviour:
   isHit: 0
   isinvincibility: 0
   isAttack: 0
+  isDead: 0
   bowattackRange: {fileID: 713624188087688642}
   kickattackRange: {fileID: 3044127648696190131}
+  enemySoul: 50
 --- !u!114 &5313498177567091544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1761,6 +1763,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SkillPrefab: {fileID: 7282497740812479162, guid: 5aa318fef42714e49991cdb0fdc45134,
     type: 3}
+  smallSkillPrefab: {fileID: 0}
+  quakeSkillPrefab: {fileID: 0}
+  S_quakeSkillPrefab: {fileID: 0}
+  Scratch_skill: {fileID: 0}
   enemy: {fileID: 713624188087688642}
   Player: {fileID: 0}
   skillSpeed: 20
