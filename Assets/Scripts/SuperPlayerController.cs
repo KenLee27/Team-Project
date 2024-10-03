@@ -50,6 +50,18 @@ public class SuperPlayerController : MonoBehaviour
     public float PlayerMana = 0f; // 현재 마나
     public float PlayerMaxMana = 100f; // 최대 마나
     public float playerSoul = 0f;
+    public float totalHPRecovery = 40f; // 총 회복할 체력
+    private float recoveryPerSecond;
+
+
+    public float totalManaRecovery = 40f; // 총 회복할 체력
+    private float recoveryManaPerSecond;
+
+    public float nowPosion = 0;
+    public float maxPosion = 2f;
+
+    public float nowMpPosion = 0;
+    public float maxMpPosion = 2f;
 
     public InPutBuffer inputBuffer;
 
@@ -82,7 +94,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private float keyHoldTime = 0.0f;  // LeftControl 키가 눌린 시간을 측정할 변수
     public float crouchHoldThreshold = 1.0f;  // 달리기와 웅크리기의 기준 시간 (1초)
-
+    public Transform myHand;
 
     private enum State
     {
@@ -93,6 +105,7 @@ public class SuperPlayerController : MonoBehaviour
         DIVE,
         HIT,
         DIE,
+        DRINK,
         SAVE
     }
 
@@ -105,6 +118,7 @@ public class SuperPlayerController : MonoBehaviour
     public bool canAttack = true; // 공격 가능 여부
     public bool canDive = true;
     public bool canCrouched = true;
+    public bool CanDrink = true;
 
     private float attackDelay = 1f; // 각 공격 사이의 딜레이
 
@@ -124,6 +138,8 @@ public class SuperPlayerController : MonoBehaviour
         PlayerMana = PlayerMaxMana;
         PlayerHP = PlayerMaxHP;
         PlayerStamina = PlayerMaxStamina;
+        nowPosion = maxPosion;
+        nowMpPosion = maxMpPosion;
 
         GameManager.Instance.UpdatePlayerHP(PlayerHP);
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
@@ -132,13 +148,115 @@ public class SuperPlayerController : MonoBehaviour
         isAttackHit = false;
         timeSinceLastDive = StaminaRegenTime;
 
+        recoveryPerSecond = totalHPRecovery / 1.7f;
+        recoveryManaPerSecond = totalManaRecovery / 1.7f;
+
         StandUpTime();
     }
+    private void HandleEmptyDrink()
+    {
+        animator.Play("No_Item_Drink", 0, 0);
+        CanDrink = false;
+        canDive = false;
+        canCrouched = false;
+        canAttack = false;
+        StartCoroutine(EmptyDrinkDelay());
+    }
 
+    private IEnumerator EmptyDrinkDelay()
+    {
+        float startTime = Time.time;
+        while (Time.time < startTime + 3.6f)                                //애니메이션 시간
+        {
+            if (currentState == State.HIT)
+            {
+                yield break;
+            }
+            yield return null;
+        }
+        CanDrink = true;
+        canDive = true;
+        canCrouched = true;
+        canAttack = true;
+        currentState = State.IDLE;
+
+        yield return null;
+    }
+
+    private void HandleHPDrink()
+    {
+        animator.Play("Item_Drink", 0, 0);
+        CanDrink = false;
+        canDive = false;
+        canCrouched = false;
+        canAttack = false;
+        StartCoroutine(HPDrinkDelay());
+    }
+
+    private IEnumerator HPDrinkDelay()
+    {
+        float startTime = Time.time;
+        while (Time.time < startTime + 1.7f)                                //애니메이션 시간
+        {
+            if(currentState == State.HIT)
+            {
+                yield break;
+            }
+            
+            PlayerHP += recoveryPerSecond * Time.deltaTime; // 매 프레임마다 체력을 증가시킴
+            PlayerHP = Mathf.Clamp(PlayerHP, 0, PlayerMaxHP); // 체력을 최대값으로 클램프
+
+            GameManager.Instance.UpdatePlayerHP(PlayerHP);
+            yield return null;
+        }
+        CanDrink = true;
+        canDive = true;
+        canCrouched = true;
+        canAttack = true;
+        currentState = State.IDLE;
+
+        yield return null;
+    }
+
+    private void HandleMPDrink()
+    {
+        animator.Play("Item_Drink", 0, 0);
+        CanDrink = false;
+        canDive = false;
+        canCrouched = false;
+        canAttack = false;
+        StartCoroutine(MPDrinkDelay());
+    }
+
+    private IEnumerator MPDrinkDelay()
+    {
+        float startTime = Time.time;
+        while (Time.time < startTime + 1.7f)                                //애니메이션 시간
+        {
+            if (currentState == State.HIT)
+            {
+                yield break;
+            }
+
+            PlayerMana += recoveryManaPerSecond * Time.deltaTime; // 매 프레임마다 체력을 증가시킴
+            PlayerMana = Mathf.Clamp(PlayerMana, 0, PlayerMaxMana); // 체력을 최대값으로 클램프
+
+            GameManager.Instance.UpdatePlayerMana(PlayerMana);
+            yield return null;
+        }
+        CanDrink = true;
+        canDive = true;
+        canCrouched = true;
+        canAttack = true;
+        currentState = State.IDLE;
+
+        yield return null;
+    }
 
     void Update()
     {
-        if(!isGround)
+
+        if (!isGround)
         {
             timeSinceLastDive = 0;
         }
@@ -150,6 +268,42 @@ public class SuperPlayerController : MonoBehaviour
         {
             PlayerPrefs.DeleteAll(); // 모든 PlayerPrefs 데이터 삭제
             PlayerPrefs.Save(); // 즉시 저장
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1) && CanDrink && (currentState == State.IDLE || currentState == State.MOVE) && isStand)                                //F키 입력시 게임매니저 SavePosition을 실행
+        {
+            if(nowPosion <= 0)
+            {
+                currentState = State.DRINK;
+
+                HandleEmptyDrink();
+            }
+            else
+            {
+                nowPosion -= 1;
+
+                currentState = State.DRINK;
+
+                HandleHPDrink();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2) && CanDrink && (currentState == State.IDLE || currentState == State.MOVE) && isStand)                                //F키 입력시 게임매니저 SavePosition을 실행
+        {
+            if (nowMpPosion <= 0)
+            {
+                currentState = State.DRINK;
+
+                HandleEmptyDrink();
+            }
+            else
+            {
+                nowMpPosion -= 1;
+
+                currentState = State.DRINK;
+
+                HandleMPDrink();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.F) && CanSave && (currentState == State.IDLE || currentState == State.MOVE))                                //F키 입력시 게임매니저 SavePosition을 실행
@@ -240,7 +394,7 @@ public class SuperPlayerController : MonoBehaviour
         HandleState();
 
         //점프 컨트롤러
-        if (Input.GetButtonDown("Jump") && isGround &&!isAttacking&&!isDive&& currentState != State.HIT)
+        if (Input.GetButtonDown("Jump") && isGround &&!isAttacking&&!isDive&& currentState != State.HIT && currentState != State.DRINK)
         {
             currentState = State.JUMP;
         }
@@ -336,6 +490,7 @@ public class SuperPlayerController : MonoBehaviour
                     }
                 }
             }
+
         }
 
         //앉기
@@ -385,13 +540,14 @@ public class SuperPlayerController : MonoBehaviour
             animator.SetBool("isRunning", false);
             isRunning = false;
         }
-        
+
         /*
         if (isRunning &&!IsCurrentAnimation("Run"))
         {
             animator.SetBool("isRunning", false);  // 애니메이터의 isRunning을 false로 설정
             isRunning = false;  // 달리기 상태도 false로 초기화
         }*/
+        HideWeapon();
     }
 
     bool IsCurrentAnimation(string animationName)
@@ -664,9 +820,11 @@ public class SuperPlayerController : MonoBehaviour
         {
             case State.IDLE:
                 HandleMove();
+                CanDrink = true;
                 break;
             case State.MOVE:
                 HandleMove();
+                CanDrink = true;
                 break;
             case State.JUMP:
                 HandleJump();
@@ -689,6 +847,23 @@ public class SuperPlayerController : MonoBehaviour
                 currentSpeed = 0;
                 isMoving = false;
                 break;
+            case State.DRINK:
+                currentSpeed = 0;
+                isMoving = false;
+                break;
+        }
+    }
+
+    private void HideWeapon()
+    {
+        Transform nowWeapon = myHand.transform.Find(currentWeapon + "_Instance");
+        if (currentState == State.DRINK)
+        {
+            nowWeapon.gameObject.SetActive(false);
+        }
+        else
+        {
+            nowWeapon.gameObject.SetActive(true);
         }
     }
 
@@ -784,7 +959,7 @@ public class SuperPlayerController : MonoBehaviour
             return;
         }
 
-        if (isGround && PlayerStamina > 10f)
+        if (isGround && PlayerStamina > 10f && currentState != State.DRINK)
         {
             PlayerStamina -= 10f;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -1195,7 +1370,6 @@ public class SuperPlayerController : MonoBehaviour
     private Collider collider;
     void OnTriggerEnter(Collider other)
     {
-        collider = other;   
         if (other.CompareTag("EnemyAttack") && !isinvincibility)
         {
             isinvincibility = true;                    //피격 무적 활성화
@@ -1210,6 +1384,7 @@ public class SuperPlayerController : MonoBehaviour
 
         if (other.CompareTag("SavePoint")) // 플레이어와의 충돌 여부 확인
         {
+            collider = other;
             CanSave = true;
         }
 
@@ -1234,7 +1409,7 @@ public class SuperPlayerController : MonoBehaviour
         float GetDamage = enemy.Damage;                     //데미지 계산
 
         PlayerHP = PlayerHP - GetDamage;
-        GameManager.Instance.UpdatePlayerHP(PlayerHP);      //UI 업데이트
+        GameManager.Instance.UpdatePlayerHP(PlayerHP);      //데미지 UI표시
 
         isAttackHit = false;                                //공격판정 취소
 
