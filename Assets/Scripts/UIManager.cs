@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour
     private enum UIState { Game, Menu, Status, Equipment, Teleport }
     private UIState currentState = UIState.Game;
 
+
     private void Start()
     {
         AccessController();
@@ -34,6 +35,7 @@ public class UIManager : MonoBehaviour
             foreach (Button button in statusButtons)
             {
                 button.onClick.AddListener(ShowStatusUI); // ShowStatusUI 메서드 연결
+
             }
         }
         else
@@ -47,6 +49,7 @@ public class UIManager : MonoBehaviour
             foreach (Button button in equipmentButtons)
             {
                 button.onClick.AddListener(ShowEquipmentUI); // ShowEquipmentUI 메서드 연결
+
             }
         }
         else

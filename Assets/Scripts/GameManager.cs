@@ -9,7 +9,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public SuperPlayerController playerController;
-    public ImgsFillDynamic hpBar;
+    //public ImgsFillDynamic hpBar;
+    public Slider hpBar;  // hpBar를 Slider로 변경
     public Slider stBar;
     public Slider mnBar;
     public Slider loadingBar;
@@ -151,8 +152,11 @@ public class GameManager : MonoBehaviour
         }
 
 
-        hpBar = playerUI.Find("HPprogress")?.GetComponent<ImgsFillDynamic>();
-        if (hpBar == null) Debug.LogWarning("HPprogress not found!");
+        //hpBar = playerUI.Find("HPprogress")?.GetComponent<ImgsFillDynamic>();
+        //if (hpBar == null) Debug.LogWarning("HPprogress not found!");
+
+        hpBar = playerUI.Find("HPprogress")?.GetComponent<Slider>();  // Slider로 변경
+        if (hpBar == null) Debug.LogWarning("HPprogress Slider not found!");
 
         stBar = playerUI.Find("STprogress")?.GetComponent<Slider>();
         if (stBar == null) Debug.LogWarning("STprogress not found!");
@@ -215,7 +219,9 @@ public class GameManager : MonoBehaviour
         if (hpBar != null)
         {
             float hpRatio = currentHP / 100f;
-            hpBar.SetValue(hpRatio);
+           // hpBar.SetValue(hpRatio);
+            hpBar.value = hpRatio;  // Slider value 업데이트
+
         }
         if (currentHP <= 0)
         {
@@ -228,7 +234,9 @@ public class GameManager : MonoBehaviour
         if (playerController != null && hpBar != null)
         {
             float initialHPRatio = playerController.PlayerHP / 100f;
-            hpBar.SetValue(initialHPRatio, true); // 체력을 직접 설정
+            //hpBar.SetValue(initialHPRatio, true); // 체력을 직접 설정
+            hpBar.value = initialHPRatio; // 초기 체력 비율을 Slider에 설정
+
         }
     }
 

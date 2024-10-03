@@ -28,6 +28,9 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
     public GameObject defaultWeaponPrefab; // 기본 고정 무기 프리팹
 
+    public AudioSource audioSource; // 오디오 소스 컴포넌트
+    public AudioClip clickSound; // 클릭할 때 재생할 사운드
+
 
     private void Start()
     {
@@ -61,6 +64,11 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
             string itemName = "칼리오스 병사의 곡검";
             string itemDescription = "칼리오스 병사의 곡검 무기 설명 추가"; // 해당 무기 설명으로 변경
             AddItem(itemName, itemSprite, itemDescription);  // 슬롯에 기본 아이템 추가
+        }
+
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
         }
     }
 
@@ -124,6 +132,17 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
         if (eventData.button == PointerEventData.InputButton.Left)
         {
             Debug.Log("Slot clicked: " + itemName); // 클릭된 슬롯의 아이템 이름 확인
+
+            // 클릭 사운드 재생
+            if (audioSource != null && clickSound != null)
+            {
+                audioSource.PlayOneShot(clickSound); // 사운드 재생
+            }
+            else
+            {
+                Debug.LogWarning("AudioSource or ClickSound is not assigned.");
+            }
+
             OnLeftClick(); // 왼쪽 클릭 시 OnLeftClick 메서드 호출
         }
     }
