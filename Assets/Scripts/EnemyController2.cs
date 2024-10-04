@@ -14,7 +14,19 @@ public class EnemyController2 : MonoBehaviour, Ienemy
 
     public GameObject player_1;
 
+    public void SetPlayerGameObject(GameObject player)
+    {
+        player_1 = player;
+    }
+
     public Transform player; //플레이어 타겟
+
+    public void SetPlayerTransform(Transform player)
+    {
+        this.player = player;
+    }
+
+
     public LayerMask playerLayer;
     public GameObject attackRangeL;
     public GameObject attackRangeR;
@@ -58,7 +70,22 @@ public class EnemyController2 : MonoBehaviour, Ienemy
     private bool isAttacked = false;
     private Slider hpSlider;                     // 몬스터 HP 슬라이더
     private GameObject hpSliderObject;          // 슬라이더 UI 오브젝트
+
+    private bool isSummoned = false; // 몬스터에 의해 소환되었는지 여부
+
     public float enemySoul = 30f;
+
+    public void SetSummoned(bool summoned)
+    {
+        isSummoned = summoned;
+
+        // 만약 소환된 구울이라면 소울 값을 0으로 설정
+        if (isSummoned)
+        {
+            enemySoul = 0f;
+        }
+    }
+
 
     enum State
     {

@@ -8,6 +8,8 @@ public class InventoryManager : MonoBehaviour
     public GameObject falchionPrefab;
     public GameObject daggerPrefab;
     public GameObject hammerPrefab;
+    public GameObject longswordPrefab;
+    public GameObject bloodmolarPrefab;
 
     public Image weaponImage; // 현재 무기 아이콘을 표시할 UI 이미지
     public Image weaponImageLeft; // 이전 무기를 표시할 UI 이미지
@@ -18,6 +20,8 @@ public class InventoryManager : MonoBehaviour
     public Sprite falchionSprite;
     public Sprite daggerSprite;
     public Sprite hammerSprite;
+    public Sprite longswordSprite;
+    public Sprite bloodmolarSprite;
 
     private List<GameObject> weaponPrefabs; // List로 변경하여 유연하게 관리
     private List<Sprite> weaponSprites;
@@ -199,6 +203,14 @@ public class InventoryManager : MonoBehaviour
         {
             weaponName = "Falchion";
         }
+        else if (weaponName == "칼리오스 병사의 대검")
+        {
+            weaponName = "Longsword";
+        }
+        else if (weaponName == "피의 어금니")
+        {
+            weaponName = "bloodmolar";
+        }
 
 
         if (weaponName == "Axe" && !weaponPrefabs.Contains(axePrefab))
@@ -224,6 +236,18 @@ public class InventoryManager : MonoBehaviour
             weaponPrefabs.Add(falchionPrefab); // 처음에는 Falchion만 포함
             weaponSprites.Add(falchionSprite);
             weaponNames.Add("칼리오스 병사의 곡검");
+        }
+        else if (weaponName == "Longsword" && !weaponPrefabs.Contains(longswordPrefab))
+        {
+            weaponPrefabs.Add(longswordPrefab); // 처음에는 Falchion만 포함
+            weaponSprites.Add(longswordSprite);
+            weaponNames.Add("칼리오스 병사의 대검");
+        }
+        else if (weaponName == "bloodmolar" && !weaponPrefabs.Contains(bloodmolarPrefab))
+        {
+            weaponPrefabs.Add(bloodmolarPrefab); // 처음에는 Falchion만 포함
+            weaponSprites.Add(bloodmolarSprite);
+            weaponNames.Add("피의 어금니");
         }
 
         SaveInventory();

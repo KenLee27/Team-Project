@@ -22,11 +22,15 @@ public class EquipmentManager : MonoBehaviour
         Sprite daggerSprite = Resources.Load<Sprite>("Assets/Images/Dagger");
         Sprite axeRotSprite = Resources.Load<Sprite>("Assets/Images/hammer");
         Sprite falchionSprite = Resources.Load<Sprite>("Assets/Images/Falchion");
+        Sprite longswordSprite = Resources.Load<Sprite>("Assets/Images/Longsword");
+        Sprite bloodmolarSprite = Resources.Load<Sprite>("Assets/Images/bloodmolar");
 
         itemDatabase.Add("Axe_Exe", new ItemData("옛 왕의 수호자", "옛 왕의 수호자 무기 설명 추가", axeSprite));
         itemDatabase.Add("Dagger_Red", new ItemData("그림자 단검", "그림자 단검 무기 설명 추가", daggerSprite));
         itemDatabase.Add("Axe_Rot", new ItemData("파괴자", "파괴자 무기 설명 추가", axeRotSprite));
         itemDatabase.Add("Falchion", new ItemData("칼리오스 병사의 곡검", "칼리오스 병사의 곡검 무기 설명 추가", falchionSprite));
+        itemDatabase.Add("Longsword_Elite", new ItemData("칼리오스 병사의 대검", "칼리오스 병사의 대검 무기 설명 추가", longswordSprite));
+        itemDatabase.Add("Longsword_Blood", new ItemData("피의 어금니", "칼리오스 병사의 대검 무기 설명 추가", bloodmolarSprite));
 
         LoadItems(); // 아이템 로드
 

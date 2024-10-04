@@ -64,6 +64,8 @@ public class BossBController : MonoBehaviour, Ienemy
 
     Vector3 initialPoint; //적 배치 위치 변수 선언
 
+    public Transform castleDoor;
+
     enum State
     {
         IDLE, //기본
@@ -89,6 +91,12 @@ public class BossBController : MonoBehaviour, Ienemy
     void Awake()
     {
         playerLayer = LayerMask.GetMask("Player");
+
+        if (PlayerPrefs.GetInt("Kamon", 0) == 1)
+        {
+            castleDoor.gameObject.SetActive(false);
+            Destroy(gameObject);
+        }
     }
 
     void Start()
@@ -270,6 +278,8 @@ public class BossBController : MonoBehaviour, Ienemy
         }
 
         GameManager.Instance.UpdatePlayerSOUL(enemySoul);
+        PlayerPrefs.SetInt("Kamon", 1);
+        PlayerPrefs.Save();
 
         // 애니메이션이 끝난 후 오브젝트를 제거
         Destroy(gameObject);

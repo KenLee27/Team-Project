@@ -50,16 +50,13 @@ public class SuperPlayerController : MonoBehaviour
     public float PlayerMana = 0f; // 현재 마나
     public float PlayerMaxMana = 100f; // 최대 마나
     public float playerSoul = 0f;
+
     public float totalHPRecovery = 40f; // 총 회복할 체력
     private float recoveryPerSecond;
-
-
     public float totalManaRecovery = 40f; // 총 회복할 체력
     private float recoveryManaPerSecond;
-
     public float nowPosion = 0;
     public float maxPosion = 2f;
-
     public float nowMpPosion = 0;
     public float maxMpPosion = 2f;
 
@@ -96,6 +93,7 @@ public class SuperPlayerController : MonoBehaviour
     public float crouchHoldThreshold = 1.0f;  // 달리기와 웅크리기의 기준 시간 (1초)
     public Transform myHand;
 
+
     private enum State
     {
         IDLE,
@@ -121,10 +119,60 @@ public class SuperPlayerController : MonoBehaviour
     public bool CanDrink = true;
 
     private float attackDelay = 1f; // 각 공격 사이의 딜레이
+    private SkinnedMeshRenderer[] skinnedMeshRenderers;
+
+    public void SetTransparency(float alpha)
+    {
+        foreach (var renderer in skinnedMeshRenderers)
+        {
+            foreach (var material in renderer.materials // 각 Skinned Mesh의 모든 Material을 순회
+            )
+            {
+                // URP/Lit인지 확인
+                if (alpha <= 0f)
+                {
+                    // Surface Type을 Transparent로 변경
+                    material.SetFloat("_Surface", 1.0f);
+                }
+                else
+                {
+                    // Surface Type을 Opaque로 변경
+                    material.SetFloat("_Surface", 0f);
+                }
+
+                // 알파 값 변경
+                Color color = material.color;
+                color.a = alpha; // 원하는 알파 값으로 설정
+                material.color = color;
+
+                // 블렌딩 모드 설정
+                if (alpha < 1f) // 투명한 경우
+                {
+                    material.SetFloat("_Blend", 0.0f); // 0 = Alpha
+                    material.SetInt("_ZWrite", 0); // 투명 재질에 대해 ZWrite 비활성화
+                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                    material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                    material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent; // 투명 큐 설정
+                }
+                else // 불투명한 경우
+                {
+                    material.SetFloat("_Blend", 1.0f); // 블렌딩을 불투명으로 설정
+                    material.SetInt("_ZWrite", 1); // 불투명 재질에 대해 ZWrite 활성화
+                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                    material.EnableKeyword("_SURFACE_TYPE_OPAQUE");
+                    material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry; // 불투명 큐 설정 (2000)
+                }
+            }
+        }
+    }
 
 
     void Start()
     {
+        skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+
         transform.position = GameManager.Instance.LoadPosition();        //게임매니저에 저장된 스폰 위치로 부활
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
@@ -147,12 +195,12 @@ public class SuperPlayerController : MonoBehaviour
         
         isAttackHit = false;
         timeSinceLastDive = StaminaRegenTime;
-
         recoveryPerSecond = totalHPRecovery / 1.7f;
         recoveryManaPerSecond = totalManaRecovery / 1.7f;
 
         StandUpTime();
     }
+
     private void HandleEmptyDrink()
     {
         animator.Play("No_Item_Drink", 0, 0);
@@ -198,11 +246,11 @@ public class SuperPlayerController : MonoBehaviour
         float startTime = Time.time;
         while (Time.time < startTime + 1.7f)                                //애니메이션 시간
         {
-            if(currentState == State.HIT)
+            if (currentState == State.HIT)
             {
                 yield break;
             }
-            
+
             PlayerHP += recoveryPerSecond * Time.deltaTime; // 매 프레임마다 체력을 증가시킴
             PlayerHP = Mathf.Clamp(PlayerHP, 0, PlayerMaxHP); // 체력을 최대값으로 클램프
 
@@ -255,7 +303,7 @@ public class SuperPlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!isGround)
+        if(!isGround)
         {
             timeSinceLastDive = 0;
         }
@@ -271,7 +319,7 @@ public class SuperPlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1) && CanDrink && (currentState == State.IDLE || currentState == State.MOVE) && isStand)                                //F키 입력시 게임매니저 SavePosition을 실행
         {
-            if(nowPosion <= 0)
+            if (nowPosion <= 0)
             {
                 currentState = State.DRINK;
 
@@ -329,7 +377,7 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //무기 스위칭 확인
-        if (currentWeaponName == "Falchion")
+        if (currentWeaponName == "Falchion" || currentWeaponName == "Longsword")
         {
             animator.SetFloat("Blend", 0f);
         }
@@ -393,7 +441,7 @@ public class SuperPlayerController : MonoBehaviour
         HandleState();
 
         //점프 컨트롤러
-        if (Input.GetButtonDown("Jump") && isGround &&!isAttacking&&!isDive&& currentState != State.HIT && currentState != State.DRINK)
+        if (Input.GetButtonDown("Jump") && isGround && !isAttacking && !isDive && currentState != State.HIT && currentState != State.DRINK)
         {
             currentState = State.JUMP;
         }
@@ -489,14 +537,13 @@ public class SuperPlayerController : MonoBehaviour
                     }
                 }
             }
-
         }
 
         //앉기
         if (!isMoving || cameraController.IsLockedOn)
         {
             keyHoldTime = 0.0f;
-            
+
         }
 
         // LeftControl 키가 눌렸을 때 시간 증가
@@ -540,18 +587,18 @@ public class SuperPlayerController : MonoBehaviour
             isRunning = false;
         }
 
-        if( isRunning && cameraController.IsLockedOn)
+        if (isRunning && cameraController.IsLockedOn)
         {
             // 키를 놓았을 경우 달리기 멈추기
             animator.SetBool("isRunning", false);
             isRunning = false;
         }
 
-        if ( isRunning )
+        if (isRunning)
         {
             timeSinceLastDive = 0;
             PlayerStamina -= 5f * Time.deltaTime;
-            if(PlayerStamina <= 0 )
+            if (PlayerStamina <= 0)
             {
                 PlayerStamina = 0f;
                 animator.SetBool("isRunning", false);
@@ -567,7 +614,6 @@ public class SuperPlayerController : MonoBehaviour
         }*/
         HideWeapon();
     }
-
 
     bool IsCurrentAnimation(string animationName)
     {
@@ -898,7 +944,7 @@ public class SuperPlayerController : MonoBehaviour
     private void HandleMove()
     {
         //움직이지 못하는 상태 구현
-        if (currentState == State.SAVE ||currentState == State.DIVE || currentState ==State.ATTACK || currentState == State.HIT || currentState == State.DIE)
+        if (currentState == State.SAVE || currentState == State.DIVE || currentState == State.ATTACK || currentState == State.HIT || currentState == State.DIE)
         {
             return;
         }
@@ -950,7 +996,7 @@ public class SuperPlayerController : MonoBehaviour
             animator.SetBool("isLockOn", false);
         }
 
-        
+
 
         if (!isMoving && currentState == State.MOVE)
         {
@@ -964,7 +1010,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if(!isStand)
+        if (!isStand)
         {
             isStand = true;
             animator.SetBool("isCrouching", !isStand);
@@ -981,7 +1027,7 @@ public class SuperPlayerController : MonoBehaviour
             animator.SetBool("isJumping", !isGround);
             animator.CrossFade("Jump", 0.1f, 0, 0);
         }
-        
+
     }
 
 
@@ -1003,6 +1049,12 @@ public class SuperPlayerController : MonoBehaviour
                     PlayerDamage = (PlayerAtk / 3) * 5;
                     break;
                 }
+                else if(currentWeaponName == "Longsword")
+                {
+                    animator.CrossFade(currentWeaponName + "Attack_0", 0.1f);
+                    PlayerDamage = (PlayerAtk / 3) * 4;
+                    break;
+                }
                 else
                 {
                     attackPhase++;
@@ -1022,6 +1074,11 @@ public class SuperPlayerController : MonoBehaviour
                 {
                     PlayerDamage = PlayerAtk;
                 }
+                else if (currentWeaponName == "Longsword")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 4;
+                }
+
                 break;
             case 2:
                 animator.CrossFade(currentWeaponName + "Attack_2", 0.1f);
@@ -1037,6 +1094,11 @@ public class SuperPlayerController : MonoBehaviour
                 {
                     PlayerDamage = (PlayerAtk / 3) * 4;
                 }
+                else if (currentWeaponName == "Longsword")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 6;
+                }
+
                 break;
             case 3:
                 animator.CrossFade(currentWeaponName + "Attack_3", 0.1f);
@@ -1052,6 +1114,11 @@ public class SuperPlayerController : MonoBehaviour
                 {
                     PlayerDamage = PlayerAtk * 2;
                 }
+                else if (currentWeaponName == "Longsword")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 6;
+                }
+
                 break;
             default:
                 return;
@@ -1103,6 +1170,16 @@ public class SuperPlayerController : MonoBehaviour
                     PlayerDamage = (PlayerAtk / 3) * 3;
                     PlayerMana -= 30; // 1타 마나 소모
                 }
+                else if (currentWeaponSkill == "Elite")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 15;
+                    PlayerMana -= 20; // 1타 마나 소모
+                }
+                else if (currentWeaponSkill == "Blood")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 12;
+                    PlayerMana -= 12; // 1타 마나 소모
+                }
                 GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
                 break;
             case 2:
@@ -1125,6 +1202,11 @@ public class SuperPlayerController : MonoBehaviour
                     PlayerDamage = (PlayerAtk / 3) * 11;
                     PlayerMana -= 15; // 2타 마나 소모
                     Debug.Log(PlayerDamage + " 데미지!");
+                }
+                else if (currentWeaponSkill == "Elite")
+                {
+                    PlayerDamage = (PlayerAtk / 3) * 15;
+                    PlayerMana -= 20; // 1타 마나 소모
                 }
                 GameManager.Instance.UpdatePlayerMana(PlayerMana); // 마나 UI 업데이트
                 break;
@@ -1183,6 +1265,18 @@ public class SuperPlayerController : MonoBehaviour
                 attackDelay = 0.6f;
             }
         }
+        else if (currentWeaponName == "Longsword")
+        {
+            if (attackPhase == 3)
+            {
+                attackDelay = 1.8f;
+            }
+            else
+            {
+                attackDelay = 1f;
+            }
+        }
+
         float startTime = Time.time;
         while (Time.time < startTime + attackDelay)     //공격(콤보 딜레이)
         {
@@ -1234,13 +1328,41 @@ public class SuperPlayerController : MonoBehaviour
         {
             attackDelay = 3.1f;
         }
+        else if (currentWeaponSkill == "Elite")
+        {
+            attackDelay = 1.9f;
+        }
+        else if (currentWeaponSkill == "Blood")
+        {
+            attackDelay = 2.4f;
+        }
         float startTime = Time.time;
         while (Time.time < startTime + attackDelay)     //공격(콤보 딜레이)
         {
-            if(currentWeaponSkill == "Rot")
+            if (currentWeaponSkill == "Rot")
             {
                 transform.Translate(Vector3.forward * 2f * Time.deltaTime);
             }
+
+            bool firstcheck = false;
+            if (currentWeaponSkill == "Elite" && s_attackPhase == 2 && Time.time < startTime + 0.333f)
+            {
+                Transform Weapon_ = myHand.transform.Find(currentWeapon + "_Instance");
+
+                SetTransparency(0f);
+                transform.Translate(Vector3.forward * 9f * Time.deltaTime);
+                Weapon_.gameObject.SetActive(false);
+                isinvincibility = true;
+            }
+            else if(!firstcheck && s_attackPhase == 2)
+            {
+                firstcheck = true;
+                Transform Weapon_ = myHand.transform.Find(currentWeapon + "_Instance");
+                SetTransparency(1f);
+                Weapon_.gameObject.SetActive(true);
+                isinvincibility = false;
+            }
+
             if (currentState == State.HIT)
             {
                 yield break;                            //맞을 경우 코루틴 종료
@@ -1275,6 +1397,10 @@ public class SuperPlayerController : MonoBehaviour
         else if (currentWeaponName == "Dagger")
         {
             resetPhaseDelay = 0.9f;
+        }
+        else if (currentWeaponName == "Longsword")
+        {
+            resetPhaseDelay = 1.4f;
         }
         float startTime = Time.time;
         while (Time.time < startTime + resetPhaseDelay)     //공격(콤보 딜레이)
@@ -1314,6 +1440,14 @@ public class SuperPlayerController : MonoBehaviour
         {
             resetPhaseDelay = 1.7f;
         }
+        else if (currentWeaponSkill == "Elite")
+        {
+            resetPhaseDelay = 2.4f;
+        }
+        else if (currentWeaponSkill == "Blood")
+        {
+            resetPhaseDelay = 1f;
+        }
         float startTime = Time.time;
         while (Time.time < startTime + resetPhaseDelay)     //공격(콤보 딜레이)
         {
@@ -1348,7 +1482,6 @@ public class SuperPlayerController : MonoBehaviour
     {
         currentState = State.IDLE;
     }
-
     public void StartCanMove()
     {
         isinvincibility = false;
@@ -1436,7 +1569,7 @@ public class SuperPlayerController : MonoBehaviour
         PlayerHP = PlayerHP - GetDamage;
         GameManager.Instance.UpdatePlayerHP(PlayerHP);      //데미지 UI표시
 
-        if(GetDamage < 29)
+        if (GetDamage < 29)
         {
             isAttackHit = false;                                //공격판정 취소
 
@@ -1444,7 +1577,7 @@ public class SuperPlayerController : MonoBehaviour
             attackPhase = -1;                                   //공격페이즈 초기화
             s_attackPhase = 0;
 
-            StartCoroutine(AttackedMotionDelay(0.8f,0.7f));
+            StartCoroutine(AttackedMotionDelay(0.8f, 0.7f));
         }
 
         else if (other_hit.gameObject.name == "SquakeSkill(Clone)")
@@ -1483,7 +1616,7 @@ public class SuperPlayerController : MonoBehaviour
                 StartCoroutine(AttackedMotionDelay(3f, 1.4f));
             }
         }
-        
+
     }
 
     private IEnumerator AttackedMotionDelay(float stunTime, float stunTime_)
@@ -1498,7 +1631,7 @@ public class SuperPlayerController : MonoBehaviour
         {
             currentSpeed = 0f;
 
-            if (isAttacked || currentState == State.DIVE || currentState ==  State.ATTACK || currentState == State.JUMP)
+            if (isAttacked || currentState == State.DIVE || currentState == State.ATTACK || currentState == State.JUMP)
             {
                 yield break;
             }
@@ -1515,7 +1648,7 @@ public class SuperPlayerController : MonoBehaviour
             }
             else
             {
-                if(!firstcheck)
+                if (!firstcheck)
                 {
                     firstcheck = true;
 
@@ -1526,18 +1659,17 @@ public class SuperPlayerController : MonoBehaviour
                     canDive = true;
                 }
             }
-            
+
             yield return null;
         }
-        
-        
+
+
         isGround = true;
         canCrouched = true;
 
 
         animator.SetBool("isCrouching", !isStand);
 
-        
-    }
 
+    }
 }

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7548388947304410119}
   - component: {fileID: 3917145575421593905}
   - component: {fileID: 1755814077641104776}
+  - component: {fileID: 2797466164286037357}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -121,7 +122,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentWeapon: 
   currentWeaponName: 
+  currentWeaponSkill: 
   moveSpeed: 4
   jumpForce: 4
   resetPhaseDelay: 1.2
@@ -136,6 +139,13 @@ MonoBehaviour:
   PlayerMana: 0
   PlayerMaxMana: 100
   playerSoul: 0
+  totalHPRecovery: 40
+  totalManaRecovery: 40
+  nowPosion: 0
+  maxPosion: 2
+  nowMpPosion: 0
+  maxMpPosion: 2
+  inputBuffer: {fileID: 2797466164286037357}
   PlayerDamage: 3
   cameraController: {fileID: 0}
   animator: {fileID: 6573751121874269489}
@@ -149,9 +159,12 @@ MonoBehaviour:
   isDie: 0
   isAttackHit: 1
   FirstStaminaCheck: 0
+  crouchHoldThreshold: 1
+  myHand: {fileID: 8256778992711462915}
   canAttack: 1
   canDive: 1
   canCrouched: 1
+  CanDrink: 1
 --- !u!114 &3917145575421593905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,6 +180,8 @@ MonoBehaviour:
   axePrefab: {fileID: 122762, guid: c28382c35eca36b44b4b3f458017bd8d, type: 3}
   falchionPrefab: {fileID: 141144, guid: 3494e1f192f8c5e46a5f22a304382462, type: 3}
   daggerPrefab: {fileID: 103932, guid: 01b164846b2079444ad9c45089717c7d, type: 3}
+  hammerPrefab: {fileID: 6709416680812546503, guid: 6ba31f2e640b6bb4e91990c33c72372b,
+    type: 3}
   weaponImage: {fileID: 0}
   weaponImageLeft: {fileID: 0}
   weaponImageRight: {fileID: 0}
@@ -174,6 +189,7 @@ MonoBehaviour:
   axeSprite: {fileID: 21300000, guid: f02ae1225a7da8f48a327e0b118c5298, type: 3}
   falchionSprite: {fileID: 21300000, guid: 4094e42d04b028e4ea3d6261cd91f090, type: 3}
   daggerSprite: {fileID: 21300000, guid: 4cee88a317906a04ba002da223cc69fd, type: 3}
+  hammerSprite: {fileID: 21300000, guid: 4c760fde35398b74c9f95958d882f6b4, type: 3}
   currentWeapon: {fileID: 141144, guid: 3494e1f192f8c5e46a5f22a304382462, type: 3}
 --- !u!114 &1755814077641104776
 MonoBehaviour:
@@ -192,6 +208,19 @@ MonoBehaviour:
   cameraController: {fileID: 0}
   skillSpeed: 15
   skillRange: 10
+--- !u!114 &2797466164286037357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4798376655655639335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db927fde1f1f0f2418db5bcf16cf9efa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bufferTime: 0.5
 --- !u!1 &8256778992711822337
 GameObject:
   m_ObjectHideFlags: 0

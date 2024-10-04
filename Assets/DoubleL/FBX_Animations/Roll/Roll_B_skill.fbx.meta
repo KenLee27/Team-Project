@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 47cf41fad2f80c948aba2d68cf73715f
+guid: 3d74a40d2cbf30347ab93ea2306dbd82
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Magic_Attack_6
-      takeName: Magic_Attack_6
-      internalID: -3309684297246101623
+      name: Roll_B
+      takeName: Roll_B
+      internalID: -5213303026300864679
       firstFrame: 0
-      lastFrame: 53
+      lastFrame: 40
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -57,26 +57,18 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.5700455
-        functionName: FollowMagicSkill
+      - time: 0.47665396
+        functionName: EndDive
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: f1ed7b64547d43649ab72b2090dd9a3b,
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
           type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.20968099
-        functionName: slowSkill
+      - time: 0.9357784
+        functionName: CanMove
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: f1ed7b64547d43649ab72b2090dd9a3b,
-          type: 3}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
-      - time: 0.74225503
-        functionName: fastSkill
-        data: 
-        objectReferenceParameter: {fileID: 11500000, guid: f1ed7b64547d43649ab72b2090dd9a3b,
+        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
           type: 3}
         floatParameter: 0
         intParameter: 0
