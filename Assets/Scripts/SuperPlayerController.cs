@@ -931,12 +931,19 @@ public class SuperPlayerController : MonoBehaviour
     private void HideWeapon()
     {
         Transform nowWeapon = myHand.transform.Find(currentWeapon + "_Instance");
+        if(nowWeapon == null)
+        {
+            return;
+        }
+        bool FirstCheck = true;
         if (currentState == State.DRINK)
         {
             nowWeapon.gameObject.SetActive(false);
+            FirstCheck = true;
         }
-        else
+        else if(FirstCheck == true)
         {
+            FirstCheck = false;
             nowWeapon.gameObject.SetActive(true);
         }
     }
