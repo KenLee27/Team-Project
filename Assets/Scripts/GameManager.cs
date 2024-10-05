@@ -203,6 +203,7 @@ public class GameManager : MonoBehaviour
         BowEnemyController[] bow_monsters = FindObjectsOfType<BowEnemyController>();
         BossAController[] aBoss = FindObjectsOfType<BossAController>();
         BossBController[] bBoss = FindObjectsOfType<BossBController>();
+        EnemySuperAIController[] aiEnemy = FindObjectsOfType<EnemySuperAIController>();
 
         foreach (var monster in monsters)
         {
@@ -227,6 +228,10 @@ public class GameManager : MonoBehaviour
         foreach (var a in bBoss)
         {
             a.InitializeHPBar(bBossHPSliderPrefab);
+        }
+        foreach (var a in aiEnemy)
+        {
+            a.InitializeHPBar(hpSliderPrefab);
         }
     }
 

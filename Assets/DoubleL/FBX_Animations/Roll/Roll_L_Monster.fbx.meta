@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a71ed73ee6f237f4fb22d6b0db072407
+guid: 8a4d8a332d396df43adef17aa0ac5ca8
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: OneHand_Base_Attack_A_6
-      takeName: OneHand_Base_Attack_A_6
-      internalID: -7495147067129419099
-      firstFrame: 10
-      lastFrame: 70
+      name: Roll_L
+      takeName: Roll_L
+      internalID: 7832910806945020623
+      firstFrame: 0
+      lastFrame: 35
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -57,26 +57,18 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.2301287
-        functionName: TriggerAttack
+      - time: 0
+        functionName: TriggerDive
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+        objectReferenceParameter: {fileID: 11500000, guid: a38c18bf6edf89646a22939592e4b40f,
           type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.32799396
-        functionName: EndAttack
+      - time: 0.79388475
+        functionName: EndDive
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
-          type: 3}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
-      - time: 0.9661972
-        functionName: CanMove
-        data: 
-        objectReferenceParameter: {fileID: 11500000, guid: db507014beb2f554d963a6a1c0db3c17,
+        objectReferenceParameter: {fileID: 11500000, guid: a38c18bf6edf89646a22939592e4b40f,
           type: 3}
         floatParameter: 0
         intParameter: 0

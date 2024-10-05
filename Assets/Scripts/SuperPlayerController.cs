@@ -94,7 +94,7 @@ public class SuperPlayerController : MonoBehaviour
     public Transform myHand;
 
 
-    private enum State
+    public enum State
     {
         IDLE,
         MOVE,
@@ -107,7 +107,7 @@ public class SuperPlayerController : MonoBehaviour
         SAVE
     }
 
-    private State currentState = State.IDLE;
+    public State currentState = State.IDLE;
     private Transform cameraTransform; // 카메라 Transform 변수 추가
 
     private int attackPhase = -1;
@@ -1341,7 +1341,7 @@ public class SuperPlayerController : MonoBehaviour
         }
         else if (currentWeaponSkill == "Blood")
         {
-            attackDelay = 2.4f;
+            attackDelay = 2.2f;
         }
         float startTime = Time.time;
         while (Time.time < startTime + attackDelay)     //공격(콤보 딜레이)
