@@ -51,6 +51,7 @@ public class SuperPlayerController : MonoBehaviour
     public float PlayerMaxMana = 100f; // 최대 마나
     public float playerSoul = 0f;
 
+    public InPutBuffer inputBuffer;
 
     private Vector2 velocity = Vector2.zero;
 
@@ -96,7 +97,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private int attackPhase = -1;
     private int s_attackPhase = 0;
-
+    KeyCode bufferedInput;
     public bool canAttack = true; // 공격 가능 여부
     public bool canDive = true;
     public bool canCrouched = true;
@@ -131,6 +132,12 @@ public class SuperPlayerController : MonoBehaviour
 
     void Update()
     {
+        if(!isGround)
+        {
+            timeSinceLastDive = 0;
+        }
+        HandleBuffer();
+
         GameManager.Instance.UpdatePlayerST(PlayerStamina);
 
         if (Input.GetKeyDown(KeyCode.P))                                //P키 입력시 게임진도 초기화 테스트 전용 스크립트
@@ -219,76 +226,124 @@ public class SuperPlayerController : MonoBehaviour
         }
 
         //버튼 클릭 & 공격 컨트롤러
-        if (Input.GetMouseButtonDown(0) && canAttack && (currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE)&&!isDive && isGround)
+        if ((currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE) && !isDive && isGround )
         {
-            HandleAttack();
-            Debug.Log(currentWeaponName + "발동");
+            if (canAttack && inputBuffer.GetBufferedInput(out bufferedInput) && PlayerStamina >= 5f)
+            {
+                if (bufferedInput == KeyCode.Mouse0)
+                {
+                    HandleAttack();
+                    Debug.Log(currentWeaponName + " 발동");
+                }
+                else if (bufferedInput == KeyCode.Mouse1 && PlayerMana >= 10)
+                {
+                    HandleSpecialAttack();
+                    Debug.Log(currentWeaponName + " 발동");
+                }
+
+                if (canDive && cameraController.IsLockedOn && cameraController.LockedTarget != null && PlayerStamina >= 15f)
+                {
+                    if (Input.GetAxisRaw("Horizontal") < 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleDive_left();
+                            Debug.Log("좌로 구른다!");
+                        }
+                    }
+
+                    if (Input.GetAxisRaw("Horizontal") > 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleDive_Right();
+                            Debug.Log("우로 구른다!");
+                        }
+                    }
+
+                    if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") > 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleDive_Forward();
+                            Debug.Log("앞로 구른다!");
+                        }
+                    }
+
+                    if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") < 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleDive_Back();
+                            Debug.Log("뒤로 구른다!");
+                        }
+                    }
+
+                    if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleStep_Back();
+                            Debug.Log("백스탭!");
+                        }
+                    }
+                }
+                else if(canDive && PlayerStamina >= 15f)
+                {
+                    if (Input.GetAxisRaw("Horizontal") != 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleDive_Forward();
+                            Debug.Log("구른다!");
+                        }
+                    }
+                    if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") != 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleDive_Forward();
+                            Debug.Log("구른다!");
+                        }
+                    }
+                    if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0 && !isAttacking && isGround)
+                    {
+                        if (bufferedInput == KeyCode.LeftShift)
+                        {
+                            HandleStep_Back();
+                            Debug.Log("백스탭!");
+                        }
+                    }
+                }
+            }
         }
 
-        if (Input.GetMouseButtonDown(1) && canAttack && (currentState == State.ATTACK || currentState == State.IDLE || currentState == State.MOVE) && !isDive && isGround&&PlayerMana >= 10)
-        {
-            HandleSpecialAttack();
-            Debug.Log(currentWeaponName + "발동");
-        }
         //앉기
         if (canCrouched && Input.GetKeyDown(KeyCode.LeftControl) && isGround && !isAttacking && !isDive)
         {
             HandleCrouched();
         }
 
-        if(canDive)
+        if (canDive)
         {
             //카메라가 락온일때와 아닐때의 구르기 차이
-            if (cameraController.IsLockedOn && cameraController.LockedTarget != null)
-            {
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") < 0 && !isAttacking && isGround)
-                {
-                    HandleDive_left();
-                    Debug.Log("좌로 구른다!");
-                }
+            
+        }
+    }
 
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") > 0 && !isAttacking && isGround)
-                {
-                    HandleDive_Right();
-                    Debug.Log("우로 구른다!");
-                }
-
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") > 0 && !isAttacking && isGround)
-                {
-                    HandleDive_Forward();
-                    Debug.Log("앞로 구른다!");
-                }
-
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") < 0 && !isAttacking && isGround)
-                {
-                    HandleDive_Back();
-                    Debug.Log("뒤로 구른다!");
-                }
-
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0 && !isAttacking && isGround)
-                {
-                    HandleStep_Back();
-                    Debug.Log("백스탭!");
-                }
-            }
-            else
-            {
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !isAttacking && isGround)
-                {
-                    HandleDive_Forward();
-                    Debug.Log("구른다!");
-                }
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") != 0 && !isAttacking && isGround)
-                {
-                    HandleDive_Forward();
-                    Debug.Log("구른다!");
-                }
-                if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0 && !isAttacking && isGround)
-                {
-                    HandleStep_Back();
-                    Debug.Log("백스탭!");
-                }
-            }
+    private void HandleBuffer()
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            inputBuffer.ReplaceBufferedInput(KeyCode.Mouse0);
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            inputBuffer.ReplaceBufferedInput(KeyCode.Mouse1);
+        }
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            inputBuffer.ReplaceBufferedInput(KeyCode.LeftShift);
         }
     }
 
@@ -595,8 +650,9 @@ public class SuperPlayerController : MonoBehaviour
             return;
         }
 
-        if (isGround)
+        if (isGround && PlayerStamina > 10f)
         {
+            PlayerStamina -= 10f;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGround = false;
             animator.SetBool("isJumping", !isGround);
@@ -608,6 +664,7 @@ public class SuperPlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
+        PlayerStamina -= 5f;
         currentState = State.ATTACK;
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
@@ -687,6 +744,7 @@ public class SuperPlayerController : MonoBehaviour
     }
     private void HandleSpecialAttack()
     {
+        PlayerStamina -= 5f;
         currentState = State.ATTACK;
         isAttacking = true;
         canAttack = false; // 공격 가능 플래그를 false로 설정
@@ -898,6 +956,8 @@ public class SuperPlayerController : MonoBehaviour
         float startTime = Time.time;
         while (Time.time < startTime + resetPhaseDelay)     //공격(콤보 딜레이)
         {
+            timeSinceLastDive = 0f;
+
             if (currentState == State.HIT)
             {
                 yield break;                            //맞을 경우 코루틴 종료
@@ -934,6 +994,8 @@ public class SuperPlayerController : MonoBehaviour
         float startTime = Time.time;
         while (Time.time < startTime + resetPhaseDelay)     //공격(콤보 딜레이)
         {
+            timeSinceLastDive = 0f;
+
             if (currentState == State.HIT)
             {
                 yield break;                            //맞을 경우 코루틴 종료

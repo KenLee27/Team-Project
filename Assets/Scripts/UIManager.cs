@@ -8,11 +8,12 @@ public class UIManager : MonoBehaviour
     public GameObject stateUI;
     public GameObject statusUI;
     public GameObject equipmentUI;
+    public GameObject teleportUI;
 
     private SuperPlayerController playerController;
     private EquipmentManager equipmentManager;
 
-    private enum UIState { Game, Menu, Status, Equipment }
+    private enum UIState { Game, Menu, Status, Equipment, Teleport }
     private UIState currentState = UIState.Game;
 
 
@@ -20,6 +21,7 @@ public class UIManager : MonoBehaviour
     {
         AccessController();
         InitializeButtonClickEvents();
+        SetInitialUIState();
     }
 
     public void InitializeButtonClickEvents()
@@ -81,6 +83,10 @@ public class UIManager : MonoBehaviour
         {
             GoBack();
         }
+        else if (Input.GetKeyDown(KeyCode.T))
+        {
+            OpenTeleport();
+        }
     }
 
     public void FindUIElements()
@@ -90,12 +96,14 @@ public class UIManager : MonoBehaviour
         stateUI = GameObject.Find("StateUI");
         statusUI = GameObject.Find("StatusUI");
         equipmentUI = GameObject.Find("EquipmentUI");
+        teleportUI = GameObject.Find("TeleportUI");
 
         if (playerUI == null) Debug.LogWarning("PlayerUI not found!");
         if (weaponUI == null) Debug.LogWarning("WeaponUI not found!");
         if (stateUI == null) Debug.LogWarning("StateUI not found!");
         if (statusUI == null) Debug.LogWarning("StatusUI not found!");
         if (equipmentUI == null) Debug.LogWarning("EquipmentUI not found!");
+        if (teleportUI == null) Debug.LogWarning("TeleportUI not found!");
     }
 
     public void SetInitialUIState()
@@ -105,6 +113,7 @@ public class UIManager : MonoBehaviour
         if (stateUI != null) stateUI.SetActive(false);
         if (statusUI != null) statusUI.SetActive(false);
         if (equipmentUI != null) equipmentUI.SetActive(false);
+        if (teleportUI != null) teleportUI.SetActive(false);
     }
 
     private void ToggleMenu()
@@ -118,8 +127,26 @@ public class UIManager : MonoBehaviour
             case UIState.Menu:
             case UIState.Status:
             case UIState.Equipment:
+            case UIState.Teleport:
                 break;
         }
+    }
+
+    private void OpenTeleport()
+    {
+        currentState = UIState.Teleport;
+
+        if (playerController != null) playerController.canAttack = false;
+
+        if (playerUI != null) playerUI.SetActive(false);
+        if (weaponUI != null) weaponUI.SetActive(false);
+        if (stateUI != null) stateUI.SetActive(false);
+        if (statusUI != null) statusUI.SetActive(false);
+        if (equipmentUI != null) equipmentUI.SetActive(false);
+        if (equipmentUI != null) teleportUI.SetActive(true);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private void OpenMenu() // E버튼 : 메뉴창 활성화, 나머지 전부 비활성화, 마우스 커서 활성화
@@ -131,6 +158,7 @@ public class UIManager : MonoBehaviour
         if (stateUI != null) stateUI.SetActive(true);
         if (statusUI != null) statusUI.SetActive(false);
         if (equipmentUI != null) equipmentUI.SetActive(false);
+        if (equipmentUI != null) teleportUI.SetActive(false);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -173,6 +201,10 @@ public class UIManager : MonoBehaviour
                 currentState = UIState.Menu;
                 OpenMenu();
                 break;
+            case UIState.Teleport:
+                currentState = UIState.Game;
+                CloseMenu();
+                break;
         }
     }
 
@@ -185,6 +217,7 @@ public class UIManager : MonoBehaviour
         if (stateUI != null) stateUI.SetActive(false);
         if (statusUI != null) statusUI.SetActive(false);
         if (equipmentUI != null) equipmentUI.SetActive(false);
+        if (equipmentUI != null) teleportUI.SetActive(false);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
