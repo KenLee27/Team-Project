@@ -732,7 +732,7 @@ public class EnemySuperAIController : MonoBehaviour, Ienemy
             0f, initialPoint.z - transform.position.z);
         distanceToBase = directionToBase.magnitude;
 
-        if (state == State.TAUNT || state == State.STUN || state == State.ATTACK_1 || state == State.CHECK || state == State.ATTACK_2 || state == State.COMBO || state == State.CHASE || state == State.BACKSTEP || state == State.BACKDIVE || state == State.DIVE)
+        if (state == State.TAUNT || state == State.STUN || state == State.ATTACK_1 || state == State.CHECK || state == State.ATTACK_2 || state == State.COMBO || state == State.BACKSTEP || state == State.BACKDIVE || state == State.DIVE)
         {
             LookPlayer(directionToPlayer);
         }
@@ -792,7 +792,7 @@ public class EnemySuperAIController : MonoBehaviour, Ienemy
 
     void LookPlayer(Vector3 direction)      //경계 기능
     {
-
+        nmAgent.SetDestination(transform.position);
         Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
         if (flatDirection != Vector3.zero)
         {
