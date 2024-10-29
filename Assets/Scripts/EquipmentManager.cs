@@ -13,6 +13,9 @@ public class EquipmentManager : MonoBehaviour
     public Dictionary<string, ItemData> itemDatabase = new Dictionary<string, ItemData>();
 
 
+    public AudioSource audioSource; // AudioSource 컴포넌트
+    public AudioClip menuCloseSound; // 메뉴 닫기 효과음
+
     void Start()
     {
         EquipmentMenu.SetActive(false); // 시작 시 메뉴를 비활성화
@@ -52,6 +55,15 @@ public class EquipmentManager : MonoBehaviour
         else
         {
             Time.timeScale = 1; // 메뉴가 비활성화되면 게임 재개
+            PlayMenuCloseSound(); // 메뉴 닫기 효과음 재생
+        }
+    }
+
+    private void PlayMenuCloseSound()
+    {
+        if (menuCloseSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(menuCloseSound);
         }
     }
 

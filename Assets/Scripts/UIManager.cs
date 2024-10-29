@@ -13,6 +13,11 @@ public class UIManager : MonoBehaviour
     private SuperPlayerController playerController;
     private EquipmentManager equipmentManager;
 
+    public AudioClip buttonClickSound; // 버튼 클릭 효과음
+    public AudioClip openMenuSound; // 메뉴 열기 효과음
+    public AudioClip closeMenuSound; // 메뉴 닫기 효과음
+    private AudioSource audioSource;
+
     private enum UIState { Game, Menu, Status, Equipment, Teleport }
     private UIState currentState = UIState.Game;
 
@@ -22,7 +27,16 @@ public class UIManager : MonoBehaviour
         AccessController();
         InitializeButtonClickEvents();
         SetInitialUIState();
+
+    // AudioSource 컴포넌트 가져오기
+    audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
     }
+
 
     public void InitializeButtonClickEvents()
     {
@@ -34,7 +48,9 @@ public class UIManager : MonoBehaviour
             Button[] statusButtons = statusMenuTransform.GetComponentsInChildren<Button>(); // StatusMenu의 모든 버튼 가져오기
             foreach (Button button in statusButtons)
             {
-                button.onClick.AddListener(ShowStatusUI); // ShowStatusUI 메서드 연결
+                //button.onClick.AddListener(ShowStatusUI); // ShowStatusUI 메서드 연결
+                button.onClick.AddListener(() => { ShowStatusUI(); PlayButtonClickSound(); }); // ShowStatusUI 메서드 + 효과음 연결
+
 
             }
         }
@@ -48,13 +64,23 @@ public class UIManager : MonoBehaviour
             Button[] equipmentButtons = equipmentMenuTransform.GetComponentsInChildren<Button>(); // EquipmentMenu의 모든 버튼 가져오기
             foreach (Button button in equipmentButtons)
             {
-                button.onClick.AddListener(ShowEquipmentUI); // ShowEquipmentUI 메서드 연결
+                //button.onClick.AddListener(ShowEquipmentUI); // ShowEquipmentUI 메서드 연결
+                button.onClick.AddListener(() => { ShowEquipmentUI(); PlayButtonClickSound(); }); // ShowEquipmentUI 메서드 + 효과음 연결
+
 
             }
         }
         else
         {
             Debug.LogWarning("EquipmentMenu not found in StateUI!");
+        }
+    }
+
+    private void PlayButtonClickSound()
+    {
+        if (buttonClickSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(buttonClickSound);
         }
     }
 
@@ -162,9 +188,12 @@ public class UIManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-    }
 
-    public void ShowStatusUI() // 스테이터스창 활성화, 메뉴창 비활성화
+        PlaySound(openMenuSound);
+
+}
+
+public void ShowStatusUI() // 스테이터스창 활성화, 메뉴창 비활성화
     {
         Debug.Log("스테이터스 열림");
         stateUI.SetActive(false);
@@ -221,5 +250,17 @@ public class UIManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        PlaySound(closeMenuSound);
+
+    }
+
+    // 사운드 재생 함수 추가
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 }
