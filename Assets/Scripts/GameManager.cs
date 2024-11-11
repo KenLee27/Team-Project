@@ -31,6 +31,9 @@ public class GameManager : MonoBehaviour
 
     public Vector3 spawnPosition;          //플레이어 스폰 위치
 
+    public AudioSource audioSource;  // AudioSource 컴포넌트
+    public AudioClip escapeSound;    // ESC키를 눌렀을 때 재생할 사운드
+
     public void SavePosition(Vector3 position)      //플레이어 스폰 위치 저장
     {
         spawnPosition = position;
@@ -43,6 +46,17 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
+
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+
+            if (escapeSound == null)
+            {
+                Debug.LogError("Escape sound clip is not assigned!");
+            }
 
             if (mainMenu == null)
             {
@@ -66,11 +80,9 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("GameManager Update is running");
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("esc 키 입력"); // 로드 완료 로그
             if (mainMenu != null)
             {
                 mainMenu.ToggleMenu(); // 메인 메뉴의 토글 기능을 호출
@@ -79,7 +91,10 @@ public class GameManager : MonoBehaviour
             {
                 Debug.LogWarning("mainMenu가 null입니다.");
             }
-
+            if (escapeSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(escapeSound); // escapeSound 클립을 한 번만 재생
+            }
         }
     }
 

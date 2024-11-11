@@ -61,11 +61,11 @@ public class MainMenu : MonoBehaviour
         // 로드가 완료될 때까지 대기
         while (!asyncLoad.isDone)
         {
-            Debug.Log("로딩 중..."); // 로딩 중 로그
+            Debug.Log("로딩 중..."); 
             yield return null; // 다음 프레임까지 대기
         }
 
-        Debug.Log("씬 로드 완료"); // 로드 완료 로그
+        Debug.Log("씬 로드 완료"); 
     }
 
     public void OnClickQuit()
@@ -87,13 +87,11 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+
     public void ToggleMenu()
     {
-        isMenuActive = !isMenuActive;
-        mainMenuCanvas.SetActive(isMenuActive);
-        Time.timeScale = isMenuActive ? 0f : 1f;
-        Cursor.visible = isMenuActive;
-        Cursor.lockState = isMenuActive ? CursorLockMode.None : CursorLockMode.Locked;
+        isMenuActive = true;
+        mainMenuCanvas.SetActive(true);
+        Time.timeScale = 0; // 게임 일시 정지
     }
-
 }
