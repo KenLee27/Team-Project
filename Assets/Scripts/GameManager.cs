@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     public Text soulText;
     public Text loadingTip; // 로딩 팁 텍스트
 
+    public MainMenu mainMenu; // MainMenu 스크립트를 참조
+
     public GameObject hpSliderPrefab;     // HP 슬라이더 프리팹
     public GameObject stSliderPrefab;     // ST 슬라이더 프리팹
     public GameObject mnSliderPrefab;
@@ -36,21 +38,51 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);  // 게임 오브젝트가 씬 로드 시 파괴되지 않도록 설정
-
+            DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
+
+            if (mainMenu == null)
+            {
+                mainMenu = FindObjectOfType<MainMenu>();
+                if (mainMenu == null)
+                {
+                    Debug.LogError("MainMenu is not found in the scene.");
+                }
+                else
+                {
+                    Debug.Log("MainMenu found and assigned.");
+                }
+            }
         }
         else
         {
-            Destroy(gameObject);  // 이미 인스턴스가 존재하면 새로 생성된 객체를 파괴
+            Destroy(gameObject);
+            Debug.Log("Duplicate GameManager destroyed.");
         }
-
-        InitializeMonsters();
     }
+
+    void Update()
+    {
+        Debug.Log("GameManager Update is running");
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("esc 키 입력"); // 로드 완료 로그
+            if (mainMenu != null)
+            {
+                mainMenu.ToggleMenu(); // 메인 메뉴의 토글 기능을 호출
+            }
+            else
+            {
+                Debug.LogWarning("mainMenu가 null입니다.");
+            }
+
+        }
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         string displayName = GetDisplayNameForScene(scene.name);
@@ -168,8 +200,25 @@ public class GameManager : MonoBehaviour
         if (soulText == null) Debug.LogWarning("SOULprogress not found!");
     }
 
+    /*private void DisplayMapName(string displayName)
+    {
+        GameObject mapNameInstance = Instantiate(mapNameTextPrefab, FindObjectOfType<Canvas>().transform);
+        Text mapNameText = mapNameInstance.GetComponent<Text>();
+        mapNameText.text = displayName;
+
+        // 텍스트가 서서히 나타났다 사라지는 코루틴 시작
+        StartCoroutine(FadeInAndOut(mapNameInstance.GetComponent<CanvasGroup>()));
+    }*/
+
     private void DisplayMapName(string displayName)
     {
+        StartCoroutine(ShowMapNameAfterDelay(displayName, 2f)); // 2초 지연 후 텍스트 표시
+    }
+
+    private IEnumerator ShowMapNameAfterDelay(string displayName, float delay)
+    {
+        yield return new WaitForSeconds(delay); // 지연 시간만큼 대기
+
         GameObject mapNameInstance = Instantiate(mapNameTextPrefab, FindObjectOfType<Canvas>().transform);
         Text mapNameText = mapNameInstance.GetComponent<Text>();
         mapNameText.text = displayName;
@@ -312,7 +361,6 @@ public class GameManager : MonoBehaviour
             Destroy(canvasGroup.gameObject); // CanvasGroup 삭제
         }
     }
-
 
     private IEnumerator FadeInAndLoadScene(CanvasGroup canvasGroup)
     {

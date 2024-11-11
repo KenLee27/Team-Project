@@ -16,10 +16,17 @@ public class EquipmentManager : MonoBehaviour
     public AudioSource audioSource; // AudioSource 컴포넌트
     public AudioClip menuCloseSound; // 메뉴 닫기 효과음
 
+    public GameObject mainMenuCanvas; // 메인 메뉴 캔버스
+
+
     void Start()
     {
-        EquipmentMenu.SetActive(false); // 시작 시 메뉴를 비활성화
-        Time.timeScale = 1; // 게임이 정상 속도로 실행되도록 설정
+
+        if (mainMenuCanvas != null && !mainMenuCanvas.activeSelf)
+        {
+            EquipmentMenu.SetActive(false); // 시작 시 메뉴를 비활성화
+            Time.timeScale = 1; // 게임이 정상 속도로 실행되도록 설정
+
 
         Sprite axeSprite = Resources.Load<Sprite>("Assets/Images/Axe");
         Sprite daggerSprite = Resources.Load<Sprite>("Assets/Images/Dagger");
@@ -32,6 +39,12 @@ public class EquipmentManager : MonoBehaviour
         itemDatabase.Add("Falchion", new ItemData("칼리오스 병사의 곡검", "칼리오스 병사의 곡검 무기 설명 추가", falchionSprite));
 
         LoadItems(); // 아이템 로드
+        }
+
+        else
+        {
+            Time.timeScale = 0; // mainMenuCanvas가 활성화되어 있을 때 게임 일시 정지
+        }
 
     }
 
@@ -50,7 +63,7 @@ public class EquipmentManager : MonoBehaviour
 
         if (menuActivated)
         {
-            Time.timeScale = 0; // 메뉴가 활성화되면 게임 일시 정지
+           Time.timeScale = 0; // 메뉴가 활성화되면 게임 일시 정지
         }
         else
         {
