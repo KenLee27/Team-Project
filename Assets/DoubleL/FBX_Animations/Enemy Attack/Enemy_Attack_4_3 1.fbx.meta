@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b099463a06539484ab0be445378eb171
+guid: a6f339b1c41581643b608e78c9781cb5
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: OneHand_Up_Attack_B_1_OffBeat
-      takeName: OneHand_Up_Attack_B_1_OffBeat
-      internalID: -1011482650575030886
+      name: Enemy_Attack_4_3
+      takeName: Enemy_Attack_4_3
+      internalID: 9192997076732976297
       firstFrame: 0
-      lastFrame: 105
+      lastFrame: 50
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -57,18 +57,18 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.41310272
+      - time: 0.2678197
         functionName: TriggerAttack
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: fddf38b4d5223314fb7773248cb19533,
+        objectReferenceParameter: {fileID: 11500000, guid: b589db094f8c01e4b97ead3fcf3fa14e,
           type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.480608
+      - time: 0.45712784
         functionName: EndAttack
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: fddf38b4d5223314fb7773248cb19533,
+        objectReferenceParameter: {fileID: 11500000, guid: b589db094f8c01e4b97ead3fcf3fa14e,
           type: 3}
         floatParameter: 0
         intParameter: 0

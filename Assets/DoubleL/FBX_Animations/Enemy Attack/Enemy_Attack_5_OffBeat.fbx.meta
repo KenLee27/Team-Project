@@ -46,17 +46,49 @@ ModelImporter:
       hasAdditiveReferencePose: 0
       loopTime: 0
       loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 1
       keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
+      keepOriginalPositionXZ: 1
       heightFromFeet: 0
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.22379455
+        functionName: TriggerAttack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: b589db094f8c01e4b97ead3fcf3fa14e,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.32945493
+        functionName: EndAttack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: b589db094f8c01e4b97ead3fcf3fa14e,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.50408804
+        functionName: TriggerAttack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: b589db094f8c01e4b97ead3fcf3fa14e,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.57012576
+        functionName: EndAttack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: b589db094f8c01e4b97ead3fcf3fa14e,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}

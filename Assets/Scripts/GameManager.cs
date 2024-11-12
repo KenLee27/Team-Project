@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public GameObject crabHPSliderPrefab;     // HP 슬라이더 프리팹
     public GameObject aBossHPSliderPrefab;
     public GameObject bBossHPSliderPrefab;
+    public GameObject cBossHPSliderPrefab;
 
     public GameObject gameOverTextPrefab;
     public GameObject mapNameTextPrefab;
@@ -203,7 +204,9 @@ public class GameManager : MonoBehaviour
         BowEnemyController[] bow_monsters = FindObjectsOfType<BowEnemyController>();
         BossAController[] aBoss = FindObjectsOfType<BossAController>();
         BossBController[] bBoss = FindObjectsOfType<BossBController>();
+        BossCController[] cBoss = FindObjectsOfType<BossCController>();
         EnemySuperAIController[] aiEnemy = FindObjectsOfType<EnemySuperAIController>();
+        EnemyMonsterController[] monEnemy = FindObjectsOfType<EnemyMonsterController>();
 
         foreach (var monster in monsters)
         {
@@ -217,6 +220,10 @@ public class GameManager : MonoBehaviour
         {
             elite.InitializeHPBar(hpSliderPrefab); // 각 몬스터에 슬라이더 초기
         }
+        foreach (var mon in monEnemy)
+        {
+            mon.InitializeHPBar(hpSliderPrefab); // 각 몬스터에 슬라이더 초기
+        }
         foreach (var king in crabKing)
         {
             king.InitializeHPBar(crabHPSliderPrefab); // 각 보스에 슬라이더 초기화
@@ -228,6 +235,10 @@ public class GameManager : MonoBehaviour
         foreach (var a in bBoss)
         {
             a.InitializeHPBar(bBossHPSliderPrefab);
+        }
+        foreach (var a in cBoss)
+        {
+            a.InitializeHPBar(cBossHPSliderPrefab);
         }
         foreach (var a in aiEnemy)
         {
